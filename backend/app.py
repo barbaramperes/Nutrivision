@@ -386,6 +386,14 @@ def detect_ingredients_from_image(image_base64):
     # Em caso de erro, devolvemos lista vazia para não quebrar o fluxo
     return []
 
+
+def is_food_image(image_base64):
+    """
+    Retorna True se houver pelo menos um item alimentar detectado pela AI.
+    """
+    detected_items = detect_ingredients_from_image(image_base64)
+    return bool(detected_items)
+
 # ================================
 # 📊 MODELS
 # ================================
@@ -1803,6 +1811,9 @@ def analyze_meal_revolutionary():
         image.save(buffer, format='JPEG')
         image_base64 = base64.b64encode(buffer.getvalue()).decode()
 
+        if not is_food_image(image_base64):
+            return jsonify({'error': 'The image you inserted is not food related.'}), 400
+
         user_context = {
             'age': user.age,
             'gender': user.gender,
@@ -2003,6 +2014,11 @@ def generate_recipe_endpoint():
             buf = io.BytesIO()
             img.save(buf, format='JPEG')
             img_base64 = base64.b64encode(buf.getvalue()).decode()
+            image_ingredients = detect_ingredients_from_image(img_base64)
+
+            if not is_food_image(img_base64):
+                return jsonify({'error': 'The image you inserted is not food related.'}), 400
+
             image_ingredients = detect_ingredients_from_image(img_base64)
 
         # Agora lemos os parâmetros restantes

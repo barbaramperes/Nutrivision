@@ -31,8 +31,6 @@ import {
   UsersIcon,     // substitui Users
   Flame,         // substitui Fire
   DrumstickIcon, // substitui Drumstick
-  Tag,
-  Target,
 
 } from 'lucide-react';
 
@@ -46,7 +44,6 @@ const NutriVisionApp = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
 
   // Auth Forms
   const [loginData, setLoginData] = useState({ email: '', password: '' });
@@ -240,7 +237,7 @@ const NutriVisionApp = () => {
           await loadMealSuggestions();
         } catch (_) { }
       }, 300);
-      showSuccess(`Welcome, ${res.user.username}!`);
+      showSuccess(`🎉 Welcome, ${res.user.username}!`);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -301,6 +298,9 @@ const NutriVisionApp = () => {
           case 'meal-history':
             loadMealHistory();
             break;
+          case 'user-profile':
+            loadUserProfile();
+            break;
           case 'recipe-book':
             loadUserRecipes();
             break;
@@ -342,14 +342,6 @@ const NutriVisionApp = () => {
       localStorage.setItem('tutorialShown', 'true');
     }
   }, [user]);
-
-  useEffect(() => {
-    if (darkMode) {
-      document.body.classList.add('dark');
-    } else {
-      document.body.classList.remove('dark');
-    }
-  }, [darkMode]);
 
   // ─────────── DATA LOADER FUNCTIONS ───────────
 
@@ -926,19 +918,20 @@ const NutriVisionApp = () => {
   // ─────────── VIEW RENDERERS ───────────
 
   const renderLogin = () => (
-    <div className="min-h-screen bg-gradient-to-br from-light-accent via-light-accent2 to-light-accent dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-orange-500 via-yellow-500 to-orange-600 flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex items-center space-x-3 justify-center">
             <div className="relative">
-              <div className="w-12 h-12 bg-gradient-to-br from-light-accent via-light-accent2 to-light-accent dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent rounded-2xl flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 bg-gradient-to-br from-orange-500 via-yellow-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
                 <Eye className="w-7 h-7 text-white" />
               </div>
               <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-white animate-pulse" />
             </div>
             <div>
               <h1 className="text-2xl font-black text-gray-900">
-                Nutri<span className="text-orange-500">Snap</span>
+                Nutri<span className="text-orange-500">Vision</span>
+                <span className="text-yellow-500 text-sm ml-1">PRO</span>
               </h1>
               <p className="text-xs text-gray-600 font-medium">Smart Food Coach</p>
             </div>
@@ -978,7 +971,7 @@ const NutriVisionApp = () => {
           <button
             onClick={login}
             disabled={loading}
-            className="w-full bg-gradient-to-r from-light-accent via-light-accent2 to-light-accent dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent text-white py-3 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all disabled:opacity-50"
+            className="w-full bg-gradient-to-r from-orange-500 via-yellow-500 to-orange-600 text-white py-3 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all disabled:opacity-50"
           >
             {loading ? <Loader className="w-5 h-5 animate-spin mx-auto" /> : 'Login'}
           </button>
@@ -997,19 +990,20 @@ const NutriVisionApp = () => {
   );
 
   const renderRegister = () => (
-    <div className="min-h-screen bg-gradient-to-br from-light-accent via-light-accent2 to-light-accent dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-orange-500 via-yellow-500 to-orange-600 flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md max-h-screen overflow-y-auto">
         <div className="text-center mb-6">
           <div className="flex items-center space-x-3 justify-center">
             <div className="relative">
-              <div className="w-12 h-12 bg-gradient-to-br from-light-accent via-light-accent2 to-light-accent dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent rounded-2xl flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 bg-gradient-to-br from-orange-500 via-yellow-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
                 <Eye className="w-7 h-7 text-white" />
               </div>
               <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-white animate-pulse" />
             </div>
             <div>
               <h1 className="text-2xl font-black text-gray-900">
-                Nutri<span className="text-orange-500">Snap</span>
+                Nutri<span className="text-orange-500">Vision</span>
+                <span className="text-yellow-500 text-sm ml-1">PRO</span>
               </h1>
             </div>
           </div>
@@ -1149,8 +1143,8 @@ const NutriVisionApp = () => {
                   className="w-4 h-4 text-orange-600 border-orange-300 rounded focus:ring-orange-500"
                 />
                 <div>
-                  <span className="text-sm font-medium text-gray-900 flex items-center">
-                    <Moon className="w-4 h-4 mr-1" />Track Menstrual Cycle
+                  <span className="text-sm font-medium text-gray-900">
+                    Track Menstrual Cycle 🌙
                   </span>
                   <p className="text-xs text-gray-600">
                     Enable personalized nutrition recommendations based on your cycle
@@ -1163,7 +1157,7 @@ const NutriVisionApp = () => {
           <button
             onClick={register}
             disabled={loading}
-            className="w-full bg-gradient-to-r from-light-accent via-light-accent2 to-light-accent2 dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent2 text-white py-3 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all disabled:opacity-50"
+            className="w-full bg-gradient-to-r from-orange-500 via-yellow-500 to-yellow-600 text-white py-3 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all disabled:opacity-50"
           >
             {loading ? <Loader className="w-5 h-5 animate-spin mx-auto" /> : 'Get Started'}
           </button>
@@ -1182,20 +1176,21 @@ const NutriVisionApp = () => {
   );
 
   const renderDashboard = () => (
-    <div className="min-h-screen bg-gradient-to-br from-light-bgStart to-light-bgEnd dark:from-dark-bgStart dark:to-dark-bgEnd p-4 pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-orange-50 p-4 pb-20">
       {/* HEADER */}
       <div className="bg-white rounded-3xl shadow-lg p-6 mb-6 border border-gray-100">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
             <div className="relative">
-              <div className="w-12 h-12 bg-gradient-to-br from-light-accent via-light-accent2 to-light-accent dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent rounded-2xl flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 bg-gradient-to-br from-orange-500 via-yellow-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
                 <Eye className="w-7 h-7 text-white" />
               </div>
               <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-white animate-pulse" />
             </div>
             <div>
               <h1 className="text-2xl font-black text-gray-900">
-                Nutri<span className="text-orange-500">Snap</span>
+                Nutri<span className="text-orange-500">Vision</span>
+                <span className="text-yellow-500 text-sm ml-1">PRO</span>
               </h1>
               <p className="text-xs text-gray-600 font-medium">Smart Food Coach</p>
             </div>
@@ -1208,7 +1203,7 @@ const NutriVisionApp = () => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-light-accent via-light-accent2 to-light-accent dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent p-4 rounded-2xl text-white">
+        <div className="bg-gradient-to-r from-orange-500 via-yellow-500 to-orange-600 p-4 rounded-2xl text-white">
           <div className="flex items-center">
             <Lightbulb className="w-6 h-6 mr-2 text-yellow-200" />
             <div>
@@ -1223,12 +1218,12 @@ const NutriVisionApp = () => {
 
       {/* TODAY’S SUMMARY CARDS */}
       <div className="grid grid-cols-2 gap-4 mb-6 px-4">
-        <div className="bg-gradient-to-br from-light-accent to-light-accent2 dark:from-dark-accent dark:to-dark-accent2 p-4 rounded-2xl text-white shadow-lg">
+        <div className="bg-gradient-to-br from-orange-500 to-yellow-600 p-4 rounded-2xl text-white shadow-lg">
           <Dna className="w-8 h-8 mb-2" />
           <div className="text-2xl font-bold">{user?.total_xp || 0}</div>
           <div className="text-orange-100 text-sm">Total XP</div>
         </div>
-        <div className="bg-gradient-to-br from-light-accent2 to-light-accent dark:from-dark-accent2 dark:to-dark-accent p-4 rounded-2xl text-white shadow-lg">
+        <div className="bg-gradient-to-br from-yellow-500 to-orange-600 p-4 rounded-2xl text-white shadow-lg">
           <Activity className="w-8 h-8 mb-2" />
           <div className="text-2xl font-bold">{user?.streak_days || 0}</div>
           <div className="text-yellow-100 text-sm">Streak Days</div>
@@ -1258,7 +1253,7 @@ const NutriVisionApp = () => {
         {/* Removed mood and social context selectors */}
 
         <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl p-8 text-center border-2 border-dashed border-gray-300">
-          <div className="w-20 h-20 bg-gradient-to-br from-light-accent via-light-accent2 to-light-accent dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+          <div className="w-20 h-20 bg-gradient-to-br from-orange-500 via-yellow-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
             <Camera className="w-10 h-10 text-white" />
           </div>
           <h3 className="text-xl font-bold text-gray-900 mb-2">AI-Powered Analysis</h3>
@@ -1272,7 +1267,7 @@ const NutriVisionApp = () => {
             </button>
             <button
               onClick={handleCameraCapture}
-              className="bg-gradient-to-r from-light-accent via-light-accent2 to-light-accent dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg hover:shadow-orange-500/30 transform hover:scale-105 transition-all"
+              className="bg-gradient-to-r from-orange-500 via-yellow-500 to-orange-600 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg hover:shadow-orange-500/30 transform hover:scale-105 transition-all"
             >
               <Camera className="w-4 h-4 mr-1 inline" /> Open Camera
             </button>
@@ -1291,13 +1286,13 @@ const NutriVisionApp = () => {
   );
 
   const renderFoodAnalysis = () => (
-    <div className="min-h-screen bg-gradient-to-br from-light-bgStart to-light-bgEnd dark:from-dark-bgStart dark:to-dark-bgEnd p-4 pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-orange-50 p-4 pb-20">
       <div className="flex items-center justify-between mb-6">
         <button
           onClick={() => setCurrentView('dashboard')}
           className="text-gray-800 text-2xl font-bold"
         >
-          <ArrowLeft className="w-6 h-6" />
+          ←
         </button>
         <h1 className="text-lg font-bold text-gray-900"> Food Analysis</h1>
         <div
@@ -1335,16 +1330,13 @@ const NutriVisionApp = () => {
               {!isEstimating && analysisResult && (
                 <>
                   <div className="absolute top-4 left-4 bg-red-600 bg-opacity-95 backdrop-blur-sm px-3 py-2 rounded-xl text-white font-bold text-sm shadow-lg">
-                    <AlertTriangle className="inline w-4 h-4 mr-1" />
-                    {analysisResult.nutrition?.calories || 0} kcal
+                    ⚠️ {analysisResult.nutrition?.calories || 0} kcal
                   </div>
                   <div className="absolute top-4 right-4 bg-green-600 bg-opacity-95 backdrop-blur-sm px-3 py-2 rounded-xl text-white font-bold text-sm shadow-lg">
-                    <CheckCircle className="inline w-4 h-4 mr-1" />
-                    {analysisResult.nutrition?.protein || 0}g protein
+                    ✓ {analysisResult.nutrition?.protein || 0}g protein
                   </div>
                   <div className="absolute bottom-4 left-4 bg-orange-600 bg-opacity-95 backdrop-blur-sm px-3 py-2 rounded-xl text-white font-bold text-sm shadow-lg">
-                    <Target className="inline w-4 h-4 mr-1" />
-                    Score: {analysisResult.health_assessment?.score || 0}/10
+                    🎯 Score: {analysisResult.health_assessment?.score || 0}/10
                   </div>
                 </>
               )}
@@ -1372,7 +1364,7 @@ const NutriVisionApp = () => {
                 </div>
 
                 {analysisResult.revolutionary_insights && (
-                  <div className="bg-gradient-to-r from-light-accent via-light-accent2 to-light-accent dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent p-6 rounded-2xl text-white mb-6 shadow-lg">
+                  <div className="bg-gradient-to-r from-orange-500 via-yellow-500 to-orange-600 p-6 rounded-2xl text-white mb-6 shadow-lg">
                     <h3 className="font-bold text-xl mb-4 flex items-center">
                       <Sparkles className="w-6 h-6 mr-2" />
                       Smart Insights
@@ -1411,7 +1403,7 @@ const NutriVisionApp = () => {
                     </div>
                     <div className="text-blue-200 text-xs">Protein</div>
                   </div>
-                  <div className="bg-gradient-to-br from-light-accent2 to-light-accent dark:from-dark-accent2 dark:to-dark-accent p-3 rounded-xl text-white text-center shadow-md">
+                  <div className="bg-gradient-to-br from-yellow-500 to-orange-600 p-3 rounded-xl text-white text-center shadow-md">
                     <div className="text-lg font-bold">
                       {analysisResult.nutrition?.carbs || 0}g
                     </div>
@@ -1425,16 +1417,17 @@ const NutriVisionApp = () => {
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-r from-light-accent to-light-accent2 dark:from-dark-accent dark:to-dark-accent2 p-5 rounded-2xl text-white mb-6 shadow-lg">
+                <div className="bg-gradient-to-r from-orange-500 to-yellow-600 p-5 rounded-2xl text-white mb-6 shadow-lg">
                   <h3 className="font-bold text-lg mb-3 flex items-center">
-                    <Brain className="w-6 h-6 mr-2" />AI Feedback
+                    <Brain className="w-6 h-6 mr-2" />
+                    🧠 AI Feedback
                   </h3>
                   <p className="text-orange-100 leading-relaxed">{analysisResult.ai_feedback}</p>
                 </div>
 
                 <div className="bg-gradient-to-r from-green-500 to-green-600 p-5 rounded-2xl text-white shadow-lg">
                   <h3 className="font-bold text-lg mb-3 flex items-center">
-                    <Lightbulb className="w-6 h-6 mr-2" />Suggestions
+                    <Lightbulb className="w-6 h-6 mr-2" />🎯 Suggestions
                   </h3>
                   <div className="space-y-2">
                     {analysisResult.suggestions?.map((suggestion, idx) => (
@@ -1453,8 +1446,415 @@ const NutriVisionApp = () => {
     </div>
   );
 
+  // const renderRecipeBook = () => (
+  //   <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 p-4 pb-20">
+  //     <div className="flex items-center justify-between mb-6">
+  //       <button
+  //         onClick={() => setCurrentView('dashboard')}
+  //         className="text-gray-800 text-2xl font-bold"
+  //       >
+  //         ←
+  //       </button>
+  //       <h1 className="text-lg font-bold text-gray-900">Recipe Book</h1>
+  //       <div className="w-6" />
+  //     </div>
 
+  //     {/* CREATE NEW RECIPE */}
+  //     <div className="bg-white rounded-3xl shadow-lg p-6 mb-6 border border-gray-100">
+  //       <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+  //         <Utensils className="w-6 h-6 mr-2 text-orange-500" />
+  //         Create Personalized Recipe
+  //       </h2>
 
+  //       <div className="space-y-4">
+  //         <div>
+  //           <label className="block text-sm font-medium text-gray-700 mb-2">
+  //             Available Ingredients
+  //           </label>
+  //           <textarea
+  //             value={recipeIngredients}
+  //             onChange={(e) => setRecipeIngredients(e.target.value)}
+  //             placeholder="Enter ingredients separated by commas (e.g., chicken, broccoli, quinoa, garlic)"
+  //             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+  //             rows="3"
+  //           />
+  //           <p className="text-xs text-gray-500 mt-1">
+  //             🌍 Supports English, Portuguese & Spanish
+  //           </p>
+  //         </div>
+
+  //         <div className="space-y-2">
+  //           <label className="block text-sm font-medium text-gray-700">
+  //             Or Upload a Photo of Your Fridge/Shelf
+  //           </label>
+  //           <div className="flex items-center space-x-3">
+  //             <button
+  //               onClick={() => {
+  //                 if (
+  //                   navigator.mediaDevices &&
+  //                   navigator.mediaDevices.getUserMedia
+  //                 ) {
+  //                   navigator.mediaDevices
+  //                     .getUserMedia({ video: { facingMode: 'environment' } })
+  //                     .then((stream) => {
+  //                       const video = document.createElement('video');
+  //                       video.srcObject = stream;
+  //                       video.play();
+  //                       video.addEventListener('loadeddata', () => {
+  //                         const canvas = document.createElement('canvas');
+  //                         canvas.width = video.videoWidth;
+  //                         canvas.height = video.videoHeight;
+  //                         const ctx = canvas.getContext('2d');
+  //                         ctx.drawImage(video, 0, 0);
+  //                         canvas.toBlob((blob) => {
+  //                           const file = new File(
+  //                             [blob],
+  //                             'fridge-capture.jpg',
+  //                             { type: 'image/jpeg' }
+  //                           );
+  //                           setRecipeImageFile(file);
+  //                           const reader = new FileReader();
+  //                           reader.onload = () => {
+  //                             setRecipeImagePreview(reader.result);
+  //                           };
+  //                           reader.readAsDataURL(file);
+  //                         });
+  //                         stream.getTracks().forEach((track) => track.stop());
+  //                       });
+  //                     })
+  //                     .catch(() => {
+  //                       recipeFileInputRef.current?.click();
+  //                     });
+  //                 } else {
+  //                   recipeFileInputRef.current?.click();
+  //                 }
+  //               }}
+  //               className="bg-gradient-to-r from-gray-800 to-gray-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:shadow-lg transition-all"
+  //             >
+  //               📸 Capture Photo
+  //             </button>
+
+  //             <button
+  //               onClick={() => recipeFileInputRef.current?.click()}
+  //               className="bg-gradient-to-r from-orange-500 to-yellow-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:shadow-lg transition-all"
+  //             >
+  //               🖼️ Choose Photo
+  //             </button>
+  //           </div>
+  //           {recipeImagePreview && (
+  //             <div className="relative w-32 h-32 rounded-2xl overflow-hidden border border-gray-200">
+  //               <img
+  //                 src={recipeImagePreview}
+  //                 alt="Fridge preview"
+  //                 className="w-full h-full object-cover"
+  //               />
+  //               <button
+  //                 onClick={() => {
+  //                   setRecipeImageFile(null);
+  //                   setRecipeImagePreview(null);
+  //                 }}
+  //                 className="absolute top-1 right-1 bg-white rounded-full p-1 text-red-600 hover:text-red-800"
+  //               >
+  //                 <Trash2 className="w-4 h-4" />
+  //               </button>
+  //             </div>
+  //           )}
+  //           <input
+  //             ref={recipeFileInputRef}
+  //             type="file"
+  //             accept="image/*"
+  //             onChange={(e) => {
+  //               const file = e.target.files[0];
+  //               if (!file) return;
+  //               setRecipeImageFile(file);
+  //               const reader = new FileReader();
+  //               reader.onload = () => setRecipeImagePreview(reader.result);
+  //               reader.readAsDataURL(file);
+  //             }}
+  //             className="hidden"
+  //           />
+  //         </div>
+
+  //         <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-4 rounded-xl border border-orange-200">
+  //           <h3 className="font-bold text-gray-900 mb-3 flex items-center">
+  //             <Sparkles className="w-5 h-5 mr-2 text-orange-600" />
+  //             Personalization Options
+  //           </h3>
+
+  //           <div className="grid grid-cols-2 gap-3">
+  //             <div>
+  //               <label className="block text-xs font-medium text-gray-700 mb-1">
+  //                 Meal Type
+  //               </label>
+  //               <select
+  //                 value={recipePersonalization.meal_type}
+  //                 onChange={(e) =>
+  //                   setRecipePersonalization({
+  //                     ...recipePersonalization,
+  //                     meal_type: e.target.value,
+  //                   })
+  //                 }
+  //                 className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+  //               >
+  //                 <option value="any">🍽️ Any Time</option>
+  //                 <option value="breakfast">🌅 Breakfast</option>
+  //                 <option value="lunch">🌞 Lunch</option>
+  //                 <option value="dinner">🌙 Dinner</option>
+  //                 <option value="snack">🥨 Snack</option>
+  //               </select>
+  //             </div>
+
+  //             <div>
+  //               <label className="block text-xs font-medium text-gray-700 mb-1">
+  //                 Temperature
+  //               </label>
+  //               <select
+  //                 value={recipePersonalization.temperature}
+  //                 onChange={(e) =>
+  //                   setRecipePersonalization({
+  //                     ...recipePersonalization,
+  //                     temperature: e.target.value,
+  //                   })
+  //                 }
+  //                 className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+  //               >
+  //                 <option value="any">🌡️ Any</option>
+  //                 <option value="hot">🔥 Hot & Cozy</option>
+  //                 <option value="cold">🧊 Cold & Fresh</option>
+  //                 <option value="fresh">🥗 Fresh & Raw</option>
+  //               </select>
+  //             </div>
+
+  //             <div>
+  //               <label className="block text-xs font-medium text-gray-700 mb-1">
+  //                 Cooking Time
+  //               </label>
+  //               <select
+  //                 value={recipePersonalization.cooking_time}
+  //                 onChange={(e) =>
+  //                   setRecipePersonalization({
+  //                     ...recipePersonalization,
+  //                     cooking_time: e.target.value,
+  //                   })
+  //                 }
+  //                 className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+  //               >
+  //                 <option value="quick">⚡ Quick (&lt;20 min)</option>
+  //                 <option value="medium">⏱️ Medium (20–45 min)</option>
+  //                 <option value="elaborate">🎨 Elaborate (&gt;45 min)</option>
+  //               </select>
+  //             </div>
+
+  //             <div>
+  //               <label className="block text-xs font-medium text-gray-700 mb-1">
+  //                 Cuisine Style
+  //               </label>
+  //               <select
+  //                 value={recipePersonalization.cuisine_style}
+  //                 onChange={(e) =>
+  //                   setRecipePersonalization({
+  //                     ...recipePersonalization,
+  //                     cuisine_style: e.target.value,
+  //                   })
+  //                 }
+  //                 className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+  //               >
+  //                 <option value="any">🌍 Any Style</option>
+  //                 <option value="mediterranean">🫒 Mediterranean</option>
+  //                 <option value="asian">🥢 Asian</option>
+  //                 <option value="fusion">🌟 Fusion</option>
+  //                 <option value="traditional">🏠 Traditional</option>
+  //                 <option value="modern">✨ Modern</option>
+  //               </select>
+  //             </div>
+  //           </div>
+
+  //           <div className="mt-3">
+  //             <label className="block text-xs font-medium text-gray-700 mb-1">
+  //               Dietary Preference
+  //             </label>
+  //             <select
+  //               value={recipePersonalization.dietary_pref}
+  //               onChange={(e) =>
+  //                 setRecipePersonalization({
+  //                   ...recipePersonalization,
+  //                   dietary_pref: e.target.value,
+  //                 })
+  //               }
+  //               className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+  //             >
+  //               <option value="none">🍽️ No Restriction</option>
+  //               <option value="vegetarian">🥬 Vegetarian</option>
+  //               <option value="vegan">🌱 Vegan</option>
+  //               <option value="keto">🥑 Keto</option>
+  //               <option value="low-carb">🥩 Low Carb</option>
+  //               <option value="high-protein">💪 High Protein</option>
+  //             </select>
+  //           </div>
+  //         </div>
+
+  //         <button
+  //           onClick={generateRecipe}
+  //           disabled={loading}
+  //           className="w-full bg-gradient-to-r from-orange-500 to-yellow-600 text-white py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all disabled:opacity-50"
+  //         >
+  //           {loading ? <Loader className="w-5 h-5 animate-spin mx-auto" /> : 'Generate Smart Recipe'}
+  //         </button>
+  //       </div>
+  //     </div>
+
+  //     {/* RECIPE OPTIONS (TABS) */}
+  //     {recipeOptions.length > 0 && (
+  //       <div className="bg-white rounded-3xl shadow-lg mb-6 border border-gray-100">
+  //         <div className="p-4 border-b border-gray-200 flex space-x-2 overflow-x-auto">
+  //           {recipeOptions.map((_, idx) => (
+  //             <button
+  //               key={idx}
+  //               onClick={() => setSelectedOptionIndex(idx)}
+  //               className={`px-4 py-2 rounded-t-2xl text-sm font-medium whitespace-nowrap ${selectedOptionIndex === idx
+  //                 ? 'bg-gradient-to-r from-orange-500 to-yellow-500 text-white'
+  //                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+  //                 }`}
+  //             >
+  //               Option {idx + 1}
+  //             </button>
+  //           ))}
+  //         </div>
+
+  //         <div className="p-6">
+  //           {recipeOptions[selectedOptionIndex] && (
+  //             <div className="space-y-4 bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-2xl">
+  //               <h3 className="text-2xl font-bold text-yellow-900">
+  //                 {recipeOptions[selectedOptionIndex].title}
+  //               </h3>
+  //               <p className="text-yellow-700">
+  //                 {recipeOptions[selectedOptionIndex].description}
+  //               </p>
+  //               <div className="flex items-center space-x-4 mt-2 text-sm text-yellow-600">
+  //                 <span>
+  //                   ⏱️ {recipeOptions[selectedOptionIndex].prep_time +
+  //                     recipeOptions[selectedOptionIndex].cook_time}{' '}
+  //                   min
+  //                 </span>
+  //                 <span>
+  //                   🍽️ {recipeOptions[selectedOptionIndex].servings} servings
+  //                 </span>
+  //                 <span>
+  //                   🔥 {recipeOptions[selectedOptionIndex].nutrition.calories} kcal
+  //                 </span>
+  //                 <span>
+  //                   💪 {recipeOptions[selectedOptionIndex].nutrition.protein}g protein
+  //                 </span>
+  //               </div>
+
+  //               <div className="flex flex-wrap gap-2 mt-3">
+  //                 {recipeOptions[selectedOptionIndex].tags?.map((tag, idx2) => (
+  //                   <span
+  //                     key={idx2}
+  //                     className="px-2 py-1 bg-yellow-200 text-yellow-800 rounded-full text-xs font-medium"
+  //                   >
+  //                     #{tag}
+  //                   </span>
+  //                 ))}
+  //               </div>
+
+  //               {recipeOptions[selectedOptionIndex].image_url && (
+  //                 <div className="mt-4">
+  //                   <img
+  //                     src={recipeOptions[selectedOptionIndex].image_url}
+  //                     alt={recipeOptions[selectedOptionIndex].title}
+  //                     className="w-full h-48 object-cover rounded-2xl border border-gray-200 shadow-md"
+  //                   />
+  //                 </div>
+  //               )}
+
+  //               {recipeOptions[selectedOptionIndex].chef_tips &&
+  //                 recipeOptions[selectedOptionIndex].chef_tips.length > 0 && (
+  //                   <div className="mt-4 p-3 bg-white bg-opacity-60 rounded-xl">
+  //                     <h4 className="font-bold text-yellow-900 text-sm mb-2">👨‍🍳 Chef’s Tips:</h4>
+  //                     <ul className="space-y-1">
+  //                       {recipeOptions[selectedOptionIndex].chef_tips.map((tip, idx3) => (
+  //                         <li
+  //                           key={idx3}
+  //                           className="text-xs text-yellow-700 flex items-start"
+  //                         >
+  //                           <span className="text-yellow-500 mr-1">•</span> {tip}
+  //                         </li>
+  //                       ))}
+  //                     </ul>
+  //                   </div>
+  //                 )}
+  //             </div>
+  //           )}
+  //         </div>
+  //       </div>
+  //     )}
+
+  //     {/* USER’S RECIPE COLLECTION */}
+  //     <div className="bg-white rounded-3xl shadow-lg p-6 mb-6 border border-gray-100">
+  //       <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+  //         <BookOpen className="w-6 h-6 mr-2 text-yellow-500" />
+  //         Your Recipe Collection
+  //       </h2>
+
+  //       {userRecipes.length > 0 ? (
+  //         <div className="space-y-4">
+  //           {userRecipes.map((recipe) => (
+  //             <div
+  //               key={recipe.id}
+  //               className="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-2xl border border-yellow-200 flex space-x-4 items-center"
+  //             >
+  //               {recipe.image_url ? (
+  //                 <img
+  //                   src={recipe.image_url}
+  //                   alt={recipe.title}
+  //                   className="w-24 h-24 object-cover rounded-xl shadow-md"
+  //                 />
+  //               ) : (
+  //                 <div className="w-24 h-24 bg-gray-200 rounded-xl flex items-center justify-center">
+  //                   <Utensils className="w-8 h-8 text-gray-400" />
+  //                 </div>
+  //               )}
+
+  //               <div className="flex-1">
+  //                 <h3 className="font-bold text-yellow-900">{recipe.title}</h3>
+  //                 <p className="text-yellow-700 text-sm">{recipe.description}</p>
+  //                 <div className="flex items-center space-x-4 mt-2 text-xs text-yellow-600">
+  //                   <span>⏱️ {recipe.prep_time + recipe.cook_time} min</span>
+  //                   <span>🍽️ {recipe.servings} servings</span>
+  //                   <span>🔥 {recipe.calories_per_serving} kcal</span>
+  //                   <span>💪 {recipe.protein_per_serving}g protein</span>
+  //                 </div>
+  //               </div>
+
+  //               <div className="flex flex-col space-y-2">
+  //                 <button
+  //                   onClick={() => getRecipeDetails(recipe.id)}
+  //                   className="bg-yellow-600 text-white px-3 py-2 rounded-xl text-sm font-bold hover:bg-yellow-700"
+  //                 >
+  //                   View
+  //                 </button>
+  //                 <button
+  //                   onClick={() => deleteRecipe(recipe.id)}
+  //                   className="bg-red-600 text-white px-3 py-2 rounded-xl text-sm font-bold hover:bg-red-700"
+  //                 >
+  //                   <Trash2 className="w-4 h-4" />
+  //                 </button>
+  //               </div>
+  //             </div>
+  //           ))}
+  //         </div>
+  //       ) : (
+  //         <div className="text-center py-8">
+  //           <div className="w-16 h-16 bg-yellow-200 rounded-full flex items-center justify-center mx-auto mb-4">
+  //             <BookOpen className="w-8 h-8 text-yellow-600" />
+  //           </div>
+  //           <p className="text-gray-600">No recipes yet. Generate your first smart recipe!</p>
+  //         </div>
+  //       )}
+  //     </div>
+  //   </div>
+  // );
 
   // ─────────── RECIPE BOOK ───────────
   const renderRecipeBook = () => (
@@ -1464,7 +1864,7 @@ const NutriVisionApp = () => {
           onClick={() => setCurrentView('dashboard')}
           className="text-gray-800 text-2xl font-bold hover:text-gray-600 transition-colors"
         >
-          <ArrowLeft className="w-6 h-6" />
+          ←
         </button>
         <h1 className="text-2xl font-extrabold text-gray-900">Recipe Book</h1>
         <div className="w-6" />
@@ -1549,7 +1949,7 @@ const NutriVisionApp = () => {
 
               <button
                 onClick={() => recipeFileInputRef.current?.click()}
-                className="bg-gradient-to-r from-light-accent to-light-accent2 dark:from-dark-accent dark:to-dark-accent2 text-white px-5 py-2 rounded-xl text-sm font-semibold shadow-md hover:shadow-lg transition-transform transform hover:-translate-y-0.5"
+                className="bg-gradient-to-r from-orange-500 to-yellow-600 text-white px-5 py-2 rounded-xl text-sm font-semibold shadow-md hover:shadow-lg transition-transform transform hover:-translate-y-0.5"
               >
                 <Image className="w-4 h-4 mr-1 inline" /> Choose Photo
               </button>
@@ -1613,11 +2013,11 @@ const NutriVisionApp = () => {
                   }
                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white"
                 >
-                  <option value="any">Any Time</option>
-                  <option value="breakfast">Breakfast</option>
-                  <option value="lunch">Lunch</option>
-                  <option value="dinner">Dinner</option>
-                  <option value="snack">Snack</option>
+                  <option value="any">🍽️ Any Time</option>
+                  <option value="breakfast">🌅 Breakfast</option>
+                  <option value="lunch">🌞 Lunch</option>
+                  <option value="dinner">🌙 Dinner</option>
+                  <option value="snack">🥨 Snack</option>
                 </select>
               </div>
 
@@ -1636,10 +2036,10 @@ const NutriVisionApp = () => {
                   }
                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white"
                 >
-                  <option value="any">Any</option>
-                  <option value="hot">Hot & Cozy</option>
-                  <option value="cold">Cold & Fresh</option>
-                  <option value="fresh">Fresh & Raw</option>
+                  <option value="any">🌡️ Any</option>
+                  <option value="hot">🔥 Hot & Cozy</option>
+                  <option value="cold">🧊 Cold & Fresh</option>
+                  <option value="fresh">🥗 Fresh & Raw</option>
                 </select>
               </div>
 
@@ -1658,9 +2058,9 @@ const NutriVisionApp = () => {
                   }
                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white"
                 >
-                  <option value="quick">Quick (&lt;20 min)</option>
-                  <option value="medium">Medium (20–45 min)</option>
-                  <option value="elaborate">Elaborate (&gt;45 min)</option>
+                  <option value="quick">⚡ Quick (&lt;20 min)</option>
+                  <option value="medium">⏱️ Medium (20–45 min)</option>
+                  <option value="elaborate">🎨 Elaborate (&gt;45 min)</option>
                 </select>
               </div>
 
@@ -1679,12 +2079,12 @@ const NutriVisionApp = () => {
                   }
                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white"
                 >
-                  <option value="any">Any Style</option>
-                  <option value="mediterranean">Mediterranean</option>
-                  <option value="asian">Asian</option>
-                  <option value="fusion">Fusion</option>
-                  <option value="traditional">Traditional</option>
-                  <option value="modern">Modern</option>
+                  <option value="any">🌍 Any Style</option>
+                  <option value="mediterranean">🫒 Mediterranean</option>
+                  <option value="asian">🥢 Asian</option>
+                  <option value="fusion">🌟 Fusion</option>
+                  <option value="traditional">🏠 Traditional</option>
+                  <option value="modern">✨ Modern</option>
                 </select>
               </div>
             </div>
@@ -1704,12 +2104,12 @@ const NutriVisionApp = () => {
                 }
                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white"
               >
-                <option value="none">No Restriction</option>
-                <option value="vegetarian">Vegetarian</option>
-                <option value="vegan">Vegan</option>
-                <option value="keto">Keto</option>
-                <option value="low-carb">Low Carb</option>
-                <option value="high-protein">High Protein</option>
+                <option value="none">🍽️ No Restriction</option>
+                <option value="vegetarian">🥬 Vegetarian</option>
+                <option value="vegan">🌱 Vegan</option>
+                <option value="keto">🥑 Keto</option>
+                <option value="low-carb">🥩 Low Carb</option>
+                <option value="high-protein">💪 High Protein</option>
               </select>
             </div>
           </div>
@@ -1717,7 +2117,7 @@ const NutriVisionApp = () => {
           <button
             onClick={generateRecipe}
             disabled={loading}
-            className="w-full bg-gradient-to-r from-light-accent to-light-accent2 dark:from-dark-accent dark:to-dark-accent2 text-white py-3 rounded-2xl font-bold shadow-lg hover:shadow-xl transition-transform transform hover:-translate-y-0.5 disabled:opacity-50"
+            className="w-full bg-gradient-to-r from-orange-500 to-yellow-600 text-white py-3 rounded-2xl font-bold shadow-lg hover:shadow-xl transition-transform transform hover:-translate-y-0.5 disabled:opacity-50"
           >
             {loading ? (
               <Loader className="w-5 h-5 animate-spin mx-auto" />
@@ -1737,7 +2137,7 @@ const NutriVisionApp = () => {
                 key={idx}
                 onClick={() => setSelectedOptionIndex(idx)}
                 className={`px-4 py-2 rounded-t-2xl text-sm font-medium whitespace-nowrap ${selectedOptionIndex === idx
-                  ? 'bg-gradient-to-r from-light-accent to-light-accent2 dark:from-dark-accent dark:to-dark-accent2 text-white'
+                  ? 'bg-gradient-to-r from-orange-500 to-yellow-500 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
               >
@@ -1799,9 +2199,7 @@ const NutriVisionApp = () => {
 
                 {recipeOptions[selectedOptionIndex].chef_tips?.length > 0 && (
                   <div className="mt-4 p-4 bg-white bg-opacity-80 rounded-xl">
-                    <h4 className="font-bold text-yellow-900 text-sm mb-2 flex items-center">
-                      <Utensils className="w-4 h-4 mr-1" />Chef’s Tips:
-                    </h4>
+                    <h4 className="font-bold text-yellow-900 text-sm mb-2">👨‍🍳 Chef’s Tips:</h4>
                     <ul className="space-y-1">
                       {recipeOptions[selectedOptionIndex].chef_tips.map((tip, idx3) => (
                         <li key={idx3} className="text-xs text-yellow-700 flex items-start">
@@ -1831,11 +2229,11 @@ const NutriVisionApp = () => {
             {userRecipes.map((recipe) => (
               <div
                 key={recipe.id}
-                className="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-2xl border border-yellow-200 flex flex-col sm:flex-row items-center"
+                className="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-2xl border border-yellow-200 flex items-center"
               >
                 { /* ─── Miniatura: verifica se existe `recipe.image_url` ─── */}
                 {recipe.image_url ? (
-                  <div className="w-full sm:w-24 h-24 rounded-xl overflow-hidden shadow-md flex-shrink-0">
+                  <div className="w-24 h-24 rounded-xl overflow-hidden shadow-md flex-shrink-0">
                     <img
                       src={recipe.image_url}
                       alt={recipe.title}
@@ -1843,13 +2241,13 @@ const NutriVisionApp = () => {
                     />
                   </div>
                 ) : (
-                  <div className="w-full sm:w-24 h-24 bg-gray-200 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <div className="w-24 h-24 bg-gray-200 rounded-xl flex items-center justify-center flex-shrink-0">
                     <Utensils className="w-8 h-8 text-gray-400" />
                   </div>
                 )}
 
                 { /* ─── Conteúdo textual ao lado (título, descrição, ícones etc.) ─── */}
-                <div className="flex-1 mt-4 sm:mt-0 sm:ml-4">
+                <div className="flex-1 ml-4">
                   <h3 className="font-bold text-yellow-900">{recipe.title}</h3>
                   <p className="text-yellow-700 text-sm line-clamp-2">
                     {recipe.description}
@@ -1876,7 +2274,7 @@ const NutriVisionApp = () => {
                 </div>
 
                 { /* ─── Botões “View” / “Delete” ─── */}
-                <div className="flex flex-row space-x-2 mt-4 sm:mt-0 sm:flex-col sm:space-x-0 sm:space-y-2 sm:ml-4">
+                <div className="flex flex-col space-y-2 ml-4">
                   <button
                     onClick={() => getRecipeDetails(recipe.id)}
                     className="bg-yellow-600 text-white px-3 py-2 rounded-xl text-sm font-semibold hover:bg-yellow-700 transition-colors"
@@ -1908,7 +2306,420 @@ const NutriVisionApp = () => {
     </div>
   );
 
+  // const renderRecipeBook = () => (
+  //   <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 p-4 pb-20">
+  //     <div className="flex items-center justify-between mb-6">
+  //       <button
+  //         onClick={() => setCurrentView('dashboard')}
+  //         className="text-gray-800 text-2xl font-bold"
+  //       >
+  //         ←
+  //       </button>
+  //       <h1 className="text-lg font-bold text-gray-900">Recipe Book</h1>
+  //       <div className="w-6" />
+  //     </div>
 
+  //     {/* CREATE NEW RECIPE */}
+  //     <div className="bg-white rounded-3xl shadow-lg p-6 mb-6 border border-gray-100">
+  //       <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+  //         <Utensils className="w-6 h-6 mr-2 text-orange-500" />
+  //         Create Personalized Recipe
+  //       </h2>
+
+  //       <div className="space-y-4">
+  //         {/* Available Ingredients */}
+  //         <div>
+  //           <label className="block text-sm font-medium text-gray-700 mb-2">
+  //             Available Ingredients
+  //           </label>
+  //           <textarea
+  //             value={recipeIngredients}
+  //             onChange={(e) => setRecipeIngredients(e.target.value)}
+  //             placeholder="Enter ingredients separated by commas (e.g., chicken, broccoli, quinoa, garlic)"
+  //             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+  //             rows="3"
+  //           />
+  //           <p className="text-xs text-gray-500 mt-1">
+  //             🌍 Supports English, Portuguese & Spanish
+  //           </p>
+  //         </div>
+
+  //         {/* Upload / Capture Photo */}
+  //         <div className="space-y-2">
+  //           <label className="block text-sm font-medium text-gray-700 mb-1">
+  //             Or Upload a Photo of Your Fridge/Shelf
+  //           </label>
+  //           <div className="flex items-center space-x-3">
+  //             <button
+  //               onClick={() => {
+  //                 if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  //                   navigator.mediaDevices
+  //                     .getUserMedia({ video: { facingMode: 'environment' } })
+  //                     .then((stream) => {
+  //                       const video = document.createElement('video');
+  //                       video.srcObject = stream;
+  //                       video.play();
+  //                       video.addEventListener('loadeddata', () => {
+  //                         const canvas = document.createElement('canvas');
+  //                         canvas.width = video.videoWidth;
+  //                         canvas.height = video.videoHeight;
+  //                         const ctx = canvas.getContext('2d');
+  //                         ctx.drawImage(video, 0, 0);
+  //                         canvas.toBlob((blob) => {
+  //                           const file = new File([blob], 'fridge-capture.jpg', { type: 'image/jpeg' });
+  //                           setRecipeImageFile(file);
+  //                           const reader = new FileReader();
+  //                           reader.onload = () => {
+  //                             setRecipeImagePreview(reader.result);
+  //                           };
+  //                           reader.readAsDataURL(file);
+  //                         });
+  //                         stream.getTracks().forEach((track) => track.stop());
+  //                       });
+  //                     })
+  //                     .catch(() => {
+  //                       recipeFileInputRef.current?.click();
+  //                     });
+  //                 } else {
+  //                   recipeFileInputRef.current?.click();
+  //                 }
+  //               }}
+  //               className="bg-gradient-to-r from-gray-800 to-gray-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:shadow-lg transition-all"
+  //             >
+  //               📸 Capture Photo
+  //             </button>
+
+  //             <button
+  //               onClick={() => recipeFileInputRef.current?.click()}
+  //               className="bg-gradient-to-r from-orange-500 to-yellow-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:shadow-lg transition-all"
+  //             >
+  //               🖼️ Choose Photo
+  //             </button>
+  //           </div>
+
+  //           {recipeImagePreview && (
+  //             <div className="relative w-32 h-32 rounded-2xl overflow-hidden border border-gray-200">
+  //               <img
+  //                 src={recipeImagePreview}
+  //                 alt="Fridge preview"
+  //                 className="w-full h-full object-cover"
+  //               />
+  //               <button
+  //                 onClick={() => {
+  //                   setRecipeImageFile(null);
+  //                   setRecipeImagePreview(null);
+  //                 }}
+  //                 className="absolute top-1 right-1 bg-white rounded-full p-1 text-red-600 hover:text-red-800"
+  //               >
+  //                 <Trash2 className="w-4 h-4" />
+  //               </button>
+  //             </div>
+  //           )}
+
+  //           <input
+  //             ref={recipeFileInputRef}
+  //             type="file"
+  //             accept="image/*"
+  //             onChange={(e) => {
+  //               const file = e.target.files[0];
+  //               if (!file) return;
+  //               setRecipeImageFile(file);
+  //               const reader = new FileReader();
+  //               reader.onload = () => setRecipeImagePreview(reader.result);
+  //               reader.readAsDataURL(file);
+  //             }}
+  //             className="hidden"
+  //           />
+  //         </div>
+
+  //         {/* Personalization Options */}
+  //         <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-4 rounded-xl border border-orange-200">
+  //           <h3 className="font-bold text-gray-900 mb-3 flex items-center">
+  //             <Sparkles className="w-5 h-5 mr-2 text-orange-600" />
+  //             Personalization Options
+  //           </h3>
+
+  //           <div className="grid grid-cols-2 gap-3">
+  //             {/* Meal Type */}
+  //             <div>
+  //               <label className="block text-xs font-medium text-gray-700 mb-1">
+  //                 Meal Type
+  //               </label>
+  //               <select
+  //                 value={recipePersonalization.meal_type}
+  //                 onChange={(e) =>
+  //                   setRecipePersonalization({
+  //                     ...recipePersonalization,
+  //                     meal_type: e.target.value,
+  //                   })
+  //                 }
+  //                 className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+  //               >
+  //                 <option value="any">🍽️ Any Time</option>
+  //                 <option value="breakfast">🌅 Breakfast</option>
+  //                 <option value="lunch">🌞 Lunch</option>
+  //                 <option value="dinner">🌙 Dinner</option>
+  //                 <option value="snack">🥨 Snack</option>
+  //               </select>
+  //             </div>
+
+  //             {/* Temperature */}
+  //             <div>
+  //               <label className="block text-xs font-medium text-gray-700 mb-1">
+  //                 Temperature
+  //               </label>
+  //               <select
+  //                 value={recipePersonalization.temperature}
+  //                 onChange={(e) =>
+  //                   setRecipePersonalization({
+  //                     ...recipePersonalization,
+  //                     temperature: e.target.value,
+  //                   })
+  //                 }
+  //                 className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+  //               >
+  //                 <option value="any">🌡️ Any</option>
+  //                 <option value="hot">🔥 Hot & Cozy</option>
+  //                 <option value="cold">🧊 Cold & Fresh</option>
+  //                 <option value="fresh">🥗 Fresh & Raw</option>
+  //               </select>
+  //             </div>
+
+  //             {/* Cooking Time */}
+  //             <div>
+  //               <label className="block text-xs font-medium text-gray-700 mb-1">
+  //                 Cooking Time
+  //               </label>
+  //               <select
+  //                 value={recipePersonalization.cooking_time}
+  //                 onChange={(e) =>
+  //                   setRecipePersonalization({
+  //                     ...recipePersonalization,
+  //                     cooking_time: e.target.value,
+  //                   })
+  //                 }
+  //                 className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+  //               >
+  //                 <option value="quick">⚡ Quick (&lt;20 min)</option>
+  //                 <option value="medium">⏱️ Medium (20–45 min)</option>
+  //                 <option value="elaborate">🎨 Elaborate (&gt;45 min)</option>
+  //               </select>
+  //             </div>
+
+  //             {/* Cuisine Style */}
+  //             <div>
+  //               <label className="block text-xs font-medium text-gray-700 mb-1">
+  //                 Cuisine Style
+  //               </label>
+  //               <select
+  //                 value={recipePersonalization.cuisine_style}
+  //                 onChange={(e) =>
+  //                   setRecipePersonalization({
+  //                     ...recipePersonalization,
+  //                     cuisine_style: e.target.value,
+  //                   })
+  //                 }
+  //                 className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+  //               >
+  //                 <option value="any">🌍 Any Style</option>
+  //                 <option value="mediterranean">🫒 Mediterranean</option>
+  //                 <option value="asian">🥢 Asian</option>
+  //                 <option value="fusion">🌟 Fusion</option>
+  //                 <option value="traditional">🏠 Traditional</option>
+  //                 <option value="modern">✨ Modern</option>
+  //               </select>
+  //             </div>
+  //           </div>
+
+  //           {/* Dietary Preference */}
+  //           <div className="mt-3">
+  //             <label className="block text-xs font-medium text-gray-700 mb-1">
+  //               Dietary Preference
+  //             </label>
+  //             <select
+  //               value={recipePersonalization.dietary_pref}
+  //               onChange={(e) =>
+  //                 setRecipePersonalization({
+  //                   ...recipePersonalization,
+  //                   dietary_pref: e.target.value,
+  //                 })
+  //               }
+  //               className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+  //             >
+  //               <option value="none">🍽️ No Restriction</option>
+  //               <option value="vegetarian">🥬 Vegetarian</option>
+  //               <option value="vegan">🌱 Vegan</option>
+  //               <option value="keto">🥑 Keto</option>
+  //               <option value="low-carb">🥩 Low Carb</option>
+  //               <option value="high-protein">💪 High Protein</option>
+  //             </select>
+  //           </div>
+  //         </div>
+
+  //         <button
+  //           onClick={generateRecipe}
+  //           disabled={loading}
+  //           className="w-full bg-gradient-to-r from-orange-500 to-yellow-600 text-white py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all disabled:opacity-50"
+  //         >
+  //           {loading ? <Loader className="w-5 h-5 animate-spin mx-auto" /> : 'Generate Smart Recipe'}
+  //         </button>
+  //       </div>
+  //     </div>
+
+  //     {/* RECIPE OPTIONS (TABS) */}
+  //     {recipeOptions.length > 0 && (
+  //       <div className="bg-white rounded-3xl shadow-lg mb-6 border border-gray-100">
+  //         <div className="p-4 border-b border-gray-200 flex space-x-2 overflow-x-auto">
+  //           {recipeOptions.map((_, idx) => (
+  //             <button
+  //               key={idx}
+  //               onClick={() => setSelectedOptionIndex(idx)}
+  //               className={`px-4 py-2 rounded-t-2xl text-sm font-medium whitespace-nowrap ${selectedOptionIndex === idx
+  //                 ? 'bg-gradient-to-r from-orange-500 to-yellow-500 text-white'
+  //                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+  //                 }`}
+  //             >
+  //               Option {idx + 1}
+  //             </button>
+  //           ))}
+  //         </div>
+
+  //         <div className="p-6">
+  //           {recipeOptions[selectedOptionIndex] && (
+  //             <div className="space-y-4 bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-2xl">
+  //               <h3 className="text-2xl font-bold text-yellow-900">
+  //                 {recipeOptions[selectedOptionIndex].title}
+  //               </h3>
+  //               <p className="text-yellow-700">
+  //                 {recipeOptions[selectedOptionIndex].description}
+  //               </p>
+  //               <div className="flex items-center space-x-4 mt-2 text-sm text-yellow-600">
+  //                 <span>
+  //                   ⏱️{' '}
+  //                   {recipeOptions[selectedOptionIndex].prep_time +
+  //                     recipeOptions[selectedOptionIndex].cook_time}{' '}
+  //                   min
+  //                 </span>
+  //                 <span>🍽️ {recipeOptions[selectedOptionIndex].servings} servings</span>
+  //                 <span>🔥 {recipeOptions[selectedOptionIndex].nutrition.calories} kcal</span>
+  //                 <span>💪 {recipeOptions[selectedOptionIndex].nutrition.protein}g protein</span>
+  //               </div>
+
+  //               <div className="flex flex-wrap gap-2 mt-3">
+  //                 {recipeOptions[selectedOptionIndex].tags?.map((tag, idx2) => (
+  //                   <span
+  //                     key={idx2}
+  //                     className="px-2 py-1 bg-yellow-200 text-yellow-800 rounded-full text-xs font-medium"
+  //                   >
+  //                     #{tag}
+  //                   </span>
+  //                 ))}
+  //               </div>
+
+  //               {recipeOptions[selectedOptionIndex].image_url && (
+  //                 <div className="mt-4 rounded-2xl overflow-hidden border border-gray-200 shadow-md">
+  //                   <img
+  //                     src={recipeOptions[selectedOptionIndex].image_url}
+  //                     alt={recipeOptions[selectedOptionIndex].title}
+  //                     className="w-full h-48 object-cover"
+  //                   />
+  //                 </div>
+  //               )}
+
+  //               {recipeOptions[selectedOptionIndex].chef_tips &&
+  //                 recipeOptions[selectedOptionIndex].chef_tips.length > 0 && (
+  //                   <div className="mt-4 p-3 bg-white bg-opacity-60 rounded-xl">
+  //                     <h4 className="font-bold text-yellow-900 text-sm mb-2">👨‍🍳 Chef’s Tips:</h4>
+  //                     <ul className="space-y-1">
+  //                       {recipeOptions[selectedOptionIndex].chef_tips.map((tip, idx3) => (
+  //                         <li
+  //                           key={idx3}
+  //                           className="text-xs text-yellow-700 flex items-start"
+  //                         >
+  //                           <span className="text-yellow-500 mr-1">•</span> {tip}
+  //                         </li>
+  //                       ))}
+  //                     </ul>
+  //                   </div>
+  //                 )}
+  //             </div>
+  //           )}
+  //         </div>
+  //       </div>
+  //     )}
+
+  //     {/* ─── USER’S RECIPE COLLECTION ─── */}
+  //     <div className="bg-white rounded-3xl shadow-lg p-6 mb-6 border border-gray-100">
+  //       <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+  //         <BookOpen className="w-6 h-6 mr-2 text-yellow-500" />
+  //         Your Recipe Collection
+  //       </h2>
+
+  //       {userRecipes.length > 0 ? (
+  //         <div className="space-y-4">
+  //           {userRecipes.map((recipe) => (
+  //             <div
+  //               key={recipe.id}
+  //               className="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-2xl border border-yellow-200 flex space-x-4 items-center"
+  //             >
+  //               {/* Imagem do Recipe (se existir) */}
+  //               {recipe.image_url ? (
+  //                 <div className="w-24 h-24 rounded-xl overflow-hidden shadow-md flex-shrink-0">
+  //                   <img
+  //                     src={recipe.image_url}
+  //                     alt={recipe.title}
+  //                     className="w-full h-full object-cover"
+  //                   />
+  //                 </div>
+  //               ) : (
+  //                 <div className="w-24 h-24 bg-gray-200 rounded-xl flex items-center justify-center flex-shrink-0">
+  //                   <Utensils className="w-8 h-8 text-gray-400" />
+  //                 </div>
+  //               )}
+
+  //               {/* Texto e detalhes */}
+  //               <div className="flex-1">
+  //                 <h3 className="font-bold text-yellow-900">{recipe.title}</h3>
+  //                 <p className="text-yellow-700 text-sm line-clamp-2">
+  //                   {recipe.description}
+  //                 </p>
+  //                 <div className="flex items-center space-x-4 mt-2 text-xs text-yellow-600">
+  //                   <span>⏱️ {recipe.prep_time + recipe.cook_time} min</span>
+  //                   <span>🍽️ {recipe.servings} servings</span>
+  //                   <span>🔥 {recipe.calories_per_serving} kcal</span>
+  //                   <span>💪 {recipe.protein_per_serving}g protein</span>
+  //                 </div>
+  //               </div>
+
+  //               {/* Botões “View” e “Delete” */}
+  //               <div className="flex flex-col space-y-2">
+  //                 <button
+  //                   onClick={() => getRecipeDetails(recipe.id)}
+  //                   className="bg-yellow-600 text-white px-3 py-2 rounded-xl text-sm font-bold hover:bg-yellow-700"
+  //                 >
+  //                   View
+  //                 </button>
+  //                 <button
+  //                   onClick={() => deleteRecipe(recipe.id)}
+  //                   className="bg-red-600 text-white px-3 py-2 rounded-xl text-sm font-bold hover:bg-red-700"
+  //                 >
+  //                   <Trash2 className="w-4 h-4" />
+  //                 </button>
+  //               </div>
+  //             </div>
+  //           ))}
+  //         </div>
+  //       ) : (
+  //         <div className="text-center py-8">
+  //           <div className="w-16 h-16 bg-yellow-200 rounded-full flex items-center justify-center mx-auto mb-4">
+  //             <BookOpen className="w-8 h-8 text-yellow-600" />
+  //           </div>
+  //           <p className="text-gray-600">No recipes yet. Generate your first smart recipe!</p>
+  //         </div>
+  //       )}
+  //     </div>
+  //   </div>
+  // );
   const renderRecipeDetails = () => {
     if (!selectedRecipe) return null;
 
@@ -1922,7 +2733,7 @@ const NutriVisionApp = () => {
             }}
             className="text-gray-800 text-2xl font-bold hover:text-gray-600 transition-colors"
           >
-            <ArrowLeft className="w-6 h-6" />
+            ←
           </button>
           <h1 className="text-2xl font-extrabold text-gray-900">Recipe Details</h1>
           <div className="w-6" />
@@ -2035,9 +2846,7 @@ const NutriVisionApp = () => {
 
             {/* ─── Instruções (com checkbox) ─── */}
             <div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3 flex items-center">
-                <Utensils className="w-5 h-5 mr-2" />Instructions
-              </h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">👨‍🍳 Instructions</h3>
               <div className="space-y-4">
                 {selectedRecipe.instructions?.map((step, idx) => (
                   <div
@@ -2071,9 +2880,7 @@ const NutriVisionApp = () => {
             {/* ─── Tags (se existirem) ─── */}
             {selectedRecipe.tags?.length > 0 && (
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center">
-                  <Tag className="w-5 h-5 mr-2" />Tags
-                </h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">🏷️ Tags</h3>
                 <div className="flex flex-wrap gap-2">
                   {selectedRecipe.tags.map((tag, idx) => (
                     <span
@@ -2092,20 +2899,132 @@ const NutriVisionApp = () => {
     );
   };
 
+  // const renderRecipeDetails = () => {
+  //   if (!selectedRecipe) return null;
+  //   return (
+  //     <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 p-4 pb-20">
+  //       <div className="flex items-center justify-between mb-6">
+  //         <button
+  //           onClick={() => {
+  //             setSelectedRecipe(null);
+  //             setCurrentView('recipe-book');
+  //           }}
+  //           className="text-gray-800 text-2xl font-bold"
+  //         >
+  //           ←
+  //         </button>
+  //         <h1 className="text-lg font-bold text-gray-900">Recipe Details</h1>
+  //         <div className="w-6" />
+  //       </div>
 
+  //       <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
+  //         {selectedRecipe.image_url && (
+  //           <div className="mb-4">
+  //             <img
+  //               src={selectedRecipe.image_url}
+  //               alt={selectedRecipe.title}
+  //               className="w-full h-64 object-cover rounded-2xl shadow-md"
+  //             />
+  //           </div>
+  //         )}
+
+  //         <h2 className="text-2xl font-bold text-gray-900 mb-2">{selectedRecipe.title}</h2>
+  //         <p className="text-gray-600 mb-4">{selectedRecipe.description}</p>
+
+  //         <div className="grid grid-cols-4 gap-4 mb-6">
+  //           <div className="text-center p-3 bg-orange-50 rounded-xl">
+  //             <div className="text-lg font-bold text-orange-600">
+  //               {selectedRecipe.prep_time}
+  //             </div>
+  //             <div className="text-xs text-gray-600">Prep (min)</div>
+  //           </div>
+  //           <div className="text-center p-3 bg-yellow-50 rounded-xl">
+  //             <div className="text-lg font-bold text-yellow-600">
+  //               {selectedRecipe.cook_time}
+  //             </div>
+  //             <div className="text-xs text-gray-600">Cook (min)</div>
+  //           </div>
+  //           <div className="text-center p-3 bg-green-50 rounded-xl">
+  //             <div className="text-lg font-bold text-green-600">
+  //               {selectedRecipe.servings}
+  //             </div>
+  //             <div className="text-xs text-gray-600">Servings</div>
+  //           </div>
+  //           <div className="text-center p-3 bg-red-50 rounded-xl">
+  //             <div className="text-lg font-bold text-red-600">
+  //               {selectedRecipe.nutrition?.calories}
+  //             </div>
+  //             <div className="text-xs text-gray-600">Calories</div>
+  //           </div>
+  //         </div>
+
+  //         <div className="space-y-6">
+  //           <div>
+  //             <h3 className="font-bold text-gray-900 mb-3">🥘 Ingredients</h3>
+  //             <div className="space-y-2">
+  //               {selectedRecipe.ingredients?.map((ingredient, idx) => (
+  //                 <div
+  //                   key={idx}
+  //                   className="flex items-center space-x-2 p-2 bg-gray-50 rounded-lg"
+  //                 >
+  //                   <span className="font-medium">{ingredient.amount}</span>
+  //                   <span>{ingredient.item}</span>
+  //                   {ingredient.notes && (
+  //                     <span className="text-gray-500 text-sm">({ingredient.notes})</span>
+  //                   )}
+  //                 </div>
+  //               ))}
+  //             </div>
+  //           </div>
+
+  //           <div>
+  //             <h3 className="font-bold text-gray-900 mb-3">👨‍🍳 Instructions</h3>
+  //             <div className="space-y-3">
+  //               {selectedRecipe.instructions?.map((instruction, idx) => (
+  //                 <div
+  //                   key={idx}
+  //                   className="flex space-x-3 p-3 bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg"
+  //                 >
+  //                   <div className="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
+  //                     {idx + 1}
+  //                   </div>
+  //                   <p className="text-gray-700 flex-1">{instruction}</p>
+  //                 </div>
+  //               ))}
+  //             </div>
+  //           </div>
+
+  //           {selectedRecipe.tags && selectedRecipe.tags.length > 0 && (
+  //             <div>
+  //               <h3 className="font-bold text-gray-900 mb-3">🏷️ Tags</h3>
+  //               <div className="flex flex-wrap gap-2">
+  //                 {selectedRecipe.tags.map((tag, idx) => (
+  //                   <span
+  //                     key={idx}
+  //                     className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium"
+  //                   >
+  //                     #{tag}
+  //                   </span>
+  //                 ))}
+  //               </div>
+  //             </div>
+  //           )}
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
+  // };
 
   const renderMealHistory = () => (
-    <div className="min-h-screen bg-gradient-to-br from-light-bgStart to-light-bgEnd dark:from-dark-bgStart dark:to-dark-bgEnd p-4 pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-orange-50 p-4 pb-20">
       <div className="flex items-center justify-between mb-6">
         <button
           onClick={() => setCurrentView('dashboard')}
           className="text-gray-800 text-2xl font-bold"
         >
-          <ArrowLeft className="w-6 h-6" />
+          ←
         </button>
-        <h1 className="text-lg font-bold text-gray-900 flex items-center">
-          <History className="w-5 h-5 mr-2" />Meal History
-        </h1>
+        <h1 className="text-lg font-bold text-gray-900">📊 Meal History</h1>
         <div className="w-6" />
       </div>
 
@@ -2203,7 +3122,7 @@ const NutriVisionApp = () => {
   const renderMealDetails = () => {
     if (!selectedHistoryMeal) return null;
     return (
-      <div className="min-h-screen bg-gradient-to-br from-light-bgStart to-light-bgEnd dark:from-dark-bgStart dark:to-dark-bgEnd p-4 pb-20">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-orange-50 p-4 pb-20">
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => {
@@ -2212,7 +3131,7 @@ const NutriVisionApp = () => {
             }}
             className="text-gray-800 text-2xl font-bold"
           >
-            <ArrowLeft className="w-6 h-6" />
+            ←
           </button>
           <h1 className="text-lg font-bold text-gray-900">
             {selectedHistoryMeal.foods_detected?.[0] || 'Meal Details'}
@@ -2325,13 +3244,13 @@ const NutriVisionApp = () => {
     const daysOfMonth = getDaysOfMonth();
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-light-bgStart to-light-bgEnd dark:from-dark-bgStart dark:to-dark-bgEnd p-4 pb-20">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-orange-50 p-4 pb-20">
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => setCurrentView('dashboard')}
             className="text-gray-800 text-2xl font-bold"
           >
-            <ArrowLeft className="w-6 h-6" />
+            ←
           </button>
           <h1 className="text-lg font-bold text-gray-900">Daily Food Log</h1>
           <button
@@ -2602,7 +3521,7 @@ const NutriVisionApp = () => {
                         disabled={
                           isEstimating || (!currentMeal.name.trim() && !mealImageFile)
                         }
-                        className="flex-1 bg-gradient-to-r from-light-accent to-light-accent2 dark:from-dark-accent dark:to-dark-accent2 text-white py-2 px-3 rounded-lg text-sm font-bold hover:shadow-lg transition-all disabled:opacity-50"
+                        className="flex-1 bg-gradient-to-r from-orange-500 to-yellow-600 text-white py-2 px-3 rounded-lg text-sm font-bold hover:shadow-lg transition-all disabled:opacity-50"
                       >
                         {isEstimating ? (
                           <Loader className="w-4 h-4 animate-spin mx-auto" />
@@ -2670,10 +3589,10 @@ const NutriVisionApp = () => {
                       }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
                     >
-                      <option value="breakfast">Breakfast</option>
-                      <option value="lunch">Lunch</option>
-                      <option value="dinner">Dinner</option>
-                      <option value="snack">Snack</option>
+                      <option value="breakfast">🌅 Breakfast</option>
+                      <option value="lunch">🌞 Lunch</option>
+                      <option value="dinner">🌙 Dinner</option>
+                      <option value="snack">🥨 Snack</option>
                     </select>
                   </div>
                   <div>
@@ -2766,7 +3685,7 @@ const NutriVisionApp = () => {
                   </button>
                   <button
                     onClick={saveMeal}
-                    className="flex-1 bg-gradient-to-r from-light-accent to-light-accent2 dark:from-dark-accent dark:to-dark-accent2 text-white py-3 rounded-xl font-bold hover:shadow-lg transition-all"
+                    className="flex-1 bg-gradient-to-r from-orange-500 to-yellow-600 text-white py-3 rounded-xl font-bold hover:shadow-lg transition-all"
                   >
                     <Save className="w-5 h-5 inline mr-2" />
                     Save Meal
@@ -2787,11 +3706,9 @@ const NutriVisionApp = () => {
           onClick={() => setCurrentView('dashboard')}
           className="text-gray-800 text-2xl font-bold"
         >
-          <ArrowLeft className="w-6 h-6" />
+          ←
         </button>
-        <h1 className="text-lg font-bold text-gray-900 flex items-center">
-          <Moon className="w-5 h-5 mr-2" />Cycle Tracking
-        </h1>
+        <h1 className="text-lg font-bold text-gray-900">🌙 Cycle Tracking</h1>
         <div className="w-6" />
       </div>
       {menstrualCycleData?.cycle_data ? (
@@ -2811,8 +3728,8 @@ const NutriVisionApp = () => {
 
             <div className="space-y-6">
               <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-4 rounded-2xl border border-purple-200">
-                <h3 className="font-bold text-gray-900 mb-3 flex items-center">
-                  <Utensils className="w-5 h-5 mr-2" />Phase Nutrition Recommendations
+                <h3 className="font-bold text-gray-900 mb-3">
+                  🥗 Phase Nutrition Recommendations
                 </h3>
                 <div className="space-y-2 text-sm">
                   <div>
@@ -2912,26 +3829,29 @@ const NutriVisionApp = () => {
   );
 
   const renderSettings = () => (
-    <div className="min-h-screen bg-gradient-to-br from-light-bgStart to-light-bgEnd dark:from-dark-bgStart dark:to-dark-bgEnd p-4 pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-orange-50 p-4 pb-20">
       <div className="flex items-center justify-between mb-6">
         <button onClick={() => setCurrentView('dashboard')} className="text-gray-800 text-2xl font-bold">
-          <ArrowLeft className="w-6 h-6" />
+          ←
         </button>
         <h1 className="text-lg font-bold text-gray-900">Settings</h1>
         <div className="w-6" />
       </div>
       <div className="space-y-6">
-        {/* PREFERENCES */}
+        {/* USER PROFILE */}
         <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Preferences</h2>
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-            <span className="font-medium text-gray-900">Dark Mode</span>
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="px-3 py-1 rounded-full bg-gray-200"
-            >
-              {darkMode ? 'Disable' : 'Enable'}
-            </button>
+          <h2 className="text-lg font-bold text-gray-900 mb-4">User Profile</h2>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+              <div>
+                <h3 className="font-medium text-gray-900">{user?.username}</h3>
+                <p className="text-sm text-gray-600">{user?.email}</p>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-medium text-gray-900">{user?.level}</div>
+                <div className="text-xs text-gray-600">{user?.total_xp} XP</div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -2953,6 +3873,14 @@ const NutriVisionApp = () => {
             >
               <Calendar className="w-5 h-5 text-yellow-600" />
               <span className="font-medium text-yellow-900">Daily Food Log</span>
+            </button>
+
+            <button
+              onClick={() => setCurrentView('user-profile')}
+              className="w-full flex items-center space-x-3 p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors"
+            >
+              <Utensils className="w-5 h-5 text-green-600" />
+              <span className="font-medium text-green-900">User Profile</span>
             </button>
 
             {user?.gender === 'female' && user?.track_menstrual_cycle && (
@@ -2985,11 +3913,9 @@ const NutriVisionApp = () => {
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4 pb-20">
       <div className="flex items-center justify-between mb-6">
         <button onClick={() => setCurrentView('dashboard')} className="text-gray-800 text-2xl font-bold">
-          <ArrowLeft className="w-6 h-6" />
+          ←
         </button>
-        <h1 className="text-lg font-bold text-gray-900 flex items-center">
-          <UsersIcon className="w-5 h-5 mr-2" />User Profile
-        </h1>
+        <h1 className="text-lg font-bold text-gray-900">🧑‍⚕️ User Profile</h1>
         <div className="w-6" />
       </div>
 
@@ -3003,8 +3929,8 @@ const NutriVisionApp = () => {
                     profilePhotoPreview
                       ? profilePhotoPreview
                       : userProfile.user.profile_photo
-                        ? `${API_BASE}/images/${userProfile.user.profile_photo}`
-                        : 'https://via.placeholder.com/80'
+                      ? `${API_BASE}/images/${userProfile.user.profile_photo}`
+                      : 'https://via.placeholder.com/80'
                   }
                   alt="Profile"
                   className="w-20 h-20 rounded-full object-cover"
@@ -3141,18 +4067,18 @@ const NutriVisionApp = () => {
                   </div>
                 </div>
               )}
-            </div>
+              </div>
 
-            <p className="text-sm text-gray-600 mb-2">
-              {userProfile.nutrition_plan?.plan_name}{' '}
-              <span className="capitalize">
-                {userProfile.nutrition_plan?.plan_type.replace('_', ' ')}
-              </span>
-            </p>
+              <p className="text-sm text-gray-600 mb-2">
+                {userProfile.nutrition_plan?.plan_name}{' '}
+                <span className="capitalize">
+                  {userProfile.nutrition_plan?.plan_type.replace('_', ' ')}
+                </span>
+              </p>
 
-            <p className="text-sm text-gray-600 mb-4">
-              Metrics calculated from your details help guide targets and progress.
-            </p>
+              <p className="text-sm text-gray-600 mb-4">
+                Metrics calculated from your details help guide targets and progress.
+              </p>
 
             <div className="space-y-6">
               <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-5 rounded-2xl border border-purple-200">
@@ -3215,8 +4141,8 @@ const NutriVisionApp = () => {
                         className="bg-green-600 h-2 rounded-full transition-all duration-300"
                         style={{
                           width: `${Math.min(
-                            ((userProfile.nutrition_plan?.today_progress?.calories_consumed || 0) /
-                              (userProfile.nutrition_plan?.daily_targets?.calories || 1)) *
+                              ((userProfile.nutrition_plan?.today_progress?.calories_consumed || 0) /
+                                (userProfile.nutrition_plan?.daily_targets?.calories || 1)) *
                             100,
                             100
                           )
@@ -3235,8 +4161,8 @@ const NutriVisionApp = () => {
                         className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                         style={{
                           width: `${Math.min(
-                            ((userProfile.nutrition_plan?.today_progress?.protein_consumed || 0) /
-                              (userProfile.nutrition_plan?.daily_targets?.protein || 1)) *
+                              ((userProfile.nutrition_plan?.today_progress?.protein_consumed || 0) /
+                                (userProfile.nutrition_plan?.daily_targets?.protein || 1)) *
                             100,
                             100
                           )
@@ -3254,34 +4180,32 @@ const NutriVisionApp = () => {
                   <div className="bg-white bg-opacity-20 p-3 rounded-xl">
                     <div className="text-sm text-green-100">Breakfast</div>
                     <div className="text-lg font-bold">
-                      {Math.round((userProfile.nutrition_plan?.meal_distribution?.breakfast || 0.25) * 100)}%
+                        {Math.round((userProfile.nutrition_plan?.meal_distribution?.breakfast || 0.25) * 100)}%
                     </div>
                   </div>
                   <div className="bg-white bg-opacity-20 p-3 rounded-xl">
                     <div className="text-sm text-green-100">Lunch</div>
                     <div className="text-lg font-bold">
-                      {Math.round((userProfile.nutrition_plan?.meal_distribution?.lunch || 0.35) * 100)}%
+                        {Math.round((userProfile.nutrition_plan?.meal_distribution?.lunch || 0.35) * 100)}%
                     </div>
                   </div>
                   <div className="bg-white bg-opacity-20 p-3 rounded-2xl">
                     <div className="text-sm text-green-100">Dinner</div>
                     <div className="text-lg font-bold">
-                      {Math.round((userProfile.nutrition_plan?.meal_distribution?.dinner || 0.3) * 100)}%
+                        {Math.round((userProfile.nutrition_plan?.meal_distribution?.dinner || 0.3) * 100)}%
                     </div>
                   </div>
                   <div className="bg-white bg-opacity-20 p-3 rounded-xl">
                     <div className="text-sm text-green-100">Snacks</div>
                     <div className="text-lg font-bold">
-                      {Math.round((userProfile.nutrition_plan?.meal_distribution?.snacks || 0.1) * 100)}%
+                        {Math.round((userProfile.nutrition_plan?.meal_distribution?.snacks || 0.1) * 100)}%
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="bg-gradient-to-r from-yellow-100 to-orange-100 p-4 rounded-2xl border border-yellow-200">
-                <h3 className="font-bold text-yellow-900 mb-3 flex items-center">
-                  <Lightbulb className="w-5 h-5 mr-2" />Smart Recommendations
-                </h3>
+                <h3 className="font-bold text-yellow-900 mb-3">💡 Smart Recommendations</h3>
                 <ul className="space-y-2 text-yellow-800">
                   <li className="flex items-start space-x-2">
                     <CheckCircle className="w-4 h-4 mt-0.5 text-yellow-600" />
@@ -3399,6 +4323,15 @@ const NutriVisionApp = () => {
         </button>
 
         <button
+          onClick={() => setCurrentView('user-profile')}
+          className={`flex flex-col items-center py-2 px-2 rounded-xl ${currentView === 'user-profile' ? 'bg-green-100 text-green-600' : 'text-gray-600'
+            }`}
+        >
+          <Utensils className="w-5 h-5 mb-1" />
+          <span className="text-xs font-medium">Profile</span>
+        </button>
+
+        <button
           onClick={() => setCurrentView('settings')}
           className={`flex flex-col items-center py-2 px-2 rounded-xl ${currentView === 'settings' ? 'bg-gray-100 text-gray-600' : 'text-gray-600'
             }`}
@@ -3432,6 +4365,8 @@ const NutriVisionApp = () => {
         return renderMealDetails();
       case 'daily-log':
         return renderDailyLog();
+      case 'user-profile':
+        return renderUserProfile();
       case 'menstrual-cycle':
         return renderMenstrualCycle();
       case 'settings':
@@ -3497,7 +4432,7 @@ const NutriVisionApp = () => {
               <span className="font-medium">{error}</span>
             </div>
             <button onClick={() => setError('')} className="text-white hover:text-red-200 ml-4">
-              <X className="w-4 h-4" />
+              ✕
             </button>
           </div>
         </div>
