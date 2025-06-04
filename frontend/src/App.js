@@ -44,6 +44,7 @@ const NutriVisionApp = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
 
   // Auth Forms
   const [loginData, setLoginData] = useState({ email: '', password: '' });
@@ -298,9 +299,6 @@ const NutriVisionApp = () => {
           case 'meal-history':
             loadMealHistory();
             break;
-          case 'user-profile':
-            loadUserProfile();
-            break;
           case 'recipe-book':
             loadUserRecipes();
             break;
@@ -342,6 +340,14 @@ const NutriVisionApp = () => {
       localStorage.setItem('tutorialShown', 'true');
     }
   }, [user]);
+
+  useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add('dark');
+    } else {
+      document.body.classList.remove('dark');
+    }
+  }, [darkMode]);
 
   // ─────────── DATA LOADER FUNCTIONS ───────────
 
@@ -3838,20 +3844,17 @@ const NutriVisionApp = () => {
         <div className="w-6" />
       </div>
       <div className="space-y-6">
-        {/* USER PROFILE */}
+        {/* PREFERENCES */}
         <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">User Profile</h2>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-              <div>
-                <h3 className="font-medium text-gray-900">{user?.username}</h3>
-                <p className="text-sm text-gray-600">{user?.email}</p>
-              </div>
-              <div className="text-right">
-                <div className="text-sm font-medium text-gray-900">{user?.level}</div>
-                <div className="text-xs text-gray-600">{user?.total_xp} XP</div>
-              </div>
-            </div>
+          <h2 className="text-lg font-bold text-gray-900 mb-4">Preferences</h2>
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+            <span className="font-medium text-gray-900">Dark Mode</span>
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className="px-3 py-1 rounded-full bg-gray-200"
+            >
+              {darkMode ? 'Disable' : 'Enable'}
+            </button>
           </div>
         </div>
 
@@ -3873,14 +3876,6 @@ const NutriVisionApp = () => {
             >
               <Calendar className="w-5 h-5 text-yellow-600" />
               <span className="font-medium text-yellow-900">Daily Food Log</span>
-            </button>
-
-            <button
-              onClick={() => setCurrentView('user-profile')}
-              className="w-full flex items-center space-x-3 p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors"
-            >
-              <Utensils className="w-5 h-5 text-green-600" />
-              <span className="font-medium text-green-900">User Profile</span>
             </button>
 
             {user?.gender === 'female' && user?.track_menstrual_cycle && (
@@ -4323,15 +4318,6 @@ const NutriVisionApp = () => {
         </button>
 
         <button
-          onClick={() => setCurrentView('user-profile')}
-          className={`flex flex-col items-center py-2 px-2 rounded-xl ${currentView === 'user-profile' ? 'bg-green-100 text-green-600' : 'text-gray-600'
-            }`}
-        >
-          <Utensils className="w-5 h-5 mb-1" />
-          <span className="text-xs font-medium">Profile</span>
-        </button>
-
-        <button
           onClick={() => setCurrentView('settings')}
           className={`flex flex-col items-center py-2 px-2 rounded-xl ${currentView === 'settings' ? 'bg-gray-100 text-gray-600' : 'text-gray-600'
             }`}
@@ -4365,8 +4351,6 @@ const NutriVisionApp = () => {
         return renderMealDetails();
       case 'daily-log':
         return renderDailyLog();
-      case 'user-profile':
-        return renderUserProfile();
       case 'menstrual-cycle':
         return renderMenstrualCycle();
       case 'settings':
