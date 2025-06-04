@@ -713,6 +713,36 @@ def analyze_eating_patterns(analyses):
         "taste_profile": {"sweet": 30, "salty": 25, "umami": 20, "bitter": 15, "sour": 10}
     }
 
+def generate_food_dna_profile(user_analyses):
+    """🧬 UNIQUE: Generate user's Food DNA based on eating patterns"""
+
+    if not user_analyses:
+        return {
+            "dominant_genes": ["Explorer", "Optimizer"],
+            "taste_preferences": {"sweet": 30, "salty": 25, "umami": 20, "bitter": 15, "sour": 10},
+            "eating_triggers": ["hunger", "routine"],
+            "optimization_score": 50
+        }
+
+    patterns = analyze_eating_patterns(user_analyses)
+
+    genes = []
+    if patterns["healthy_ratio"] > 0.7:
+        genes.append("Optimizer")
+    if patterns["variety_score"] > 0.6:
+        genes.append("Explorer")
+    if patterns["emotional_eating"] > 0.4:
+        genes.append("Emotional")
+    if patterns["social_eating"] > 0.5:
+        genes.append("Social")
+
+    return {
+        "dominant_genes": genes[:3] or ["Developing", "Learning"],
+        "taste_preferences": patterns.get("taste_profile", {}),
+        "eating_triggers": patterns.get("triggers", []),
+        "optimization_score": patterns.get("health_trend", 50)
+    }
+
 def generate_personalized_challenge(user):
     analyses = user.meal_analyses[-10:]
     if not analyses:
