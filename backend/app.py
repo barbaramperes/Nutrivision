@@ -19,6 +19,7 @@ from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import Flask, request, jsonify, session, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text, inspect
 from flask_cors import CORS
 from PIL import Image, ImageEnhance, ImageFilter
 import io
@@ -3023,6 +3024,12 @@ def create_demo_user():
 
 def init_revolutionary_database():
     db.create_all()
+    inspector = inspect(db.engine)
+    user_columns = [c['name'] for c in inspector.get_columns('user')]
+    if 'profile_photo' not in user_columns:
+        with db.engine.connect() as conn:
+            conn.execute(text("ALTER TABLE user ADD COLUMN profile_photo VARCHAR(200)"))
+            conn.commit()
 
     legendary_badges = [
         {
