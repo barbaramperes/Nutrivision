@@ -278,10 +278,12 @@ def find_similar_ingredients(ingredient):
 
     return similar[:3]
 
-def validate_ingredients(ingredients_list):
+def validate_ingredients(ingredients_list, strict=True):
     """
-    Valida se cada ingrediente existe no nosso dicionário
-    Retorna: dict com valid_items, invalid_items e sugestões
+    Valida os ingredientes utilizando o dicionário interno.
+
+    Se ``strict`` for ``False`` todos os itens são considerados válidos e
+    apenas sugestões de possíveis correções são retornadas.
     """
     valid_items = []
     invalid_items = []
@@ -291,22 +293,26 @@ def validate_ingredients(ingredients_list):
         ingredient_clean = ingredient.lower().strip()
         is_valid = False
         for valid_ingredient in ALL_VALID_INGREDIENTS:
-            if (ingredient_clean in valid_ingredient or
-                valid_ingredient in ingredient_clean or
-                len(set(ingredient_clean.split()) & set(valid_ingredient.split())) > 0):
+            if (
+                ingredient_clean in valid_ingredient
+                or valid_ingredient in ingredient_clean
+                or len(set(ingredient_clean.split()) & set(valid_ingredient.split())) > 0
+            ):
                 is_valid = True
-                valid_items.append(ingredient)
                 break
 
-        if not is_valid:
+        if is_valid or not strict:
+            valid_items.append(ingredient)
+        else:
             invalid_items.append(ingredient)
-            similar = find_similar_ingredients(ingredient_clean)
-            if similar:
-                suggestions.extend(similar[:2])
+
+        similar = find_similar_ingredients(ingredient_clean)
+        if similar:
+            suggestions.extend(similar[:2])
 
     return {
         'valid_items': valid_items,
-        'invalid_items': invalid_items,
+        'invalid_items': invalid_items if strict else [],
         'suggestions': list(set(suggestions))
     }
 
@@ -995,6 +1001,84 @@ def parse_ai_response(ai_response):
     except (json.JSONDecodeError, ValueError, KeyError, TypeError) as e:
         logger.error(f"Erro ao parsear resposta do AI: {str(e)}")
     return get_revolutionary_mock_analysis()
+
+def estimate_nutrition_from_text(description):
+    """Estimate nutrition facts using Azure GPT based on meal description."""
+    system_prompt = (
+        "You are a nutrition expert. Given a meal description, "
+        "estimate calories, protein, carbs and fat. Respond ONLY with JSON as "
+        "{\"calories\": int, \"protein\": float, \"carbs\": float, \"fat\": float}."
+    )
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": description},
+            ],
+            max_tokens=200,
+            temperature=0.0,
+        )
+        content = response.choices[0].message.content.strip()
+        if content.startswith("```json"):
+            content = content.replace("```json", "").replace("```", "").strip()
+        data = json.loads(content)
+        return {
+            'calories': int(data.get('calories', 0)),
+            'protein': float(data.get('protein', 0)),
+            'carbs': float(data.get('carbs', 0)),
+            'fat': float(data.get('fat', 0)),
+        }
+    except Exception as e:
+        logger.error(f"Erro estimando nutrição: {e}")
+        return None
+
+def generate_meal_title(description):
+    """Use Azure GPT to craft a concise meal title."""
+    system_prompt = (
+        "You create catchy meal titles. Given a meal description, return a short title only."
+    )
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": description},
+            ],
+            max_tokens=20,
+            temperature=0.7,
+        )
+        title = response.choices[0].message.content.strip()
+        return re.sub(r"[\r\n]+", " ", title)[:60]
+    except Exception as e:
+        logger.error(f"Erro ao gerar título: {e}")
+        return description[:60]
+
+def ai_filter_food_items(items):
+    """Use GPT to return only the edible food items from the list."""
+    system_prompt = (
+        "You are a culinary expert. From the list provided, return ONLY the items that are edible foods as a JSON array of strings."
+    )
+    try:
+        joined = ", ".join(items)
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": joined},
+            ],
+            max_tokens=150,
+            temperature=0.0,
+        )
+        content = response.choices[0].message.content.strip()
+        if content.startswith("```json"):
+            content = content.replace("```json", "").replace("```", "").strip()
+        data = json.loads(content)
+        if isinstance(data, list):
+            return [str(i).strip() for i in data]
+    except Exception as e:
+        logger.error(f"Erro na validação AI de ingredientes: {e}")
+    return items
 
 def generate_highly_personalized_recipes(user, ingredients_list, preferences, count=3):
     """Gera receitas altamente personalizadas via GPT-4o"""
@@ -1885,23 +1969,20 @@ def generate_recipe_endpoint():
             if it not in ingredients_list:
                 ingredients_list.append(it)
 
-        # Precisamos de pelo menos 2 ingredientes válidos
+        # Precisamos de pelo menos 2 ingredientes
         if len(ingredients_list) < 2:
-            return jsonify({'error': 'É necessário pelo menos 2 ingredientes válidos (após combinar texto + imagem)'}), 400
+            return jsonify({'error': 'É necessário pelo menos 2 ingredientes (texto ou imagem)' }), 400
 
-        # VALIDAÇÃO DE INGREDIENTES
-        validation_result = validate_ingredients(ingredients_list)
-        if len(validation_result['valid_items']) == 0:
-            return jsonify({
-                'error': 'Nenhum ingrediente válido encontrado.',
-                'validation_result': validation_result
-            }), 400
-
-        # Se houver itens inválidos, avisamos, mas continuamos com os válidos
+        # Validação flexível de ingredientes
+        validation_result = validate_ingredients(ingredients_list, strict=False)
         if validation_result['invalid_items']:
-            logger.warning(f"Ingredientes inválidos detectados: {validation_result['invalid_items']}")
+            logger.warning(
+                f"Ingredientes possivelmente inválidos: {validation_result['invalid_items']}"
+            )
 
-        translated_ingredients = translate_ingredients_to_english(validation_result['valid_items'])
+        # Usa o GPT para filtrar itens não alimentares
+        filtered = ai_filter_food_items(validation_result['valid_items'])
+        translated_ingredients = translate_ingredients_to_english(filtered)
 
         preferences = {
             'meal_type': meal_type,
@@ -1911,12 +1992,17 @@ def generate_recipe_endpoint():
             'dietary_pref': dietary_pref
         }
 
-        recipe_options = generate_highly_personalized_recipes(user, translated_ingredients, preferences, count=3)
+        recipe_options = generate_highly_personalized_recipes(
+            user, translated_ingredients, preferences, count=3
+        )
 
         # Salvamos apenas a primeira receita gerada (opcional)
         recipe_saved = None
         if recipe_options:
             r0 = recipe_options[0]
+            if not r0.get('image_url'):
+                prompt = f"{r0['title']} plated meal, professional food photography"
+                r0['image_url'] = generate_recipe_image_url(prompt)
             recipe_saved = RecipeCollection(
                 user_id=user.id,
                 title=r0['title'],
@@ -1973,6 +2059,10 @@ def get_user_recipes():
         recipes = query.order_by(RecipeCollection.created_at.desc()).all()
         recipes_data = []
         for recipe in recipes:
+            if not recipe.image_url:
+                prompt = f"{recipe.title} plated meal, professional food photography"
+                recipe.image_url = generate_recipe_image_url(prompt)
+                db.session.commit()
             recipes_data.append({
                 'id': recipe.id,
                 'title': recipe.title,
@@ -2015,6 +2105,11 @@ def get_recipe_details(recipe_id):
         recipe = RecipeCollection.query.filter_by(id=recipe_id, user_id=user.id).first()
         if not recipe:
             return jsonify({'error': 'Receita não encontrada'}), 404
+
+        if not recipe.image_url:
+            prompt = f"{recipe.title} plated meal, professional food photography"
+            recipe.image_url = generate_recipe_image_url(prompt)
+            db.session.commit()
 
         recipe_data = {
             'id': recipe.id,
@@ -2243,6 +2338,42 @@ def get_nutrition_plan():
     except Exception as e:
         logger.error(f"❌ Erro no plano nutricional: {str(e)}")
         return jsonify({'error': f'Failed to get nutrition plan: {str(e)}'}), 500
+
+# ------------------------
+# PERFIL DO USUÁRIO (GET)
+# ------------------------
+@app.route('/api/user-profile', methods=['GET'])
+def get_user_profile():
+    """Retorna informações básicas do usuário junto com o plano nutricional ativo."""
+    user = get_current_user()
+    if not user:
+        return jsonify({'error': 'Não autenticado'}), 401
+
+    active_plan = NutritionPlan.query.filter_by(user_id=user.id, is_active=True).first()
+    plan_data = None
+    if active_plan:
+        plan_data = {
+            'plan_name': active_plan.plan_name,
+            'plan_type': active_plan.plan_type,
+            'daily_calories': active_plan.daily_calories,
+            'daily_protein': active_plan.daily_protein,
+            'daily_carbs': active_plan.daily_carbs,
+            'daily_fat': active_plan.daily_fat,
+            'start_date': active_plan.start_date.isoformat(),
+        }
+
+    return jsonify({
+        'user': {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'level': user.level,
+            'total_xp': user.total_xp,
+            'current_weight': user.current_weight,
+            'target_weight': user.target_weight,
+        },
+        'nutrition_plan': plan_data
+    }), 200
 
 # ------------------------
 # SUGESTÕES DE REFEIÇÃO (GET)
@@ -2503,7 +2634,11 @@ def add_daily_meal():
 
     try:
         data = request.get_json()
-        required_fields = ['date', 'name', 'calories', 'protein', 'carbs', 'fat', 'meal_type', 'time']
+        estimate_flag = data.get('estimate', False)
+        if estimate_flag:
+            required_fields = ['date', 'meal_type', 'time']
+        else:
+            required_fields = ['date', 'calories', 'protein', 'carbs', 'fat', 'meal_type', 'time']
         for field in required_fields:
             if field not in data:
                 return jsonify({'error': f'Campo obrigatório ausente: {field}'}), 400
@@ -2513,14 +2648,37 @@ def add_daily_meal():
         except ValueError:
             return jsonify({'error': 'Formato de data inválido. Use YYYY-MM-DD.'}), 400
 
+        description = data.get('description', '')
+        meal_name = data.get('name')
+        if not meal_name:
+            if description:
+                meal_name = generate_meal_title(description)
+            else:
+                meal_name = f"{data['meal_type'].title()} {data['time']}"
+
+        if estimate_flag:
+            text_for_estimate = description or meal_name
+            estimates = estimate_nutrition_from_text(text_for_estimate)
+            if not estimates:
+                return jsonify({'error': 'Falha na estimativa nutricional'}), 500
+            calories = estimates['calories']
+            protein = estimates['protein']
+            carbs = estimates['carbs']
+            fat = estimates['fat']
+        else:
+            calories = int(data['calories'])
+            protein = float(data['protein'])
+            carbs = float(data['carbs'])
+            fat = float(data['fat'])
+
         new_meal = DailyMeal(
             user_id=user.id,
             date=date_obj,
-            name=data['name'],
-            calories=int(data['calories']),
-            protein=float(data['protein']),
-            carbs=float(data['carbs']),
-            fat=float(data['fat']),
+            name=meal_name,
+            calories=calories,
+            protein=protein,
+            carbs=carbs,
+            fat=fat,
             meal_type=data['meal_type'],
             time=data['time']
         )
@@ -2546,10 +2704,46 @@ def add_daily_meal():
         return jsonify({'error': f'Falha ao adicionar refeição: {str(e)}'}), 500
 
 # ------------------------
-# NOVO ENDPOINT: /api/recipe-image-generate (POST)
+# GERAÇÃO DE IMAGEM DE RECEITA
 # ------------------------
+
+def generate_recipe_image_url(prompt):
+    """Gera uma URL de imagem usando o Azure DALL·E. Em caso de falha retorna
+    um placeholder."""
+    try:
+        AZURE_ENDPOINT = "https://inaop-m8ohnn6q-swedencentral.openai.azure.com"
+        DEPLOYMENT_NAME = "dall-e-3"
+        API_VERSION = "2024-02-01"
+        AZURE_API_KEY = "ClLQh4NwuGDphJEiuoMCzvjAibamC88Kpi7yNfoliMEpl061SFxqJQQJ99BCACfhMk5XJ3w3AAAAACOGluow"
+
+        url = f"{AZURE_ENDPOINT}/openai/deployments/{DEPLOYMENT_NAME}/images/generations?api-version={API_VERSION}"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {AZURE_API_KEY}"
+        }
+        payload = {
+            "model": DEPLOYMENT_NAME,
+            "prompt": prompt,
+            "size": "1024x1024",
+            "style": "vivid",
+            "quality": "standard",
+            "n": 1,
+        }
+
+        resp = requests.post(url, headers=headers, json=payload, timeout=30)
+        if resp.status_code != 200:
+            logger.error(f"Erro ao chamar Azure DALL·E: {resp.status_code} {resp.text}")
+            return "https://via.placeholder.com/1024"
+
+        result = resp.json()
+        if isinstance(result, dict) and "data" in result and isinstance(result["data"], list) and result["data"]:
+            return result["data"][0].get("url", "https://via.placeholder.com/1024")
+    except Exception as e:
+        logger.error(f"Erro na geração da imagem: {e}")
+    return "https://via.placeholder.com/1024"
+
 # ------------------------
-# NOVO ENDPOINT: /api/recipe-image-generate (POST) usando REST do Azure DALL·E
+# ENDPOINT: /api/recipe-image-generate (POST) usando REST do Azure DALL·E
 # ------------------------
 @app.route('/api/recipe-image-generate', methods=['POST'])
 def recipe_image_generate():
@@ -2563,46 +2757,7 @@ def recipe_image_generate():
         if not prompt:
             return jsonify({'error': 'Prompt é obrigatório'}), 400
 
-        # --- CONSTRUA A REQUISIÇÃO PARA O ENDPOINT REST DO AZURE DALL·E ---
-        AZURE_ENDPOINT = "https://inaop-m8ohnn6q-swedencentral.openai.azure.com"
-        DEPLOYMENT_NAME = "dall-e-3"
-        API_VERSION = "2024-02-01"
-        AZURE_API_KEY = "ClLQh4NwuGDphJEiuoMCzvjAibamC88Kpi7yNfoliMEpl061SFxqJQQJ99BCACfhMk5XJ3w3AAAAACOGluow"
-        # (substitua a string acima pela sua chave real)
-
-        url = f"{AZURE_ENDPOINT}/openai/deployments/{DEPLOYMENT_NAME}/images/generations?api-version={API_VERSION}"
-
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {AZURE_API_KEY}"
-        }
-
-        payload = {
-            "model": DEPLOYMENT_NAME,        # normalmente "dall-e-3"
-            "prompt": prompt,
-            "size": "1024x1024",
-            "style": "vivid",                # campo opcional, conforme o exemplo REST
-            "quality": "standard",           # campo opcional
-            "n": 1
-        }
-
-        # Faz o POST para gerar a imagem
-        resp = requests.post(url, headers=headers, json=payload, timeout=30)
-        if resp.status_code != 200:
-            # Se deu erro, logue e retorne um URL de fallback
-            logger.error(f"Erro ao chamar Azure DALL·E: {resp.status_code} {resp.text}")
-            return jsonify({'url': "https://via.placeholder.com/1024"}), 200
-
-        result = resp.json()
-        # A resposta típica é { "data": [ { "url": "https://..." } ] }
-        generated_url = None
-        if isinstance(result, dict) and "data" in result and isinstance(result["data"], list) and len(result["data"]) > 0:
-            generated_url = result["data"][0].get("url")
-
-        if not generated_url:
-            # fallback se não veio URL válida
-            generated_url = "https://via.placeholder.com/1024"
-
+        generated_url = generate_recipe_image_url(prompt)
         return jsonify({'url': generated_url}), 200
 
     except Exception as e:
