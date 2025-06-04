@@ -21,6 +21,7 @@ import {
   Activity,
   Brain,
   Lightbulb,
+  HelpCircle,
   X,
   ChevronLeft,
   ChevronRight,
@@ -42,6 +43,7 @@ const NutriVisionApp = () => {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
   // Auth Forms
   const [loginData, setLoginData] = useState({ email: '', password: '' });
@@ -333,6 +335,13 @@ const NutriVisionApp = () => {
       return () => clearTimeout(t);
     }
   }, [error]);
+
+  useEffect(() => {
+    if (user && !localStorage.getItem('tutorialShown')) {
+      setShowHelp(true);
+      localStorage.setItem('tutorialShown', 'true');
+    }
+  }, [user]);
 
   // ─────────── DATA LOADER FUNCTIONS ───────────
 
@@ -4373,7 +4382,38 @@ const NutriVisionApp = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {renderCurrentView()}
-      {user && !['login', 'register', 'camera-capture'].includes(currentView) && renderNavigation()}
+      {user && !['login', 'register', 'camera-capture'].includes(currentView) && (
+        <>
+          {renderNavigation()}
+          <button
+            onClick={() => setShowHelp(true)}
+            className="fixed bottom-20 right-4 bg-orange-500 text-white p-3 rounded-full shadow-lg z-40"
+            aria-label="Help"
+          >
+            <HelpCircle className="w-5 h-5" />
+          </button>
+        </>
+      )}
+
+      {showHelp && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-gray-900">Quick Tour</h2>
+              <button onClick={() => setShowHelp(false)} className="text-gray-500 hover:text-gray-700">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="space-y-2 text-gray-700 text-sm">
+              <p><strong>Home:</strong> overview and suggestions.</p>
+              <p><strong>Log:</strong> track your meals.</p>
+              <p><strong>Recipes:</strong> create personalized dishes.</p>
+              <p><strong>Profile:</strong> manage your information.</p>
+              <p><strong>Settings:</strong> sign out and other options.</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {successMessage && (
         <div className="fixed top-4 left-4 right-4 bg-green-500 text-white p-4 rounded-xl shadow-lg z-50">
