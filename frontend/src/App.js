@@ -1309,6 +1309,47 @@ const NutriVisionApp = () => {
           <div className="text-yellow-100 text-sm">Badges</div>
         </div>
       </div>
+      {dashboardStats && (
+        <div className="space-y-6 px-4">
+          <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
+            <h3 className="font-bold text-gray-900 mb-4">Weekly Summary</h3>
+            <div className="grid grid-cols-2 gap-4 text-center">
+              <div>
+                <div className="text-2xl font-bold text-orange-600">{dashboardStats.weekly_summary.meals_logged}</div>
+                <div className="text-sm text-gray-600">Meals Logged</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-orange-600">{dashboardStats.weekly_summary.total_calories}</div>
+                <div className="text-sm text-gray-600">Calories</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-orange-600">{dashboardStats.weekly_summary.avg_health_score}</div>
+                <div className="text-sm text-gray-600">Avg Score</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-orange-600">{dashboardStats.weekly_summary.plan_progress}%</div>
+                <div className="text-sm text-gray-600">Plan Progress</div>
+              </div>
+            </div>
+          </div>
+
+          {mealSuggestions.length > 0 && (
+            <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
+              <h3 className="font-bold text-gray-900 mb-4">Meal Suggestions</h3>
+              <ul className="space-y-2">
+                {mealSuggestions.map((sug, idx) => (
+                  <li key={idx} className="flex items-start space-x-2">
+                    <CheckCircle className="w-4 h-4 mt-1 text-orange-500" />
+                    <span className="text-sm text-gray-700">
+                      {sug.title} - {sug.description}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
 
     </div>
   );
@@ -3167,7 +3208,7 @@ const NutriVisionApp = () => {
             <p className="text-sm text-gray-600 mb-2">
               {userProfile.nutrition_plan?.plan_name}{' '}
               <span className="capitalize">
-                {userProfile.nutrition_plan?.plan_type.replace('_', ' ')}
+                {userProfile.nutrition_plan?.plan_type?.replace('_', ' ')}
               </span>
             </p>
 
@@ -3391,11 +3432,10 @@ const NutriVisionApp = () => {
 
   const renderNavigation = () => (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 py-2">
-      <div className="flex justify-around items-end">
+      <div className="grid grid-cols-5 items-end">
         <button
           onClick={() => setCurrentView('dashboard')}
-          className={`flex flex-col items-center py-2 px-2 rounded-xl ${currentView === 'dashboard' ? 'bg-orange-100 text-orange-600' : 'text-gray-600'
-            }`}
+          className={`flex flex-col items-center py-2 px-2 rounded-xl ${currentView === 'dashboard' ? 'bg-orange-100 text-orange-600' : 'text-gray-600'}`}
         >
           <Home className="w-5 h-5 mb-1" />
           <span className="text-xs font-medium">Home</span>
@@ -3412,7 +3452,7 @@ const NutriVisionApp = () => {
 
         <button
           onClick={() => setCurrentView('smart-scanner')}
-          className={`p-3 rounded-full ${currentView === 'smart-scanner' ? 'bg-orange-500 text-white' : 'bg-orange-100 text-orange-600'} shadow-lg -mt-6`}
+          className={`justify-self-center p-3 rounded-full ${currentView === 'smart-scanner' ? 'bg-orange-500 text-white' : 'bg-orange-100 text-orange-600'} shadow-lg -mt-6`}
         >
           <Camera className="w-6 h-6" />
         </button>
