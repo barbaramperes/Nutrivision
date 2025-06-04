@@ -2447,9 +2447,23 @@ def update_user_profile():
         return jsonify({'error': 'Não autenticado'}), 401
 
     data = request.get_json() or {}
+    numeric_int = ['age']
+    numeric_float = ['height', 'current_weight', 'target_weight']
     for field in ['username', 'email', 'age', 'height', 'current_weight', 'target_weight', 'gender']:
         if field in data:
-            setattr(user, field, data[field])
+            value = data[field]
+            if value == '' or value is None:
+                setattr(user, field, None)
+            else:
+                try:
+                    if field in numeric_int:
+                        setattr(user, field, int(value))
+                    elif field in numeric_float:
+                        setattr(user, field, float(value))
+                    else:
+                        setattr(user, field, value)
+                except (ValueError, TypeError):
+                    setattr(user, field, None)
     db.session.commit()
     return jsonify({'message': 'Perfil atualizado'}), 200
 
