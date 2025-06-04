@@ -384,33 +384,7 @@ const NutriVisionApp = () => {
       setDailyMeals(res.meals || []);
     } catch (err) {
       console.error('Error loading daily meals:', err);
-      // Fallback mock (today)
-      const mockMeals =
-        selectedDate.toDateString() === new Date().toDateString()
-          ? [
-            {
-              id: 1,
-              name: 'Oatmeal with Berries',
-              calories: 320,
-              protein: 12,
-              carbs: 45,
-              fat: 8,
-              meal_type: 'breakfast',
-              time: '08:30',
-            },
-            {
-              id: 2,
-              name: 'Grilled Chicken Salad',
-              calories: 450,
-              protein: 35,
-              carbs: 20,
-              fat: 18,
-              meal_type: 'lunch',
-              time: '13:00',
-            },
-          ]
-          : [];
-      setDailyMeals(mockMeals);
+      setDailyMeals([]);
     } finally {
       setLoading(false);
     }
@@ -422,31 +396,7 @@ const NutriVisionApp = () => {
       setMealHistory(res.history || []);
     } catch (err) {
       console.error('Error loading meal history:', err);
-      // Fallback mock
-      setMealHistory([
-        {
-          id: 101,
-          meal_type: 'lunch',
-          created_at: new Date().toISOString(),
-          total_calories: 450,
-          protein: 35,
-          carbs: 40,
-          fat: 10,
-          eating_personality_type: 'Health Optimizer',
-          foods_detected: [
-            'grilled chicken',
-            'boiled eggs',
-            'lettuce',
-            'tomatoes',
-            'corn',
-            'edamame',
-            'purple cabbage',
-            'cucumbers',
-          ],
-          image_url: 'https://picsum.photos/600/400?random=101',
-          health_score: 7,
-        },
-      ]);
+      setMealHistory([]);
     }
   };
 
@@ -1309,6 +1259,47 @@ const NutriVisionApp = () => {
           <div className="text-yellow-100 text-sm">Badges</div>
         </div>
       </div>
+      {dashboardStats && (
+        <div className="space-y-6 px-4">
+          <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
+            <h3 className="font-bold text-gray-900 mb-4">Weekly Summary</h3>
+            <div className="grid grid-cols-2 gap-4 text-center">
+              <div>
+                <div className="text-2xl font-bold text-orange-600">{dashboardStats.weekly_summary.meals_logged}</div>
+                <div className="text-sm text-gray-600">Meals Logged</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-orange-600">{dashboardStats.weekly_summary.total_calories}</div>
+                <div className="text-sm text-gray-600">Calories</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-orange-600">{dashboardStats.weekly_summary.avg_health_score}</div>
+                <div className="text-sm text-gray-600">Avg Score</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-orange-600">{dashboardStats.weekly_summary.plan_progress}%</div>
+                <div className="text-sm text-gray-600">Plan Progress</div>
+              </div>
+            </div>
+          </div>
+
+          {mealSuggestions.length > 0 && (
+            <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
+              <h3 className="font-bold text-gray-900 mb-4">Meal Suggestions</h3>
+              <ul className="space-y-2">
+                {mealSuggestions.map((sug, idx) => (
+                  <li key={idx} className="flex items-start space-x-2">
+                    <CheckCircle className="w-4 h-4 mt-1 text-orange-500" />
+                    <span className="text-sm text-gray-700">
+                      {sug.title} - {sug.description}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
 
     </div>
   );
@@ -3167,7 +3158,7 @@ const NutriVisionApp = () => {
             <p className="text-sm text-gray-600 mb-2">
               {userProfile.nutrition_plan?.plan_name}{' '}
               <span className="capitalize">
-                {userProfile.nutrition_plan?.plan_type.replace('_', ' ')}
+                {userProfile.nutrition_plan?.plan_type?.replace('_', ' ')}
               </span>
             </p>
 
@@ -3391,11 +3382,10 @@ const NutriVisionApp = () => {
 
   const renderNavigation = () => (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 py-2">
-      <div className="flex justify-around items-end">
+      <div className="grid grid-cols-5 items-end">
         <button
           onClick={() => setCurrentView('dashboard')}
-          className={`flex flex-col items-center py-2 px-2 rounded-xl ${currentView === 'dashboard' ? 'bg-orange-100 text-orange-600' : 'text-gray-600'
-            }`}
+          className={`flex flex-col items-center py-2 px-2 rounded-xl ${currentView === 'dashboard' ? 'bg-orange-100 text-orange-600' : 'text-gray-600'}`}
         >
           <Home className="w-5 h-5 mb-1" />
           <span className="text-xs font-medium">Home</span>
@@ -3412,7 +3402,7 @@ const NutriVisionApp = () => {
 
         <button
           onClick={() => setCurrentView('smart-scanner')}
-          className={`p-3 rounded-full ${currentView === 'smart-scanner' ? 'bg-orange-500 text-white' : 'bg-orange-100 text-orange-600'} shadow-lg -mt-6`}
+          className={`justify-self-center p-3 rounded-full ${currentView === 'smart-scanner' ? 'bg-orange-500 text-white' : 'bg-orange-100 text-orange-600'} shadow-lg -mt-6`}
         >
           <Camera className="w-6 h-6" />
         </button>
