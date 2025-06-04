@@ -511,6 +511,15 @@ const NutriVisionApp = () => {
       setError('Please enter a meal name');
       return;
     }
+    if (
+      !currentMeal.calories &&
+      !currentMeal.protein &&
+      !currentMeal.carbs &&
+      !currentMeal.fat
+    ) {
+      setError('Run AI estimation or fill in nutrition before saving');
+      return;
+    }
     const newMeal = {
       id: Date.now(),
       ...currentMeal,
@@ -587,10 +596,13 @@ const NutriVisionApp = () => {
 
       if (result.estimation) {
         if (result.estimation.title) {
-          setCurrentMeal((prev) => ({ ...prev, name: result.estimation.title }));
+          setAiMealEstimation(result.estimation);
+          if (!currentMeal.name.trim()) {
+            setCurrentMeal((prev) => ({ ...prev, name: result.estimation.title }));
+          }
+        } else {
+          setAiMealEstimation(result.estimation);
         }
-
-        setAiMealEstimation(result.estimation);
         setCurrentMeal((prev) => ({
           ...prev,
           calories: result.estimation.calories.toString(),
@@ -601,13 +613,16 @@ const NutriVisionApp = () => {
       } else if (result.analysis) {
         const nutrition = result.analysis.nutrition || {};
         setAiMealEstimation({
-          title: currentMeal.name,
+          title: result.analysis.title || currentMeal.name,
           calories: nutrition.calories || 0,
           protein: nutrition.protein || 0,
           carbs: nutrition.carbs || 0,
           fat: nutrition.fat || 0,
           confidence: null,
         });
+        if (!currentMeal.name.trim() && result.analysis.title) {
+          setCurrentMeal((prev) => ({ ...prev, name: result.analysis.title }));
+        }
         setCurrentMeal((prev) => ({
           ...prev,
           calories: String(nutrition.calories || ''),
