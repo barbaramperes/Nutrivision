@@ -33,6 +33,7 @@ import {
   DrumstickIcon, // substitui Drumstick
   Tag,
   Target,
+  User,
 
 } from 'lucide-react';
 
@@ -307,6 +308,9 @@ const NutriVisionApp = () => {
           case 'dashboard':
             loadDashboardStats();
             loadMealSuggestions();
+            break;
+          case 'profile':
+            loadUserProfile();
             break;
           case 'menstrual-cycle':
             if (user.gender === 'female' && user.track_menstrual_cycle) {
@@ -1011,6 +1015,48 @@ const NutriVisionApp = () => {
     </div>
   );
 
+
+  const renderSmartScanner = () => (
+    <div className="min-h-screen bg-gradient-to-br from-light-bgStart to-light-bgEnd dark:from-dark-bgStart dark:to-dark-bgEnd p-4 pb-20 flex items-center justify-center">
+      <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100 w-full max-w-md">
+        <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center justify-center">
+          <Camera className="w-6 h-6 mr-2 text-orange-500" />
+          Smart Food Analysis
+        </h2>
+
+        <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl p-8 text-center border-2 border-dashed border-gray-300">
+          <div className="w-20 h-20 bg-gradient-to-br from-light-accent via-light-accent2 to-light-accent dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <Camera className="w-10 h-10 text-white" />
+          </div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">AI-Powered Analysis</h3>
+          <p className="text-gray-600 mb-6">Get instant insights about your meals with advanced AI!</p>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="bg-gradient-to-r from-gray-800 to-gray-600 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg hover:shadow-gray-500/30 transform hover:scale-105 transition-all"
+            >
+              <Image className="w-4 h-4 mr-1 inline" /> Choose Photo
+            </button>
+            <button
+              onClick={handleCameraCapture}
+              className="bg-gradient-to-r from-light-accent via-light-accent2 to-light-accent dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg hover:shadow-orange-500/30 transform hover:scale-105 transition-all"
+            >
+              <Camera className="w-4 h-4 mr-1 inline" /> Open Camera
+            </button>
+          </div>
+        </div>
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}
+          className="hidden"
+        />
+      </div>
+    </div>
+  );
+
   const renderRegister = () => (
     <div className="min-h-screen bg-gradient-to-br from-light-accent via-light-accent2 to-light-accent dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md max-h-screen overflow-y-auto">
@@ -1264,44 +1310,6 @@ const NutriVisionApp = () => {
         </div>
       </div>
 
-      {/* SMART FOOD SCANNER SECTION */}
-      <div className="bg-white rounded-3xl shadow-lg p-6 mb-6 border border-gray-100 mx-4">
-        <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
-          <Camera className="w-6 h-6 mr-2 text-orange-500" />
-          Smart Food Analysis
-        </h2>
-        {/* Removed mood and social context selectors */}
-
-        <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl p-8 text-center border-2 border-dashed border-gray-300">
-          <div className="w-20 h-20 bg-gradient-to-br from-light-accent via-light-accent2 to-light-accent dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <Camera className="w-10 h-10 text-white" />
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">AI-Powered Analysis</h3>
-          <p className="text-gray-600 mb-6">Get instant insights about your meals with advanced AI!</p>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="bg-gradient-to-r from-gray-800 to-gray-600 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg hover:shadow-gray-500/30 transform hover:scale-105 transition-all"
-            >
-              <Image className="w-4 h-4 mr-1 inline" /> Choose Photo
-            </button>
-            <button
-              onClick={handleCameraCapture}
-              className="bg-gradient-to-r from-light-accent via-light-accent2 to-light-accent dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg hover:shadow-orange-500/30 transform hover:scale-105 transition-all"
-            >
-              <Camera className="w-4 h-4 mr-1 inline" /> Open Camera
-            </button>
-          </div>
-        </div>
-
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleImageUpload}
-          className="hidden"
-        />
-      </div>
     </div>
   );
 
@@ -2597,11 +2605,7 @@ const NutriVisionApp = () => {
 
                 {/* AI‐Powered Estimation */}
                 <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-xl border border-purple-200">
-                  <h4 className="font-bold text-purple-900 mb-3 flex items-center">
-                    <Wand2 className="w-5 h-5 mr-2" />
-                    <Brain className="w-5 h-5 mr-2" />
-                    AI Nutrition Estimation
-                  </h4>
+                  <h4 className="font-bold text-purple-900 mb-3">Nutrition Estimation</h4>
 
                   <div className="space-y-3">
                     <div className="flex space-x-2">
@@ -2996,16 +3000,18 @@ const NutriVisionApp = () => {
     </div>
   );
 
-  const renderUserProfile = () => (
+  const renderProfile = () => (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4 pb-20">
       <div className="flex items-center justify-between mb-6">
         <button onClick={() => setCurrentView('dashboard')} className="text-gray-800 text-2xl font-bold">
           <ArrowLeft className="w-6 h-6" />
         </button>
         <h1 className="text-lg font-bold text-gray-900 flex items-center">
-          <UsersIcon className="w-5 h-5 mr-2" />User Profile
+          <User className="w-5 h-5 mr-2" />Profile
         </h1>
-        <div className="w-6" />
+        <button onClick={() => setCurrentView('settings')} className="text-gray-800">
+          <Settings className="w-6 h-6" />
+        </button>
       </div>
 
       {userProfile ? (
@@ -3385,7 +3391,7 @@ const NutriVisionApp = () => {
 
   const renderNavigation = () => (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 py-2">
-      <div className="flex justify-around">
+      <div className="flex justify-around items-end">
         <button
           onClick={() => setCurrentView('dashboard')}
           className={`flex flex-col items-center py-2 px-2 rounded-xl ${currentView === 'dashboard' ? 'bg-orange-100 text-orange-600' : 'text-gray-600'
@@ -3405,6 +3411,13 @@ const NutriVisionApp = () => {
         </button>
 
         <button
+          onClick={() => setCurrentView('smart-scanner')}
+          className={`p-3 rounded-full ${currentView === 'smart-scanner' ? 'bg-orange-500 text-white' : 'bg-orange-100 text-orange-600'} shadow-lg -mt-6`}
+        >
+          <Camera className="w-6 h-6" />
+        </button>
+
+        <button
           onClick={() => setCurrentView('recipe-book')}
           className={`flex flex-col items-center py-2 px-2 rounded-xl ${currentView === 'recipe-book' ? 'bg-yellow-100 text-yellow-600' : 'text-gray-600'
             }`}
@@ -3414,12 +3427,12 @@ const NutriVisionApp = () => {
         </button>
 
         <button
-          onClick={() => setCurrentView('settings')}
-          className={`flex flex-col items-center py-2 px-2 rounded-xl ${currentView === 'settings' ? 'bg-gray-100 text-gray-600' : 'text-gray-600'
+          onClick={() => setCurrentView('profile')}
+          className={`flex flex-col items-center py-2 px-2 rounded-xl ${currentView === 'profile' ? 'bg-gray-100 text-gray-600' : 'text-gray-600'
             }`}
         >
-          <Settings className="w-5 h-5 mb-1" />
-          <span className="text-xs font-medium">Settings</span>
+          <User className="w-5 h-5 mb-1" />
+          <span className="text-xs font-medium">Profile</span>
         </button>
       </div>
     </div>
@@ -3447,8 +3460,12 @@ const NutriVisionApp = () => {
         return renderMealDetails();
       case 'daily-log':
         return renderDailyLog();
+      case 'smart-scanner':
+        return renderSmartScanner();
       case 'menstrual-cycle':
         return renderMenstrualCycle();
+      case 'profile':
+        return renderProfile();
       case 'settings':
         return renderSettings();
       case 'camera-capture':
@@ -3488,8 +3505,7 @@ const NutriVisionApp = () => {
               <p><strong>Home:</strong> overview and suggestions.</p>
               <p><strong>Log:</strong> track your meals.</p>
               <p><strong>Recipes:</strong> create personalized dishes.</p>
-              <p><strong>Profile:</strong> manage your information.</p>
-              <p><strong>Settings:</strong> sign out and other options.</p>
+              <p><strong>Profile:</strong> manage your information and settings.</p>
             </div>
           </div>
         </div>
