@@ -25,7 +25,12 @@ from PIL import Image, ImageEnhance, ImageFilter
 import io
 import uuid
 import random
-from openai import AzureOpenAI
+try:
+    from openai import AzureOpenAI
+    _openai_available = True
+except Exception:  # pragma: no cover - optional dependency
+    AzureOpenAI = None
+    _openai_available = False
 import numpy as np
 from collections import Counter
 import logging
@@ -57,11 +62,14 @@ db = SQLAlchemy(app)
 # ================================
 # 🤖 AZURE OPENAI CONFIGURATION - GPT-4o & DALL·E
 # ================================
-client = AzureOpenAI(
-    api_key="DeienCd2CFxMsU08bncNRd3bTlfZ3HgDPyy2R5M9F0OO8vJa9l1EJQQJ99BCACYeBjFXJ3w3AAAAACOG3kpB",
-    api_version="2024-12-01-preview",
-    azure_endpoint="https://azure-openai096185143674.openai.azure.com/"
-)
+if _openai_available:
+    client = AzureOpenAI(
+        api_key="DeienCd2CFxMsU08bncNRd3bTlfZ3HgDPyy2R5M9F0OO8vJa9l1EJQQJ99BCACYeBjFXJ3w3AAAAACOG3kpB",
+        api_version="2024-12-01-preview",
+        azure_endpoint="https://azure-openai096185143674.openai.azure.com/"
+    )
+else:  # pragma: no cover - fallback for offline environments
+    client = None
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -337,6 +345,10 @@ def detect_ingredients_from_image(image_base64):
 
     IMPORTANTE: não retorne texto fora do array JSON — somente o array.
     """
+
+    if client is None:
+        logger.warning("Azure OpenAI client unavailable - skipping image ingredient detection")
+        return []
 
     try:
         response = client.chat.completions.create(
@@ -925,6 +937,10 @@ def get_revolutionary_mock_analysis():
     }
 
 def call_advanced_food_ai(image_base64, user_context):
+    if client is None:
+        logger.warning("Azure OpenAI client unavailable - using mock analysis")
+        return json.dumps(get_revolutionary_mock_analysis())
+
     system_prompt = f"""You are an advanced AI nutritionist with expertise in behavioral psychology.
 
     USER CONTEXT:
@@ -1042,6 +1058,9 @@ def estimate_nutrition_from_text(description):
         "estimate calories, protein, carbs and fat. Respond ONLY with JSON as "
         "{\"calories\": int, \"protein\": float, \"carbs\": float, \"fat\": float}."
     )
+    if client is None:
+        logger.warning("Azure OpenAI client unavailable - skipping nutrition estimation")
+        return None
     try:
         response = client.chat.completions.create(
             model="gpt-4o",
@@ -1071,6 +1090,9 @@ def generate_meal_title(description):
     system_prompt = (
         "You create catchy meal titles. Given a meal description, return a short title only."
     )
+    if client is None:
+        logger.warning("Azure OpenAI client unavailable - using description as title")
+        return description[:60]
     try:
         response = client.chat.completions.create(
             model="gpt-4o",
@@ -1092,6 +1114,9 @@ def ai_filter_food_items(items):
     system_prompt = (
         "You are a culinary expert. From the list provided, return ONLY the items that are edible foods as a JSON array of strings."
     )
+    if client is None:
+        logger.warning("Azure OpenAI client unavailable - skipping ingredient filtering")
+        return items
     try:
         joined = ", ".join(items)
         response = client.chat.completions.create(
@@ -1115,6 +1140,10 @@ def ai_filter_food_items(items):
 
 def generate_highly_personalized_recipes(user, ingredients_list, preferences, count=3):
     """Gera receitas altamente personalizadas via GPT-4o"""
+    if client is None:
+        logger.warning("Azure OpenAI client unavailable - returning fallback recipes")
+        return [create_fallback_recipe({'title_style': 'Sample', 'style_description': 'fallback', 'time_range': {'prep_min': 5, 'prep_max': 10, 'cook_min': 5, 'cook_max': 10}, 'servings': 1, 'primary_tag': 'fallback', 'secondary_tag': 'offline', 'style_tag': 'simple', 'difficulty': 'easy', 'creativity_level': 'simple', 'meal_context': 'quick meal', 'temperature': 0.5, 'creative_constraints': '', 'inspiration': '', 'mood': 'simple'}, ingredients_list, 0) for _ in range(count)]
+
     user_preferences = {
         'dietary_restrictions': getattr(user, 'dietary_restrictions', '[]'),
         'favorite_cuisines': getattr(user, 'favorite_cuisines', '[]'),
@@ -2823,6 +2852,9 @@ def generate_recipe_image_url(prompt):
     """Gera uma URL de imagem usando o Azure DALL·E. Em caso de falha retorna
     um placeholder."""
     try:
+        if client is None:
+            logger.warning("Azure DALL·E client unavailable - using placeholder image")
+            raise RuntimeError("offline")
         AZURE_ENDPOINT = "https://inaop-m8ohnn6q-swedencentral.openai.azure.com"
         DEPLOYMENT_NAME = "dall-e-3"
         API_VERSION = "2024-02-01"
