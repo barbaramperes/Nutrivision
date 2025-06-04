@@ -1,6 +1,6 @@
-/* frontend/src/index.css - FICHEIRO COMPLETO */
-/* Copia este conteúdo EXATO para frontend/src/index.css */
-/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 body {
     margin: 0;
@@ -9,7 +9,7 @@ body {
         sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background: linear-gradient(to bottom right, #fff7ed, #fef9c3);
+    @apply bg-gradient-to-br from-light-bgStart to-light-bgEnd dark:from-dark-bgStart dark:to-dark-bgEnd;
 }
 
 code {
