@@ -2435,13 +2435,13 @@ const NutriVisionApp = () => {
           </h2>
 
           <div className="grid grid-cols-4 gap-4 mb-4">
-            <div className="text-center p-3 bg-gradient-to-br from-red-50 to-red-100 rounded-xl">
+            <div className="p-3 bg-gradient-to-br from-red-50 to-red-100 rounded-xl flex flex-col items-center justify-center">
               <div className="text-2xl font-bold text-red-600">
                 {dailyMeals.reduce((sum, meal) => sum + meal.calories, 0)}
               </div>
               <div className="text-sm text-red-700">Calories</div>
             </div>
-            <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
+            <div className="p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl flex flex-col items-center justify-center">
               <div className="text-2xl font-bold text-blue-600">
                 {dailyMeals
                   .reduce((sum, meal) => sum + meal.protein, 0)
@@ -2450,7 +2450,7 @@ const NutriVisionApp = () => {
               </div>
               <div className="text-sm text-blue-700">Protein</div>
             </div>
-            <div className="text-center p-3 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl">
+            <div className="p-3 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl flex flex-col items-center justify-center">
               <div className="text-2xl font-bold text-yellow-600">
                 {dailyMeals
                   .reduce((sum, meal) => sum + meal.carbs, 0)
@@ -2459,7 +2459,7 @@ const NutriVisionApp = () => {
               </div>
               <div className="text-sm text-yellow-700">Carbs</div>
             </div>
-            <div className="text-center p-3 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl">
+            <div className="p-3 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl flex flex-col items-center justify-center">
               <div className="text-2xl font-bold text-purple-600">
                 {dailyMeals
                   .reduce((sum, meal) => sum + meal.fat, 0)
