@@ -1094,9 +1094,11 @@ def estimate_nutrition_from_text(description):
         return None
 
 def generate_meal_title(description):
-    """Use Azure GPT to craft a concise meal title."""
+    """Return a short and simple title for the meal description."""
     system_prompt = (
-        "You create catchy meal titles. Given a meal description, return a short title only."
+        "You create very simple meal titles. "
+        "Given a meal description, respond with a concise 1 to 4 word name "
+        "in plain language with no fancy adjectives. Return only the title."
     )
     if client is None:
         logger.warning("Azure OpenAI client unavailable - using description as title")
@@ -1109,7 +1111,7 @@ def generate_meal_title(description):
                 {"role": "user", "content": description},
             ],
             max_tokens=20,
-            temperature=0.7,
+            temperature=0.3,
         )
         title = response.choices[0].message.content.strip()
         return re.sub(r"[\r\n]+", " ", title)[:60]
