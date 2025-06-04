@@ -384,33 +384,7 @@ const NutriVisionApp = () => {
       setDailyMeals(res.meals || []);
     } catch (err) {
       console.error('Error loading daily meals:', err);
-      // Fallback mock (today)
-      const mockMeals =
-        selectedDate.toDateString() === new Date().toDateString()
-          ? [
-            {
-              id: 1,
-              name: 'Oatmeal with Berries',
-              calories: 320,
-              protein: 12,
-              carbs: 45,
-              fat: 8,
-              meal_type: 'breakfast',
-              time: '08:30',
-            },
-            {
-              id: 2,
-              name: 'Grilled Chicken Salad',
-              calories: 450,
-              protein: 35,
-              carbs: 20,
-              fat: 18,
-              meal_type: 'lunch',
-              time: '13:00',
-            },
-          ]
-          : [];
-      setDailyMeals(mockMeals);
+      setDailyMeals([]);
     } finally {
       setLoading(false);
     }
@@ -422,31 +396,7 @@ const NutriVisionApp = () => {
       setMealHistory(res.history || []);
     } catch (err) {
       console.error('Error loading meal history:', err);
-      // Fallback mock
-      setMealHistory([
-        {
-          id: 101,
-          meal_type: 'lunch',
-          created_at: new Date().toISOString(),
-          total_calories: 450,
-          protein: 35,
-          carbs: 40,
-          fat: 10,
-          eating_personality_type: 'Health Optimizer',
-          foods_detected: [
-            'grilled chicken',
-            'boiled eggs',
-            'lettuce',
-            'tomatoes',
-            'corn',
-            'edamame',
-            'purple cabbage',
-            'cucumbers',
-          ],
-          image_url: 'https://picsum.photos/600/400?random=101',
-          health_score: 7,
-        },
-      ]);
+      setMealHistory([]);
     }
   };
 
