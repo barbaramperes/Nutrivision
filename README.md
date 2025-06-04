@@ -30,6 +30,9 @@ Nutrivision is a demo application that combines a Flask backend with a React fro
    export AZURE_OPENAI_DEPLOYMENT=your-deployment
    export AZURE_OPENAI_API_VERSION=2024-12-01-preview
    ```
+   If the OpenAI Python package or network access is not available, the
+   backend will automatically fall back to mock responses so the demo can
+   still run offline.
 5. Start the Flask server:
    ```bash
    flask --app app.py run
