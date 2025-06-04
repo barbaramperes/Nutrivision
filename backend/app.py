@@ -1917,8 +1917,12 @@ def analyze_meal_revolutionary():
         new_badges = check_revolutionary_badges(user)
         update_food_memories(user.id, ai_data.get('foods_detected', []), meal_analysis)
 
+        foods = ai_data.get('foods_detected', [])
+        suggested_title = generate_meal_title(", ".join(foods)) if foods else None
+
         return jsonify({
             'analysis': {
+                'title': suggested_title,
                 'foods_detected': ai_data.get('foods_detected', []),
                 'nutrition': nutrition,
                 'revolutionary_insights': {
@@ -2823,10 +2827,16 @@ def add_daily_meal():
             carbs = estimates['carbs']
             fat = estimates['fat']
         else:
-            calories = int(data['calories'])
-            protein = float(data['protein'])
-            carbs = float(data['carbs'])
-            fat = float(data['fat'])
+            try:
+                calories = int(data['calories'])
+                protein = float(data['protein'])
+                carbs = float(data['carbs'])
+                fat = float(data['fat'])
+            except (ValueError, TypeError):
+                return jsonify({'error': 'Valores nutricionais inválidos'}), 400
+
+            if calories == 0 and protein == 0 and carbs == 0 and fat == 0:
+                return jsonify({'error': 'Forneça valores nutricionais ou use a estimativa AI'}), 400
 
         new_meal = DailyMeal(
             user_id=user.id,
