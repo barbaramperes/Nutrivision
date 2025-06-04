@@ -1504,9 +1504,7 @@ const NutriVisionApp = () => {
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-gray-50"
               rows="3"
             />
-            <p className="text-xs text-gray-500 mt-1">
-              🌍 Supports English, Portuguese & Spanish
-            </p>
+
           </div>
 
           {/* Upload / Captura de Foto */}
