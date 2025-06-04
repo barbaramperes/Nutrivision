@@ -2598,24 +2598,11 @@ def get_meal_suggestions():
                 }
             ]
         else:
-            suggestions = [
-                {
-                    'meal_type': 'breakfast',
-                    'title': 'Oatmeal with banana and nuts',
-                    'description': 'Balanced nutrition to start your day',
-                    'calories': 350,
-                    'protein': 12,
-                    'reason': 'Steady energy release'
-                },
-                {
-                    'meal_type': 'lunch',
-                    'title': 'Grilled chicken salad',
-                    'description': 'Light but satisfying',
-                    'calories': 420,
-                    'protein': 30,
-                    'reason': 'Perfect balance of nutrients'
-                }
-            ]
+            # If the user's dominant eating personality cannot be determined,
+            # return an empty list so the frontend doesn't show placeholder
+            # suggestions. Real suggestions will appear once enough meals are
+            # logged to analyze a pattern.
+            suggestions = []
 
         if phase_recommendations and current_phase:
             for suggestion in suggestions:
