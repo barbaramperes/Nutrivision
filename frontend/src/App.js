@@ -110,9 +110,20 @@ const NutriVisionApp = () => {
   const [userRecipes, setUserRecipes] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
 
-  // Mood & Social Context (for Food Analysis)
-  const [moodBefore, setMoodBefore] = useState('neutral');
-  const [socialContext, setSocialContext] = useState('alone');
+  // Profile editing
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileForm, setProfileForm] = useState({
+    username: '',
+    email: '',
+    age: '',
+    current_weight: '',
+    target_weight: '',
+    height: '',
+    gender: 'male',
+  });
+  const [profilePhotoFile, setProfilePhotoFile] = useState(null);
+  const [profilePhotoPreview, setProfilePhotoPreview] = useState(null);
+  const profilePhotoInputRef = useRef(null);
 
   // Refs for file inputs & video
   const fileInputRef = useRef(null);
@@ -420,10 +431,7 @@ const NutriVisionApp = () => {
   const loadUserProfile = async () => {
     try {
       const res = await apiCall('/user-profile');
-      setUserProfile({
-        ...res.nutrition_plan,
-        ...res.metrics,
-      });
+      setUserProfile(res);
     } catch (err) {
       console.error('Error loading user profile:', err);
       setUserProfile(null);
@@ -447,6 +455,33 @@ const NutriVisionApp = () => {
     } catch (err) {
       console.error('Error loading recipes:', err);
       setUserRecipes([]);
+    }
+  };
+
+  const saveProfileChanges = async () => {
+    try {
+      await apiCall('/user-profile', {
+        method: 'PUT',
+        body: JSON.stringify(profileForm),
+      });
+
+      if (profilePhotoFile) {
+        const fd = new FormData();
+        fd.append('photo', profilePhotoFile);
+        await fetch(`${API_BASE}/profile-photo`, {
+          method: 'POST',
+          credentials: 'include',
+          body: fd,
+        });
+      }
+
+      await loadUserProfile();
+      setIsEditingProfile(false);
+      setProfilePhotoFile(null);
+      setProfilePhotoPreview(null);
+      showSuccess('Profile updated!');
+    } catch (err) {
+      setError(err.message);
     }
   };
 
@@ -580,6 +615,17 @@ const NutriVisionApp = () => {
     const reader = new FileReader();
     reader.onload = () => {
       setMealImagePreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleProfilePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setProfilePhotoFile(file);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setProfilePhotoPreview(reader.result);
     };
     reader.readAsDataURL(file);
   };
@@ -728,8 +774,6 @@ const NutriVisionApp = () => {
         const fd = new FormData();
         fd.append('image', file);
         fd.append('meal_type', 'lunch');
-        fd.append('mood_before', moodBefore);
-        fd.append('social_context', socialContext);
 
         const resp = await fetch(`${API_BASE}/analyze-revolutionary`, {
           method: 'POST',
@@ -815,8 +859,6 @@ const NutriVisionApp = () => {
             const fd = new FormData();
             fd.append('image', file);
             fd.append('meal_type', 'lunch');
-            fd.append('mood_before', moodBefore);
-            fd.append('social_context', socialContext);
 
             const resp = await fetch(`${API_BASE}/analyze-revolutionary`, {
               method: 'POST',
@@ -1198,35 +1240,7 @@ const NutriVisionApp = () => {
           <Camera className="w-6 h-6 mr-2 text-orange-500" />
           Smart Food Analysis
         </h2>
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Mood</label>
-            <select
-              value={moodBefore}
-              onChange={(e) => setMoodBefore(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
-            >
-              <option value="happy">😊 Happy</option>
-              <option value="neutral">😐 Neutral</option>
-              <option value="stressed">😰 Stressed</option>
-              <option value="sad">😢 Sad</option>
-              <option value="excited">🤩 Excited</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Social Context</label>
-            <select
-              value={socialContext}
-              onChange={(e) => setSocialContext(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
-            >
-              <option value="alone">🧘 Alone</option>
-              <option value="family">👨‍👩‍👧‍👦 Family</option>
-              <option value="friends">👥 Friends</option>
-              <option value="work">💼 Work</option>
-            </select>
-          </div>
-        </div>
+        {/* Removed mood and social context selectors */}
 
         <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl p-8 text-center border-2 border-dashed border-gray-300">
           <div className="w-20 h-20 bg-gradient-to-br from-orange-500 via-yellow-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
@@ -1317,6 +1331,8 @@ const NutriVisionApp = () => {
                 </>
               )}
             </div>
+
+
 
             {!isEstimating && analysisResult && (
               <div className="p-6">
@@ -3525,9 +3541,11 @@ const NutriVisionApp = () => {
 
                     {aiMealEstimation && (
                       <div className="bg-white bg-opacity-70 p-3 rounded-lg">
+                        <p className="text-sm font-medium text-purple-800 mb-1">
+                          Suggested Title: {aiMealEstimation.title}
+                        </p>
                         <p className="text-sm text-purple-800 font-medium">
-                          AI Estimation: {aiMealEstimation.calories} cal,{' '}
-                          {aiMealEstimation.protein}g protein
+                          {aiMealEstimation.calories} cal, {aiMealEstimation.protein}g protein
                         </p>
                         <p className="text-xs text-purple-600 mt-1">
                           {aiMealEstimation.confidence}% confidence
@@ -3892,33 +3910,177 @@ const NutriVisionApp = () => {
         <div className="space-y-6">
           <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
             <div className="text-center mb-6">
-              <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Utensils className="w-10 h-10 text-white" />
+              <div className="relative inline-block mb-3">
+                <img
+                  src={
+                    profilePhotoPreview
+                      ? profilePhotoPreview
+                      : userProfile.user.profile_photo
+                      ? `${API_BASE}/images/${userProfile.user.profile_photo}`
+                      : 'https://via.placeholder.com/80'
+                  }
+                  alt="Profile"
+                  className="w-20 h-20 rounded-full object-cover"
+                />
+                {isEditingProfile && (
+                  <button
+                    onClick={() => profilePhotoInputRef.current?.click()}
+                    className="absolute bottom-0 right-0 bg-white p-1 rounded-full shadow"
+                  >
+                    <Camera className="w-4 h-4 text-gray-700" />
+                  </button>
+                )}
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">{userProfile.plan_name}</h2>
-              <p className="text-gray-600 capitalize">
-                {userProfile.plan_type.replace('_', ' ')}
-              </p>
-            </div>
+              <h2 className="text-xl font-bold text-gray-900">{userProfile.user.username}</h2>
+              <p className="text-gray-600 text-sm">{userProfile.user.email}</p>
+              <input
+                ref={profilePhotoInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleProfilePhotoChange}
+                className="hidden"
+              />
 
-            <p className="text-sm text-gray-600 mb-4">
-              Metrics calculated from your details help guide targets and progress.
-            </p>
+              {!isEditingProfile ? (
+                <button
+                  onClick={() => {
+                    setProfileForm({
+                      username: userProfile.user.username || '',
+                      email: userProfile.user.email || '',
+                      age: userProfile.user.age || '',
+                      current_weight: userProfile.user.current_weight || '',
+                      target_weight: userProfile.user.target_weight || '',
+                      height: userProfile.user.height || '',
+                      gender: userProfile.user.gender || 'male',
+                    });
+                    setIsEditingProfile(true);
+                  }}
+                  className="mt-2 text-sm text-blue-600 underline"
+                >
+                  Edit Profile
+                </button>
+              ) : (
+                <div className="space-y-3 text-left mt-4">
+                  <div>
+                    <label className="text-sm text-gray-700">Username</label>
+                    <input
+                      className="w-full border px-2 py-1 rounded"
+                      value={profileForm.username}
+                      onChange={(e) =>
+                        setProfileForm({ ...profileForm, username: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-700">Email</label>
+                    <input
+                      className="w-full border px-2 py-1 rounded"
+                      value={profileForm.email}
+                      onChange={(e) =>
+                        setProfileForm({ ...profileForm, email: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <label className="text-sm">Age</label>
+                      <input
+                        className="w-full border px-2 py-1 rounded"
+                        value={profileForm.age}
+                        onChange={(e) =>
+                          setProfileForm({ ...profileForm, age: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm">Weight</label>
+                      <input
+                        className="w-full border px-2 py-1 rounded"
+                        value={profileForm.current_weight}
+                        onChange={(e) =>
+                          setProfileForm({ ...profileForm, current_weight: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm">Target</label>
+                      <input
+                        className="w-full border px-2 py-1 rounded"
+                        value={profileForm.target_weight}
+                        onChange={(e) =>
+                          setProfileForm({ ...profileForm, target_weight: e.target.value })
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-sm">Height</label>
+                      <input
+                        className="w-full border px-2 py-1 rounded"
+                        value={profileForm.height}
+                        onChange={(e) =>
+                          setProfileForm({ ...profileForm, height: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm">Gender</label>
+                      <select
+                        className="w-full border px-2 py-1 rounded"
+                        value={profileForm.gender}
+                        onChange={(e) =>
+                          setProfileForm({ ...profileForm, gender: e.target.value })
+                        }
+                      >
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="flex space-x-2 pt-2">
+                    <button
+                      onClick={saveProfileChanges}
+                      className="flex-1 bg-blue-600 text-white py-2 rounded"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={() => setIsEditingProfile(false)}
+                      className="flex-1 bg-gray-200 py-2 rounded"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+              </div>
+
+              <p className="text-sm text-gray-600 mb-2">
+                {userProfile.nutrition_plan?.plan_name}{' '}
+                <span className="capitalize">
+                  {userProfile.nutrition_plan?.plan_type.replace('_', ' ')}
+                </span>
+              </p>
+
+              <p className="text-sm text-gray-600 mb-4">
+                Metrics calculated from your details help guide targets and progress.
+              </p>
 
             <div className="space-y-6">
               <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-5 rounded-2xl border border-purple-200">
                 <h3 className="font-bold text-gray-900 mb-4">Your Metrics</h3>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="text-center">
-                    <div className="text-xl font-bold text-purple-600">{userProfile.bmi ?? '-'}</div>
+                    <div className="text-xl font-bold text-purple-600">{userProfile.metrics?.bmi ?? '-'}</div>
                     <div className="text-sm text-gray-600">BMI</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-xl font-bold text-purple-600">{userProfile.bmr ?? '-'}</div>
+                    <div className="text-xl font-bold text-purple-600">{userProfile.metrics?.bmr ?? '-'}</div>
                     <div className="text-sm text-gray-600">BMR</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-xl font-bold text-purple-600">{userProfile.tdee ?? '-'}</div>
+                    <div className="text-xl font-bold text-purple-600">{userProfile.metrics?.tdee ?? '-'}</div>
                     <div className="text-sm text-gray-600">TDEE</div>
                   </div>
                 </div>
@@ -3928,25 +4090,25 @@ const NutriVisionApp = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center p-3 bg-white bg-opacity-70 rounded-xl">
                     <div className="text-2xl font-bold text-red-600">
-                      {userProfile.daily_targets?.calories || 0}
+                      {userProfile.nutrition_plan?.daily_targets?.calories || 0}
                     </div>
                     <div className="text-sm text-gray-600">Calories</div>
                   </div>
                   <div className="text-center p-3 bg-white bg-opacity-70 rounded-xl">
                     <div className="text-2xl font-bold text-blue-600">
-                      {userProfile.daily_targets?.protein || 0}g
+                      {userProfile.nutrition_plan?.daily_targets?.protein || 0}g
                     </div>
                     <div className="text-sm text-gray-600">Protein</div>
                   </div>
                   <div className="text-center p-3 bg-white bg-opacity-70 rounded-xl">
                     <div className="text-2xl font-bold text-yellow-600">
-                      {userProfile.daily_targets?.carbs || 0}g
+                      {userProfile.nutrition_plan?.daily_targets?.carbs || 0}g
                     </div>
                     <div className="text-sm text-gray-600">Carbs</div>
                   </div>
                   <div className="text-center p-3 bg-white bg-opacity-70 rounded-xl">
                     <div className="text-2xl font-bold text-purple-600">
-                      {userProfile.daily_targets?.fat || 0}g
+                      {userProfile.nutrition_plan?.daily_targets?.fat || 0}g
                     </div>
                     <div className="text-sm text-gray-600">Fat</div>
                   </div>
@@ -3958,7 +4120,7 @@ const NutriVisionApp = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center">
                     <div className="text-xl font-bold text-green-600">
-                      {userProfile.today_progress?.calories_consumed || 0}
+                      {userProfile.nutrition_plan?.today_progress?.calories_consumed || 0}
                     </div>
                     <div className="text-sm text-gray-600">Calories Consumed</div>
                     <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
@@ -3966,8 +4128,8 @@ const NutriVisionApp = () => {
                         className="bg-green-600 h-2 rounded-full transition-all duration-300"
                         style={{
                           width: `${Math.min(
-                            ((userProfile.today_progress?.calories_consumed || 0) /
-                              (userProfile.daily_targets?.calories || 1)) *
+                              ((userProfile.nutrition_plan?.today_progress?.calories_consumed || 0) /
+                                (userProfile.nutrition_plan?.daily_targets?.calories || 1)) *
                             100,
                             100
                           )
@@ -3978,7 +4140,7 @@ const NutriVisionApp = () => {
                   </div>
                   <div className="text-center">
                     <div className="text-xl font-bold text-blue-600">
-                      {userProfile.today_progress?.protein_consumed || 0}g
+                      {userProfile.nutrition_plan?.today_progress?.protein_consumed || 0}g
                     </div>
                     <div className="text-sm text-gray-600">Protein Consumed</div>
                     <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
@@ -3986,8 +4148,8 @@ const NutriVisionApp = () => {
                         className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                         style={{
                           width: `${Math.min(
-                            ((userProfile.today_progress?.protein_consumed || 0) /
-                              (userProfile.daily_targets?.protein || 1)) *
+                              ((userProfile.nutrition_plan?.today_progress?.protein_consumed || 0) /
+                                (userProfile.nutrition_plan?.daily_targets?.protein || 1)) *
                             100,
                             100
                           )
@@ -4005,25 +4167,25 @@ const NutriVisionApp = () => {
                   <div className="bg-white bg-opacity-20 p-3 rounded-xl">
                     <div className="text-sm text-green-100">Breakfast</div>
                     <div className="text-lg font-bold">
-                      {Math.round((userProfile.meal_distribution?.breakfast || 0.25) * 100)}%
+                        {Math.round((userProfile.nutrition_plan?.meal_distribution?.breakfast || 0.25) * 100)}%
                     </div>
                   </div>
                   <div className="bg-white bg-opacity-20 p-3 rounded-xl">
                     <div className="text-sm text-green-100">Lunch</div>
                     <div className="text-lg font-bold">
-                      {Math.round((userProfile.meal_distribution?.lunch || 0.35) * 100)}%
+                        {Math.round((userProfile.nutrition_plan?.meal_distribution?.lunch || 0.35) * 100)}%
                     </div>
                   </div>
                   <div className="bg-white bg-opacity-20 p-3 rounded-2xl">
                     <div className="text-sm text-green-100">Dinner</div>
                     <div className="text-lg font-bold">
-                      {Math.round((userProfile.meal_distribution?.dinner || 0.3) * 100)}%
+                        {Math.round((userProfile.nutrition_plan?.meal_distribution?.dinner || 0.3) * 100)}%
                     </div>
                   </div>
                   <div className="bg-white bg-opacity-20 p-3 rounded-xl">
                     <div className="text-sm text-green-100">Snacks</div>
                     <div className="text-lg font-bold">
-                      {Math.round((userProfile.meal_distribution?.snacks || 0.1) * 100)}%
+                        {Math.round((userProfile.nutrition_plan?.meal_distribution?.snacks || 0.1) * 100)}%
                     </div>
                   </div>
                 </div>

@@ -400,6 +400,8 @@ class User(db.Model):
     cooking_skill_level = db.Column(db.Integer, default=1)
     social_eating_score = db.Column(db.Float, default=5.0)
 
+    profile_photo = db.Column(db.String(200))
+
     obesity_risk_trend = db.Column(db.Text)
     metabolic_age = db.Column(db.Integer)
     predicted_weight_in_6months = db.Column(db.Float)
@@ -1531,7 +1533,8 @@ def register():
             target_weight=data['target_weight'],
             activity_level=data.get('activity_level', 'moderate'),
             metabolic_age=data.get('age', 25),
-            predicted_weight_in_6months=data.get('current_weight', 70)
+            predicted_weight_in_6months=data.get('current_weight', 70),
+            profile_photo=None
         )
         db.session.add(user)
         db.session.commit()
@@ -2422,6 +2425,7 @@ def get_user_profile():
             'id': user.id,
             'username': user.username,
             'email': user.email,
+            'profile_photo': user.profile_photo,
             'level': user.level,
             'total_xp': user.total_xp,
             'current_weight': user.current_weight,
@@ -2434,6 +2438,36 @@ def get_user_profile():
             'tdee': tdee,
         }
     }), 200
+
+@app.route('/api/user-profile', methods=['PUT'])
+def update_user_profile():
+    user = get_current_user()
+    if not user:
+        return jsonify({'error': 'Não autenticado'}), 401
+
+    data = request.get_json() or {}
+    for field in ['username', 'email', 'age', 'height', 'current_weight', 'target_weight', 'gender']:
+        if field in data:
+            setattr(user, field, data[field])
+    db.session.commit()
+    return jsonify({'message': 'Perfil atualizado'}), 200
+
+@app.route('/api/profile-photo', methods=['POST'])
+def upload_profile_photo():
+    user = get_current_user()
+    if not user:
+        return jsonify({'error': 'Não autenticado'}), 401
+
+    if 'photo' not in request.files:
+        return jsonify({'error': 'Imagem obrigatória'}), 400
+
+    file = request.files['photo']
+    filename = f"{uuid.uuid4()}.jpg"
+    path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file.save(path)
+    user.profile_photo = filename
+    db.session.commit()
+    return jsonify({'photo_url': f'/api/images/{filename}'}), 200
 
 # ------------------------
 # SUGESTÕES DE REFEIÇÃO (GET)
@@ -2882,7 +2916,8 @@ def create_demo_user():
             total_xp=250,
             level='Explorer',
             streak_days=5,
-            metabolic_age=23
+            metabolic_age=23,
+            profile_photo=None
         )
         db.session.add(demo_user)
         db.session.commit()
