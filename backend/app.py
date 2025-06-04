@@ -2431,6 +2431,9 @@ def get_user_profile():
             'total_xp': user.total_xp,
             'current_weight': user.current_weight,
             'target_weight': user.target_weight,
+            'age': user.age,
+            'height': user.height,
+            'gender': user.gender,
         },
         'nutrition_plan': plan_data,
         'metrics': {
