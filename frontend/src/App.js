@@ -918,12 +918,12 @@ const NutriVisionApp = () => {
   // ─────────── VIEW RENDERERS ───────────
 
   const renderLogin = () => (
-    <div className="min-h-screen bg-gradient-to-br from-orange-500 via-yellow-500 to-orange-600 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br bg-primary flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex items-center space-x-3 justify-center">
             <div className="relative">
-              <div className="w-12 h-12 bg-gradient-to-br from-orange-500 via-yellow-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 bg-gradient-to-br bg-primary rounded-2xl flex items-center justify-center shadow-lg">
                 <Eye className="w-7 h-7 text-white" />
               </div>
               <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-white animate-pulse" />
@@ -971,7 +971,7 @@ const NutriVisionApp = () => {
           <button
             onClick={login}
             disabled={loading}
-            className="w-full bg-gradient-to-r from-orange-500 via-yellow-500 to-orange-600 text-white py-3 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all disabled:opacity-50"
+            className="w-full bg-gradient-to-r bg-primary text-white py-3 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all disabled:opacity-50"
           >
             {loading ? <Loader className="w-5 h-5 animate-spin mx-auto" /> : 'Login'}
           </button>
@@ -990,12 +990,12 @@ const NutriVisionApp = () => {
   );
 
   const renderRegister = () => (
-    <div className="min-h-screen bg-gradient-to-br from-orange-500 via-yellow-500 to-orange-600 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br bg-primary flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md max-h-screen overflow-y-auto">
         <div className="text-center mb-6">
           <div className="flex items-center space-x-3 justify-center">
             <div className="relative">
-              <div className="w-12 h-12 bg-gradient-to-br from-orange-500 via-yellow-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 bg-gradient-to-br bg-primary rounded-2xl flex items-center justify-center shadow-lg">
                 <Eye className="w-7 h-7 text-white" />
               </div>
               <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-white animate-pulse" />
@@ -1176,13 +1176,13 @@ const NutriVisionApp = () => {
   );
 
   const renderDashboard = () => (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-orange-50 p-4 pb-20">
+    <div className="min-h-screen bg-gradient-to-br bg-page p-4 pb-20">
       {/* HEADER */}
       <div className="bg-white rounded-3xl shadow-lg p-6 mb-6 border border-gray-100">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
             <div className="relative">
-              <div className="w-12 h-12 bg-gradient-to-br from-orange-500 via-yellow-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 bg-gradient-to-br bg-primary rounded-2xl flex items-center justify-center shadow-lg">
                 <Eye className="w-7 h-7 text-white" />
               </div>
               <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-white animate-pulse" />
@@ -1203,7 +1203,7 @@ const NutriVisionApp = () => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-orange-500 via-yellow-500 to-orange-600 p-4 rounded-2xl text-white">
+        <div className="bg-gradient-to-r bg-primary p-4 rounded-2xl text-white">
           <div className="flex items-center">
             <Lightbulb className="w-6 h-6 mr-2 text-yellow-200" />
             <div>
@@ -1253,7 +1253,7 @@ const NutriVisionApp = () => {
         {/* Removed mood and social context selectors */}
 
         <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl p-8 text-center border-2 border-dashed border-gray-300">
-          <div className="w-20 h-20 bg-gradient-to-br from-orange-500 via-yellow-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+          <div className="w-20 h-20 bg-gradient-to-br bg-primary rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
             <Camera className="w-10 h-10 text-white" />
           </div>
           <h3 className="text-xl font-bold text-gray-900 mb-2">AI-Powered Analysis</h3>
@@ -1267,7 +1267,7 @@ const NutriVisionApp = () => {
             </button>
             <button
               onClick={handleCameraCapture}
-              className="bg-gradient-to-r from-orange-500 via-yellow-500 to-orange-600 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg hover:shadow-orange-500/30 transform hover:scale-105 transition-all"
+              className="bg-gradient-to-r bg-primary text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg hover:shadow-orange-500/30 transform hover:scale-105 transition-all"
             >
               <Camera className="w-4 h-4 mr-1 inline" /> Open Camera
             </button>
@@ -1286,7 +1286,7 @@ const NutriVisionApp = () => {
   );
 
   const renderFoodAnalysis = () => (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-orange-50 p-4 pb-20">
+    <div className="min-h-screen bg-gradient-to-br bg-page p-4 pb-20">
       <div className="flex items-center justify-between mb-6">
         <button
           onClick={() => setCurrentView('dashboard')}
@@ -1364,7 +1364,7 @@ const NutriVisionApp = () => {
                 </div>
 
                 {analysisResult.revolutionary_insights && (
-                  <div className="bg-gradient-to-r from-orange-500 via-yellow-500 to-orange-600 p-6 rounded-2xl text-white mb-6 shadow-lg">
+                  <div className="bg-gradient-to-r bg-primary p-6 rounded-2xl text-white mb-6 shadow-lg">
                     <h3 className="font-bold text-xl mb-4 flex items-center">
                       <Sparkles className="w-6 h-6 mr-2" />
                       Smart Insights
@@ -3016,7 +3016,7 @@ const NutriVisionApp = () => {
   // };
 
   const renderMealHistory = () => (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-orange-50 p-4 pb-20">
+    <div className="min-h-screen bg-gradient-to-br bg-page p-4 pb-20">
       <div className="flex items-center justify-between mb-6">
         <button
           onClick={() => setCurrentView('dashboard')}
@@ -3122,7 +3122,7 @@ const NutriVisionApp = () => {
   const renderMealDetails = () => {
     if (!selectedHistoryMeal) return null;
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-orange-50 p-4 pb-20">
+      <div className="min-h-screen bg-gradient-to-br bg-page p-4 pb-20">
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => {
@@ -3244,7 +3244,7 @@ const NutriVisionApp = () => {
     const daysOfMonth = getDaysOfMonth();
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-orange-50 p-4 pb-20">
+      <div className="min-h-screen bg-gradient-to-br bg-page p-4 pb-20">
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => setCurrentView('dashboard')}
@@ -3829,7 +3829,7 @@ const NutriVisionApp = () => {
   );
 
   const renderSettings = () => (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-orange-50 p-4 pb-20">
+    <div className="min-h-screen bg-gradient-to-br bg-page p-4 pb-20">
       <div className="flex items-center justify-between mb-6">
         <button onClick={() => setCurrentView('dashboard')} className="text-gray-800 text-2xl font-bold">
           ←

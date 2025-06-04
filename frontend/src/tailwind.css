@@ -1,6 +1,8 @@
-/* frontend/src/index.css - FICHEIRO COMPLETO */
-/* Copia este conteúdo EXATO para frontend/src/index.css */
-/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles */
 
 body {
     margin: 0;
@@ -82,4 +84,12 @@ code {
 
 .animate-spin {
     animation: spin 1s linear infinite;
+}
+@layer utilities {
+  .bg-primary {
+    @apply bg-gradient-to-r from-orange-500 via-yellow-500 to-orange-600;
+  }
+  .bg-page {
+    @apply bg-gradient-to-br from-gray-50 to-orange-50;
+  }
 }
