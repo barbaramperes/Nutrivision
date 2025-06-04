@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Camera,
+  Image,
   Dna,
   Loader,
   CheckCircle,
@@ -1253,13 +1254,13 @@ const NutriVisionApp = () => {
               onClick={() => fileInputRef.current?.click()}
               className="bg-gradient-to-r from-gray-800 to-gray-600 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg hover:shadow-gray-500/30 transform hover:scale-105 transition-all"
             >
-              🖼️ Choose Photo
+              <Image className="w-4 h-4 mr-1 inline" /> Choose Photo
             </button>
             <button
               onClick={handleCameraCapture}
               className="bg-gradient-to-r from-orange-500 via-yellow-500 to-orange-600 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg hover:shadow-orange-500/30 transform hover:scale-105 transition-all"
             >
-              📸 Open Camera
+              <Camera className="w-4 h-4 mr-1 inline" /> Open Camera
             </button>
           </div>
         </div>
@@ -1934,14 +1935,14 @@ const NutriVisionApp = () => {
                 }}
                 className="bg-gradient-to-r from-gray-800 to-gray-600 text-white px-5 py-2 rounded-xl text-sm font-semibold shadow-md hover:shadow-lg transition-transform transform hover:-translate-y-0.5"
               >
-                📸 Capture Photo
+                <Camera className="w-4 h-4 mr-1 inline" /> Capture Photo
               </button>
 
               <button
                 onClick={() => recipeFileInputRef.current?.click()}
                 className="bg-gradient-to-r from-orange-500 to-yellow-600 text-white px-5 py-2 rounded-xl text-sm font-semibold shadow-md hover:shadow-lg transition-transform transform hover:-translate-y-0.5"
               >
-                🖼️ Choose Photo
+                <Image className="w-4 h-4 mr-1 inline" /> Choose Photo
               </button>
             </div>
 
@@ -3493,7 +3494,8 @@ const NutriVisionApp = () => {
                 <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-xl border border-purple-200">
                   <h4 className="font-bold text-purple-900 mb-3 flex items-center">
                     <Wand2 className="w-5 h-5 mr-2" />
-                    🤖 AI Nutrition Estimation
+                    <Brain className="w-5 h-5 mr-2" />
+                    AI Nutrition Estimation
                   </h4>
 
                   <div className="space-y-3">
@@ -3503,7 +3505,7 @@ const NutriVisionApp = () => {
                         disabled={isEstimating}
                         className="flex-1 bg-gradient-to-r from-purple-500 to-blue-600 text-white py-2 px-3 rounded-lg text-sm font-bold hover:shadow-lg transition-all disabled:opacity-50"
                       >
-                        📸 Add Photo
+                        <Camera className="w-4 h-4 mr-1 inline" /> Add Photo
                       </button>
                       <button
                         onClick={estimateMealWithAI}
@@ -3515,7 +3517,9 @@ const NutriVisionApp = () => {
                         {isEstimating ? (
                           <Loader className="w-4 h-4 animate-spin mx-auto" />
                         ) : (
-                          '✨ Estimate'
+                          <>
+                            <Sparkles className="w-4 h-4 mr-1 inline" /> Estimate
+                          </>
                         )}
                       </button>
                     </div>
