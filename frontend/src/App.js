@@ -532,19 +532,39 @@ const NutriVisionApp = () => {
         });
       }
 
-      // Se a IA retornar um título sugerido, preenche o nome da refeição
-      if (result.estimation.title) {
-        setCurrentMeal((prev) => ({ ...prev, name: result.estimation.title }));
-      }
+      if (result.estimation) {
+        if (result.estimation.title) {
+          setCurrentMeal((prev) => ({ ...prev, name: result.estimation.title }));
+        }
 
-      setAiMealEstimation(result.estimation);
-      setCurrentMeal((prev) => ({
-        ...prev,
-        calories: result.estimation.calories.toString(),
-        protein: result.estimation.protein.toString(),
-        carbs: result.estimation.carbs.toString(),
-        fat: result.estimation.fat.toString(),
-      }));
+        setAiMealEstimation(result.estimation);
+        setCurrentMeal((prev) => ({
+          ...prev,
+          calories: result.estimation.calories.toString(),
+          protein: result.estimation.protein.toString(),
+          carbs: result.estimation.carbs.toString(),
+          fat: result.estimation.fat.toString(),
+        }));
+      } else if (result.analysis) {
+        const nutrition = result.analysis.nutrition || {};
+        setAiMealEstimation({
+          title: currentMeal.name,
+          calories: nutrition.calories || 0,
+          protein: nutrition.protein || 0,
+          carbs: nutrition.carbs || 0,
+          fat: nutrition.fat || 0,
+          confidence: null,
+        });
+        setCurrentMeal((prev) => ({
+          ...prev,
+          calories: String(nutrition.calories || ''),
+          protein: String(nutrition.protein || ''),
+          carbs: String(nutrition.carbs || ''),
+          fat: String(nutrition.fat || ''),
+        }));
+      } else {
+        throw new Error('Unexpected AI response');
+      }
       showSuccess('AI estimation completed!');
     } catch (err) {
       setError(`AI estimation failed: ${err.message}`);
