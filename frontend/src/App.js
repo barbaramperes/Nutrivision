@@ -2229,11 +2229,11 @@ const NutriVisionApp = () => {
             {userRecipes.map((recipe) => (
               <div
                 key={recipe.id}
-                className="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-2xl border border-yellow-200 flex items-center"
+                className="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-2xl border border-yellow-200 flex flex-col sm:flex-row items-center"
               >
                 { /* ─── Miniatura: verifica se existe `recipe.image_url` ─── */}
                 {recipe.image_url ? (
-                  <div className="w-24 h-24 rounded-xl overflow-hidden shadow-md flex-shrink-0">
+                  <div className="w-full sm:w-24 h-24 rounded-xl overflow-hidden shadow-md flex-shrink-0">
                     <img
                       src={recipe.image_url}
                       alt={recipe.title}
@@ -2241,13 +2241,13 @@ const NutriVisionApp = () => {
                     />
                   </div>
                 ) : (
-                  <div className="w-24 h-24 bg-gray-200 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <div className="w-full sm:w-24 h-24 bg-gray-200 rounded-xl flex items-center justify-center flex-shrink-0">
                     <Utensils className="w-8 h-8 text-gray-400" />
                   </div>
                 )}
 
                 { /* ─── Conteúdo textual ao lado (título, descrição, ícones etc.) ─── */}
-                <div className="flex-1 ml-4">
+                <div className="flex-1 mt-4 sm:mt-0 sm:ml-4">
                   <h3 className="font-bold text-yellow-900">{recipe.title}</h3>
                   <p className="text-yellow-700 text-sm line-clamp-2">
                     {recipe.description}
@@ -2274,7 +2274,7 @@ const NutriVisionApp = () => {
                 </div>
 
                 { /* ─── Botões “View” / “Delete” ─── */}
-                <div className="flex flex-col space-y-2 ml-4">
+                <div className="flex flex-row space-x-2 mt-4 sm:mt-0 sm:flex-col sm:space-x-0 sm:space-y-2 sm:ml-4">
                   <button
                     onClick={() => getRecipeDetails(recipe.id)}
                     className="bg-yellow-600 text-white px-3 py-2 rounded-xl text-sm font-semibold hover:bg-yellow-700 transition-colors"
