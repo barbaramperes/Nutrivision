@@ -2362,6 +2362,31 @@ def get_user_profile():
             'start_date': active_plan.start_date.isoformat(),
         }
 
+    bmi = None
+    bmr = None
+    tdee = None
+    if user.height and user.current_weight and user.age:
+        try:
+            height_m = user.height / 100
+            bmi = round(user.current_weight / (height_m ** 2), 2)
+            if user.gender == 'female':
+                bmr = 10 * user.current_weight + 6.25 * user.height - 5 * user.age - 161
+            else:
+                bmr = 10 * user.current_weight + 6.25 * user.height - 5 * user.age + 5
+            activity_map = {
+                'sedentary': 1.2,
+                'light': 1.375,
+                'moderate': 1.55,
+                'active': 1.725,
+                'very_active': 1.9,
+            }
+            factor = activity_map.get(user.activity_level or 'moderate', 1.55)
+            tdee = bmr * factor
+            bmr = round(bmr)
+            tdee = round(tdee)
+        except Exception:
+            bmi = bmr = tdee = None
+
     return jsonify({
         'user': {
             'id': user.id,
@@ -2372,7 +2397,12 @@ def get_user_profile():
             'current_weight': user.current_weight,
             'target_weight': user.target_weight,
         },
-        'nutrition_plan': plan_data
+        'nutrition_plan': plan_data,
+        'metrics': {
+            'bmi': bmi,
+            'bmr': bmr,
+            'tdee': tdee,
+        }
     }), 200
 
 # ------------------------
@@ -2763,6 +2793,41 @@ def recipe_image_generate():
     except Exception as e:
         logger.error(f"❌ Erro em /api/recipe-image-generate: {str(e)}")
         return jsonify({'url': "https://via.placeholder.com/1024"}), 200
+
+# ------------------------
+# AI MEAL ESTIMATION (POST)
+# ------------------------
+@app.route('/api/ai-meal-estimation', methods=['POST'])
+def ai_meal_estimation():
+    """Estimate nutrition from a text description and generate a short title."""
+    user = get_current_user()
+    if not user:
+        return jsonify({'error': 'Não autenticado'}), 401
+
+    data = request.get_json() or {}
+    description = data.get('meal_description', '').strip()
+    if not description:
+        return jsonify({'error': 'Descrição da refeição é obrigatória'}), 400
+
+    estimates = estimate_nutrition_from_text(description)
+    if not estimates:
+        return jsonify({'error': 'Falha na estimativa nutricional'}), 500
+
+    title = generate_meal_title(description)
+    conf_map = {'low': 60, 'medium': 80, 'high': 95}
+    conf_str = calculate_prediction_confidence(len(user.meal_analyses))
+    confidence = conf_map.get(conf_str, 60)
+
+    return jsonify({
+        'estimation': {
+            'title': title,
+            'calories': estimates['calories'],
+            'protein': estimates['protein'],
+            'carbs': estimates['carbs'],
+            'fat': estimates['fat'],
+            'confidence': confidence
+        }
+    }), 200
 
 # ------------------------
 # INSTRUÇÕES PARA INICIALIZAÇÃO DO BANCO DE DADOS

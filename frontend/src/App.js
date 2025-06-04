@@ -105,8 +105,8 @@ const NutriVisionApp = () => {
   const [analysisResult, setAnalysisResult] = useState(null);
   const [cameraStream, setCameraStream] = useState(null);
 
-  // Nutrition Plan & User’s Recipes
-  const [nutritionPlan, setNutritionPlan] = useState(null);
+  // User Profile & Recipes
+  const [userProfile, setUserProfile] = useState(null);
   const [userRecipes, setUserRecipes] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
 
@@ -284,8 +284,8 @@ const NutriVisionApp = () => {
           case 'meal-history':
             loadMealHistory();
             break;
-          case 'nutrition-plan':
-            loadNutritionPlan();
+          case 'user-profile':
+            loadUserProfile();
             break;
           case 'recipe-book':
             loadUserRecipes();
@@ -417,13 +417,16 @@ const NutriVisionApp = () => {
     }
   };
 
-  const loadNutritionPlan = async () => {
+  const loadUserProfile = async () => {
     try {
-      const res = await apiCall('/nutrition-plan');
-      setNutritionPlan(res.nutrition_plan);
+      const res = await apiCall('/user-profile');
+      setUserProfile({
+        ...res.nutrition_plan,
+        ...res.metrics,
+      });
     } catch (err) {
-      console.error('Error loading nutrition plan:', err);
-      setNutritionPlan(null);
+      console.error('Error loading user profile:', err);
+      setUserProfile(null);
     }
   };
 
@@ -3822,11 +3825,11 @@ const NutriVisionApp = () => {
             </button>
 
             <button
-              onClick={() => setCurrentView('nutrition-plan')}
+              onClick={() => setCurrentView('user-profile')}
               className="w-full flex items-center space-x-3 p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors"
             >
               <Utensils className="w-5 h-5 text-green-600" />
-              <span className="font-medium text-green-900">Nutrition Plan</span>
+              <span className="font-medium text-green-900">User Profile</span>
             </button>
 
             {user?.gender === 'female' && user?.track_menstrual_cycle && (
@@ -3855,58 +3858,75 @@ const NutriVisionApp = () => {
     </div>
   );
 
-  const renderNutritionPlan = () => (
+  const renderUserProfile = () => (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4 pb-20">
       <div className="flex items-center justify-between mb-6">
         <button onClick={() => setCurrentView('dashboard')} className="text-gray-800 text-2xl font-bold">
           ←
         </button>
-        <h1 className="text-lg font-bold text-gray-900">🥗 Nutrition Plan</h1>
+        <h1 className="text-lg font-bold text-gray-900">🧑‍⚕️ User Profile</h1>
         <div className="w-6" />
       </div>
 
-      {nutritionPlan ? (
+      {userProfile ? (
         <div className="space-y-6">
           <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
             <div className="text-center mb-6">
               <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Utensils className="w-10 h-10 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">{nutritionPlan.plan_name}</h2>
+              <h2 className="text-2xl font-bold text-gray-900">{userProfile.plan_name}</h2>
               <p className="text-gray-600 capitalize">
-                {nutritionPlan.plan_type.replace('_', ' ')}
+                {userProfile.plan_type.replace('_', ' ')}
               </p>
             </div>
 
             <p className="text-sm text-gray-600 mb-4">
-              Daily targets are calculated based on your basal metabolic rate (BMR) and activity level, then distributed across macronutrients (protein, carbs, fat) to match your goals.
+              Metrics calculated from your details help guide targets and progress.
             </p>
 
             <div className="space-y-6">
+              <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-5 rounded-2xl border border-purple-200">
+                <h3 className="font-bold text-gray-900 mb-4">Your Metrics</h3>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="text-center">
+                    <div className="text-xl font-bold text-purple-600">{userProfile.bmi ?? '-'}</div>
+                    <div className="text-sm text-gray-600">BMI</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-xl font-bold text-purple-600">{userProfile.bmr ?? '-'}</div>
+                    <div className="text-sm text-gray-600">BMR</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-xl font-bold text-purple-600">{userProfile.tdee ?? '-'}</div>
+                    <div className="text-sm text-gray-600">TDEE</div>
+                  </div>
+                </div>
+              </div>
               <div className="bg-gradient-to-r from-green-100 to-blue-100 p-5 rounded-2xl border border-green-200">
                 <h3 className="font-bold text-gray-900 mb-4">Daily Targets</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center p-3 bg-white bg-opacity-70 rounded-xl">
                     <div className="text-2xl font-bold text-red-600">
-                      {nutritionPlan.daily_targets?.calories || 0}
+                      {userProfile.daily_targets?.calories || 0}
                     </div>
                     <div className="text-sm text-gray-600">Calories</div>
                   </div>
                   <div className="text-center p-3 bg-white bg-opacity-70 rounded-xl">
                     <div className="text-2xl font-bold text-blue-600">
-                      {nutritionPlan.daily_targets?.protein || 0}g
+                      {userProfile.daily_targets?.protein || 0}g
                     </div>
                     <div className="text-sm text-gray-600">Protein</div>
                   </div>
                   <div className="text-center p-3 bg-white bg-opacity-70 rounded-xl">
                     <div className="text-2xl font-bold text-yellow-600">
-                      {nutritionPlan.daily_targets?.carbs || 0}g
+                      {userProfile.daily_targets?.carbs || 0}g
                     </div>
                     <div className="text-sm text-gray-600">Carbs</div>
                   </div>
                   <div className="text-center p-3 bg-white bg-opacity-70 rounded-xl">
                     <div className="text-2xl font-bold text-purple-600">
-                      {nutritionPlan.daily_targets?.fat || 0}g
+                      {userProfile.daily_targets?.fat || 0}g
                     </div>
                     <div className="text-sm text-gray-600">Fat</div>
                   </div>
@@ -3918,7 +3938,7 @@ const NutriVisionApp = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center">
                     <div className="text-xl font-bold text-green-600">
-                      {nutritionPlan.today_progress?.calories_consumed || 0}
+                      {userProfile.today_progress?.calories_consumed || 0}
                     </div>
                     <div className="text-sm text-gray-600">Calories Consumed</div>
                     <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
@@ -3926,8 +3946,8 @@ const NutriVisionApp = () => {
                         className="bg-green-600 h-2 rounded-full transition-all duration-300"
                         style={{
                           width: `${Math.min(
-                            ((nutritionPlan.today_progress?.calories_consumed || 0) /
-                              (nutritionPlan.daily_targets?.calories || 1)) *
+                            ((userProfile.today_progress?.calories_consumed || 0) /
+                              (userProfile.daily_targets?.calories || 1)) *
                             100,
                             100
                           )
@@ -3938,7 +3958,7 @@ const NutriVisionApp = () => {
                   </div>
                   <div className="text-center">
                     <div className="text-xl font-bold text-blue-600">
-                      {nutritionPlan.today_progress?.protein_consumed || 0}g
+                      {userProfile.today_progress?.protein_consumed || 0}g
                     </div>
                     <div className="text-sm text-gray-600">Protein Consumed</div>
                     <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
@@ -3946,8 +3966,8 @@ const NutriVisionApp = () => {
                         className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                         style={{
                           width: `${Math.min(
-                            ((nutritionPlan.today_progress?.protein_consumed || 0) /
-                              (nutritionPlan.daily_targets?.protein || 1)) *
+                            ((userProfile.today_progress?.protein_consumed || 0) /
+                              (userProfile.daily_targets?.protein || 1)) *
                             100,
                             100
                           )
@@ -3965,25 +3985,25 @@ const NutriVisionApp = () => {
                   <div className="bg-white bg-opacity-20 p-3 rounded-xl">
                     <div className="text-sm text-green-100">Breakfast</div>
                     <div className="text-lg font-bold">
-                      {Math.round((nutritionPlan.meal_distribution?.breakfast || 0.25) * 100)}%
+                      {Math.round((userProfile.meal_distribution?.breakfast || 0.25) * 100)}%
                     </div>
                   </div>
                   <div className="bg-white bg-opacity-20 p-3 rounded-xl">
                     <div className="text-sm text-green-100">Lunch</div>
                     <div className="text-lg font-bold">
-                      {Math.round((nutritionPlan.meal_distribution?.lunch || 0.35) * 100)}%
+                      {Math.round((userProfile.meal_distribution?.lunch || 0.35) * 100)}%
                     </div>
                   </div>
                   <div className="bg-white bg-opacity-20 p-3 rounded-2xl">
                     <div className="text-sm text-green-100">Dinner</div>
                     <div className="text-lg font-bold">
-                      {Math.round((nutritionPlan.meal_distribution?.dinner || 0.3) * 100)}%
+                      {Math.round((userProfile.meal_distribution?.dinner || 0.3) * 100)}%
                     </div>
                   </div>
                   <div className="bg-white bg-opacity-20 p-3 rounded-xl">
                     <div className="text-sm text-green-100">Snacks</div>
                     <div className="text-lg font-bold">
-                      {Math.round((nutritionPlan.meal_distribution?.snacks || 0.1) * 100)}%
+                      {Math.round((userProfile.meal_distribution?.snacks || 0.1) * 100)}%
                     </div>
                   </div>
                 </div>
@@ -4018,18 +4038,18 @@ const NutriVisionApp = () => {
           <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
             <Utensils className="w-10 h-10 text-gray-400" />
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-4">No Nutrition Plan</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">No Profile Data</h2>
           <p className="text-gray-600 mb-6">
-            Let us create a personalized nutrition plan based on your goals and preferences
+            Generate personalized guidance based on your details
           </p>
           <button
             onClick={() => {
-              showSuccess('Creating your personalized nutrition plan...');
-              loadNutritionPlan();
+              showSuccess('Loading your profile...');
+              loadUserProfile();
             }}
             className="bg-gradient-to-r from-green-500 to-blue-600 text-white px-6 py-3 rounded-xl font-bold"
           >
-            Create My Plan
+            Load Profile
           </button>
         </div>
       )}
@@ -4108,12 +4128,12 @@ const NutriVisionApp = () => {
         </button>
 
         <button
-          onClick={() => setCurrentView('nutrition-plan')}
-          className={`flex flex-col items-center py-2 px-2 rounded-xl ${currentView === 'nutrition-plan' ? 'bg-green-100 text-green-600' : 'text-gray-600'
+          onClick={() => setCurrentView('user-profile')}
+          className={`flex flex-col items-center py-2 px-2 rounded-xl ${currentView === 'user-profile' ? 'bg-green-100 text-green-600' : 'text-gray-600'
             }`}
         >
           <Utensils className="w-5 h-5 mb-1" />
-          <span className="text-xs font-medium">Plan</span>
+          <span className="text-xs font-medium">Profile</span>
         </button>
 
         <button
@@ -4150,8 +4170,8 @@ const NutriVisionApp = () => {
         return renderMealDetails();
       case 'daily-log':
         return renderDailyLog();
-      case 'nutrition-plan':
-        return renderNutritionPlan();
+      case 'user-profile':
+        return renderUserProfile();
       case 'menstrual-cycle':
         return renderMenstrualCycle();
       case 'settings':
