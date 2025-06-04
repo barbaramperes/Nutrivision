@@ -31,6 +31,8 @@ import {
   UsersIcon,     // substitui Users
   Flame,         // substitui Fire
   DrumstickIcon, // substitui Drumstick
+  Tag,
+  Target,
 
 } from 'lucide-react';
 
@@ -238,7 +240,7 @@ const NutriVisionApp = () => {
           await loadMealSuggestions();
         } catch (_) { }
       }, 300);
-      showSuccess(`🎉 Welcome, ${res.user.username}!`);
+      showSuccess(`Welcome, ${res.user.username}!`);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -1149,8 +1151,8 @@ const NutriVisionApp = () => {
                   className="w-4 h-4 text-orange-600 border-orange-300 rounded focus:ring-orange-500"
                 />
                 <div>
-                  <span className="text-sm font-medium text-gray-900">
-                    Track Menstrual Cycle 🌙
+                  <span className="text-sm font-medium text-gray-900 flex items-center">
+                    <Moon className="w-4 h-4 mr-1" />Track Menstrual Cycle
                   </span>
                   <p className="text-xs text-gray-600">
                     Enable personalized nutrition recommendations based on your cycle
@@ -1298,7 +1300,7 @@ const NutriVisionApp = () => {
           onClick={() => setCurrentView('dashboard')}
           className="text-gray-800 text-2xl font-bold"
         >
-          ←
+          <ArrowLeft className="w-6 h-6" />
         </button>
         <h1 className="text-lg font-bold text-gray-900"> Food Analysis</h1>
         <div
@@ -1336,13 +1338,16 @@ const NutriVisionApp = () => {
               {!isEstimating && analysisResult && (
                 <>
                   <div className="absolute top-4 left-4 bg-red-600 bg-opacity-95 backdrop-blur-sm px-3 py-2 rounded-xl text-white font-bold text-sm shadow-lg">
-                    ⚠️ {analysisResult.nutrition?.calories || 0} kcal
+                    <AlertTriangle className="inline w-4 h-4 mr-1" />
+                    {analysisResult.nutrition?.calories || 0} kcal
                   </div>
                   <div className="absolute top-4 right-4 bg-green-600 bg-opacity-95 backdrop-blur-sm px-3 py-2 rounded-xl text-white font-bold text-sm shadow-lg">
-                    ✓ {analysisResult.nutrition?.protein || 0}g protein
+                    <CheckCircle className="inline w-4 h-4 mr-1" />
+                    {analysisResult.nutrition?.protein || 0}g protein
                   </div>
                   <div className="absolute bottom-4 left-4 bg-orange-600 bg-opacity-95 backdrop-blur-sm px-3 py-2 rounded-xl text-white font-bold text-sm shadow-lg">
-                    🎯 Score: {analysisResult.health_assessment?.score || 0}/10
+                    <Target className="inline w-4 h-4 mr-1" />
+                    Score: {analysisResult.health_assessment?.score || 0}/10
                   </div>
                 </>
               )}
@@ -1425,15 +1430,14 @@ const NutriVisionApp = () => {
 
                 <div className="bg-gradient-to-r from-light-accent to-light-accent2 dark:from-dark-accent dark:to-dark-accent2 p-5 rounded-2xl text-white mb-6 shadow-lg">
                   <h3 className="font-bold text-lg mb-3 flex items-center">
-                    <Brain className="w-6 h-6 mr-2" />
-                    🧠 AI Feedback
+                    <Brain className="w-6 h-6 mr-2" />AI Feedback
                   </h3>
                   <p className="text-orange-100 leading-relaxed">{analysisResult.ai_feedback}</p>
                 </div>
 
                 <div className="bg-gradient-to-r from-green-500 to-green-600 p-5 rounded-2xl text-white shadow-lg">
                   <h3 className="font-bold text-lg mb-3 flex items-center">
-                    <Lightbulb className="w-6 h-6 mr-2" />🎯 Suggestions
+                    <Lightbulb className="w-6 h-6 mr-2" />Suggestions
                   </h3>
                   <div className="space-y-2">
                     {analysisResult.suggestions?.map((suggestion, idx) => (
@@ -1870,7 +1874,7 @@ const NutriVisionApp = () => {
           onClick={() => setCurrentView('dashboard')}
           className="text-gray-800 text-2xl font-bold hover:text-gray-600 transition-colors"
         >
-          ←
+          <ArrowLeft className="w-6 h-6" />
         </button>
         <h1 className="text-2xl font-extrabold text-gray-900">Recipe Book</h1>
         <div className="w-6" />
@@ -2019,11 +2023,11 @@ const NutriVisionApp = () => {
                   }
                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white"
                 >
-                  <option value="any">🍽️ Any Time</option>
-                  <option value="breakfast">🌅 Breakfast</option>
-                  <option value="lunch">🌞 Lunch</option>
-                  <option value="dinner">🌙 Dinner</option>
-                  <option value="snack">🥨 Snack</option>
+                  <option value="any">Any Time</option>
+                  <option value="breakfast">Breakfast</option>
+                  <option value="lunch">Lunch</option>
+                  <option value="dinner">Dinner</option>
+                  <option value="snack">Snack</option>
                 </select>
               </div>
 
@@ -2042,10 +2046,10 @@ const NutriVisionApp = () => {
                   }
                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white"
                 >
-                  <option value="any">🌡️ Any</option>
-                  <option value="hot">🔥 Hot & Cozy</option>
-                  <option value="cold">🧊 Cold & Fresh</option>
-                  <option value="fresh">🥗 Fresh & Raw</option>
+                  <option value="any">Any</option>
+                  <option value="hot">Hot & Cozy</option>
+                  <option value="cold">Cold & Fresh</option>
+                  <option value="fresh">Fresh & Raw</option>
                 </select>
               </div>
 
@@ -2064,9 +2068,9 @@ const NutriVisionApp = () => {
                   }
                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white"
                 >
-                  <option value="quick">⚡ Quick (&lt;20 min)</option>
-                  <option value="medium">⏱️ Medium (20–45 min)</option>
-                  <option value="elaborate">🎨 Elaborate (&gt;45 min)</option>
+                  <option value="quick">Quick (&lt;20 min)</option>
+                  <option value="medium">Medium (20–45 min)</option>
+                  <option value="elaborate">Elaborate (&gt;45 min)</option>
                 </select>
               </div>
 
@@ -2085,12 +2089,12 @@ const NutriVisionApp = () => {
                   }
                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white"
                 >
-                  <option value="any">🌍 Any Style</option>
-                  <option value="mediterranean">🫒 Mediterranean</option>
-                  <option value="asian">🥢 Asian</option>
-                  <option value="fusion">🌟 Fusion</option>
-                  <option value="traditional">🏠 Traditional</option>
-                  <option value="modern">✨ Modern</option>
+                  <option value="any">Any Style</option>
+                  <option value="mediterranean">Mediterranean</option>
+                  <option value="asian">Asian</option>
+                  <option value="fusion">Fusion</option>
+                  <option value="traditional">Traditional</option>
+                  <option value="modern">Modern</option>
                 </select>
               </div>
             </div>
@@ -2110,12 +2114,12 @@ const NutriVisionApp = () => {
                 }
                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white"
               >
-                <option value="none">🍽️ No Restriction</option>
-                <option value="vegetarian">🥬 Vegetarian</option>
-                <option value="vegan">🌱 Vegan</option>
-                <option value="keto">🥑 Keto</option>
-                <option value="low-carb">🥩 Low Carb</option>
-                <option value="high-protein">💪 High Protein</option>
+                <option value="none">No Restriction</option>
+                <option value="vegetarian">Vegetarian</option>
+                <option value="vegan">Vegan</option>
+                <option value="keto">Keto</option>
+                <option value="low-carb">Low Carb</option>
+                <option value="high-protein">High Protein</option>
               </select>
             </div>
           </div>
@@ -2205,7 +2209,9 @@ const NutriVisionApp = () => {
 
                 {recipeOptions[selectedOptionIndex].chef_tips?.length > 0 && (
                   <div className="mt-4 p-4 bg-white bg-opacity-80 rounded-xl">
-                    <h4 className="font-bold text-yellow-900 text-sm mb-2">👨‍🍳 Chef’s Tips:</h4>
+                    <h4 className="font-bold text-yellow-900 text-sm mb-2 flex items-center">
+                      <Utensils className="w-4 h-4 mr-1" />Chef’s Tips:
+                    </h4>
                     <ul className="space-y-1">
                       {recipeOptions[selectedOptionIndex].chef_tips.map((tip, idx3) => (
                         <li key={idx3} className="text-xs text-yellow-700 flex items-start">
@@ -2739,7 +2745,7 @@ const NutriVisionApp = () => {
             }}
             className="text-gray-800 text-2xl font-bold hover:text-gray-600 transition-colors"
           >
-            ←
+            <ArrowLeft className="w-6 h-6" />
           </button>
           <h1 className="text-2xl font-extrabold text-gray-900">Recipe Details</h1>
           <div className="w-6" />
@@ -2852,7 +2858,9 @@ const NutriVisionApp = () => {
 
             {/* ─── Instruções (com checkbox) ─── */}
             <div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">👨‍🍳 Instructions</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3 flex items-center">
+                <Utensils className="w-5 h-5 mr-2" />Instructions
+              </h3>
               <div className="space-y-4">
                 {selectedRecipe.instructions?.map((step, idx) => (
                   <div
@@ -2886,7 +2894,9 @@ const NutriVisionApp = () => {
             {/* ─── Tags (se existirem) ─── */}
             {selectedRecipe.tags?.length > 0 && (
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">🏷️ Tags</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center">
+                  <Tag className="w-5 h-5 mr-2" />Tags
+                </h3>
                 <div className="flex flex-wrap gap-2">
                   {selectedRecipe.tags.map((tag, idx) => (
                     <span
@@ -3028,9 +3038,11 @@ const NutriVisionApp = () => {
           onClick={() => setCurrentView('dashboard')}
           className="text-gray-800 text-2xl font-bold"
         >
-          ←
+          <ArrowLeft className="w-6 h-6" />
         </button>
-        <h1 className="text-lg font-bold text-gray-900">📊 Meal History</h1>
+        <h1 className="text-lg font-bold text-gray-900 flex items-center">
+          <History className="w-5 h-5 mr-2" />Meal History
+        </h1>
         <div className="w-6" />
       </div>
 
@@ -3137,7 +3149,7 @@ const NutriVisionApp = () => {
             }}
             className="text-gray-800 text-2xl font-bold"
           >
-            ←
+            <ArrowLeft className="w-6 h-6" />
           </button>
           <h1 className="text-lg font-bold text-gray-900">
             {selectedHistoryMeal.foods_detected?.[0] || 'Meal Details'}
@@ -3256,7 +3268,7 @@ const NutriVisionApp = () => {
             onClick={() => setCurrentView('dashboard')}
             className="text-gray-800 text-2xl font-bold"
           >
-            ←
+            <ArrowLeft className="w-6 h-6" />
           </button>
           <h1 className="text-lg font-bold text-gray-900">Daily Food Log</h1>
           <button
@@ -3595,10 +3607,10 @@ const NutriVisionApp = () => {
                       }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
                     >
-                      <option value="breakfast">🌅 Breakfast</option>
-                      <option value="lunch">🌞 Lunch</option>
-                      <option value="dinner">🌙 Dinner</option>
-                      <option value="snack">🥨 Snack</option>
+                      <option value="breakfast">Breakfast</option>
+                      <option value="lunch">Lunch</option>
+                      <option value="dinner">Dinner</option>
+                      <option value="snack">Snack</option>
                     </select>
                   </div>
                   <div>
@@ -3712,9 +3724,11 @@ const NutriVisionApp = () => {
           onClick={() => setCurrentView('dashboard')}
           className="text-gray-800 text-2xl font-bold"
         >
-          ←
+          <ArrowLeft className="w-6 h-6" />
         </button>
-        <h1 className="text-lg font-bold text-gray-900">🌙 Cycle Tracking</h1>
+        <h1 className="text-lg font-bold text-gray-900 flex items-center">
+          <Moon className="w-5 h-5 mr-2" />Cycle Tracking
+        </h1>
         <div className="w-6" />
       </div>
       {menstrualCycleData?.cycle_data ? (
@@ -3734,8 +3748,8 @@ const NutriVisionApp = () => {
 
             <div className="space-y-6">
               <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-4 rounded-2xl border border-purple-200">
-                <h3 className="font-bold text-gray-900 mb-3">
-                  🥗 Phase Nutrition Recommendations
+                <h3 className="font-bold text-gray-900 mb-3 flex items-center">
+                  <Utensils className="w-5 h-5 mr-2" />Phase Nutrition Recommendations
                 </h3>
                 <div className="space-y-2 text-sm">
                   <div>
@@ -3838,7 +3852,7 @@ const NutriVisionApp = () => {
     <div className="min-h-screen bg-gradient-to-br from-light-bgStart to-light-bgEnd dark:from-dark-bgStart dark:to-dark-bgEnd p-4 pb-20">
       <div className="flex items-center justify-between mb-6">
         <button onClick={() => setCurrentView('dashboard')} className="text-gray-800 text-2xl font-bold">
-          ←
+          <ArrowLeft className="w-6 h-6" />
         </button>
         <h1 className="text-lg font-bold text-gray-900">Settings</h1>
         <div className="w-6" />
@@ -3908,9 +3922,11 @@ const NutriVisionApp = () => {
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4 pb-20">
       <div className="flex items-center justify-between mb-6">
         <button onClick={() => setCurrentView('dashboard')} className="text-gray-800 text-2xl font-bold">
-          ←
+          <ArrowLeft className="w-6 h-6" />
         </button>
-        <h1 className="text-lg font-bold text-gray-900">🧑‍⚕️ User Profile</h1>
+        <h1 className="text-lg font-bold text-gray-900 flex items-center">
+          <UsersIcon className="w-5 h-5 mr-2" />User Profile
+        </h1>
         <div className="w-6" />
       </div>
 
@@ -4200,7 +4216,9 @@ const NutriVisionApp = () => {
               </div>
 
               <div className="bg-gradient-to-r from-yellow-100 to-orange-100 p-4 rounded-2xl border border-yellow-200">
-                <h3 className="font-bold text-yellow-900 mb-3">💡 Smart Recommendations</h3>
+                <h3 className="font-bold text-yellow-900 mb-3 flex items-center">
+                  <Lightbulb className="w-5 h-5 mr-2" />Smart Recommendations
+                </h3>
                 <ul className="space-y-2 text-yellow-800">
                   <li className="flex items-start space-x-2">
                     <CheckCircle className="w-4 h-4 mt-0.5 text-yellow-600" />
@@ -4416,7 +4434,7 @@ const NutriVisionApp = () => {
               <span className="font-medium">{error}</span>
             </div>
             <button onClick={() => setError('')} className="text-white hover:text-red-200 ml-4">
-              ✕
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
