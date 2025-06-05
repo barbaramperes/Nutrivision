@@ -1258,13 +1258,11 @@ const NutriVisionApp = () => {
 
       setRecipeOptions(options);
       setSelectedOptionIndex(0);
-      setGeneratedRecipe(result.recipe || null);
       setRecipeIngredients('');
       setRecipeImageFile(null);
       setRecipeImagePreview(null);
 
-      await loadUserRecipes();
-      showSuccess('New personalized recipe generated successfully!');
+      showSuccess('New personalized recipe options ready!');
     } catch (err) {
       console.error('Recipe generation error:', err);
       setError(`Recipe generation error: ${err.message}`);
@@ -1281,6 +1279,22 @@ const NutriVisionApp = () => {
     } catch (err) {
       console.error('Error loading recipe details:', err);
       setError('Failed to load recipe details');
+    }
+  };
+
+  const saveRecipeOption = async () => {
+    const recipe = recipeOptions[selectedOptionIndex];
+    if (!recipe) return;
+    try {
+      await apiCall('/recipes', {
+        method: 'POST',
+        body: JSON.stringify(recipe),
+      });
+      await loadUserRecipes();
+      showSuccess('Recipe saved successfully!');
+    } catch (err) {
+      console.error('Error saving recipe:', err);
+      setError('Failed to save recipe');
     }
   };
 
@@ -2350,6 +2364,16 @@ const NutriVisionApp = () => {
                     </ul>
                   </div>
                 )}
+
+                <div className="text-right">
+                  <button
+                    onClick={saveRecipeOption}
+                    className="mt-4 bg-gradient-to-r from-light-accent to-light-accent2 dark:from-dark-accent dark:to-dark-accent2 text-white px-4 py-2 rounded-xl font-semibold shadow hover:shadow-lg"
+                  >
+                    <Save className="w-4 h-4 inline mr-1" />
+                    Save to Collection
+                  </button>
+                </div>
               </div>
             )}
           </div>

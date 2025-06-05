@@ -2096,50 +2096,72 @@ def generate_recipe_endpoint():
             user, translated_ingredients, preferences, count=3
         )
 
-        # Salvamos apenas a primeira receita gerada (opcional)
-        recipe_saved = None
-        if recipe_options:
-            r0 = recipe_options[0]
-            if not r0.get('image_url'):
-                prompt = f"{r0['title']} plated meal, professional food photography"
-                r0['image_url'] = generate_recipe_image_url(prompt)
-            recipe_saved = RecipeCollection(
-                user_id=user.id,
-                title=r0['title'],
-                description=r0['description'],
-                ingredients=json.dumps(r0['ingredients']),
-                instructions=json.dumps(r0['instructions']),
-                prep_time=r0['prep_time'],
-                cook_time=r0['cook_time'],
-                servings=r0['servings'],
-                calories_per_serving=r0['nutrition']['calories'],
-                protein_per_serving=r0['nutrition']['protein'],
-                carbs_per_serving=r0['nutrition']['carbs'],
-                fat_per_serving=r0['nutrition']['fat'],
-                category='ai-generated',
-                difficulty=r0['difficulty'],
-                tags=json.dumps(r0['tags']),
-                matches_dna=True,
-                personalization_score=9.2,
-                image_url=r0.get('image_url')
-            )
-            db.session.add(recipe_saved)
-            db.session.commit()
-            logger.info(f"✅ Receita salva para o usuário {user.id}: {recipe_saved.id}")
+        # Garante imagem para cada opção gerada
+        for opt in recipe_options:
+            if not opt.get('image_url'):
+                prompt = f"{opt['title']} plated meal, professional food photography"
+                opt['image_url'] = generate_recipe_image_url(prompt)
 
         return jsonify({
             'detected_from_image': image_ingredients,
             'validation_result': validation_result,
-            'recipe': recipe_options[0] if recipe_options else {},
             'recipe_options': recipe_options,
-            'personalization_applied': preferences,
-            'saved_id': recipe_saved.id if recipe_saved else None
+            'personalization_applied': preferences
         }), 201
 
     except Exception as e:
         logger.error(f"❌ Erro na geração de receita: {str(e)}")
         db.session.rollback()
         return jsonify({'error': f'Falha ao gerar receita: {str(e)}'}), 500
+
+# ------------------------
+# SALVAR RECEITA (POST)
+# ------------------------
+@app.route('/api/recipes', methods=['POST'])
+def save_recipe():
+    user = get_current_user()
+    if not user:
+        return jsonify({'error': 'Não autenticado'}), 401
+
+    data = request.get_json() or {}
+    title = data.get('title')
+    if not title:
+        return jsonify({'error': 'Título é obrigatório'}), 400
+
+    try:
+        image_url = data.get('image_url')
+        if not image_url:
+            prompt = f"{title} plated meal, professional food photography"
+            image_url = generate_recipe_image_url(prompt)
+
+        recipe_saved = RecipeCollection(
+            user_id=user.id,
+            title=title,
+            description=data.get('description', ''),
+            ingredients=json.dumps(data.get('ingredients', [])),
+            instructions=json.dumps(data.get('instructions', [])),
+            prep_time=data.get('prep_time', 0),
+            cook_time=data.get('cook_time', 0),
+            servings=data.get('servings', 1),
+            calories_per_serving=data.get('nutrition', {}).get('calories', 0),
+            protein_per_serving=data.get('nutrition', {}).get('protein', 0),
+            carbs_per_serving=data.get('nutrition', {}).get('carbs', 0),
+            fat_per_serving=data.get('nutrition', {}).get('fat', 0),
+            category=data.get('category', 'ai-generated'),
+            difficulty=data.get('difficulty', 'beginner'),
+            tags=json.dumps(data.get('tags', [])),
+            matches_dna=data.get('matches_dna', False),
+            personalization_score=data.get('personalization_score', 0.0),
+            image_url=image_url
+        )
+        db.session.add(recipe_saved)
+        db.session.commit()
+        logger.info(f"✅ Receita salva para o usuário {user.id}: {recipe_saved.id}")
+        return jsonify({'recipe_id': recipe_saved.id}), 201
+    except Exception as e:
+        logger.error(f"❌ Erro ao salvar receita: {str(e)}")
+        db.session.rollback()
+        return jsonify({'error': f'Falha ao salvar receita: {str(e)}'}), 500
 
 # ------------------------
 # LISTAR RECEITAS DO USUÁRIO (GET)
