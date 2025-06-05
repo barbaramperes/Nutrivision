@@ -50,7 +50,9 @@ import {
   ArrowDown,
   Coffee,
   Sun,
-  Sunset
+  Sunset,
+  Contrast,
+  Type
 } from 'lucide-react';
 
 const ImprovedProfileSection = ({ user, userProfile: initialUserProfile, onSaveProfile, onOpenSettings }) => {
@@ -533,6 +535,8 @@ const NutriVisionApp = () => {
   const [loading, setLoading] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [highContrast, setHighContrast] = useState(false);
+  const [largeText, setLargeText] = useState(false);
 
   // Auth Forms
   const [loginData, setLoginData] = useState({ email: '', password: '' });
@@ -840,6 +844,22 @@ const NutriVisionApp = () => {
       document.body.classList.remove('dark');
     }
   }, [darkMode]);
+
+  useEffect(() => {
+    if (highContrast) {
+      document.body.classList.add('high-contrast');
+    } else {
+      document.body.classList.remove('high-contrast');
+    }
+  }, [highContrast]);
+
+  useEffect(() => {
+    if (largeText) {
+      document.body.classList.add('large-text');
+    } else {
+      document.body.classList.remove('large-text');
+    }
+  }, [largeText]);
 
   // ─────────── DATA LOADER FUNCTIONS ───────────
 
@@ -3424,6 +3444,24 @@ const NutriVisionApp = () => {
               {darkMode ? 'Disable' : 'Enable'}
             </button>
           </div>
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl mt-3">
+            <span className="font-medium text-gray-900">High Contrast</span>
+            <button
+              onClick={() => setHighContrast(!highContrast)}
+              className="px-3 py-1 rounded-full bg-gray-200"
+            >
+              {highContrast ? 'Disable' : 'Enable'}
+            </button>
+          </div>
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl mt-3">
+            <span className="font-medium text-gray-900">Large Text</span>
+            <button
+              onClick={() => setLargeText(!largeText)}
+              className="px-3 py-1 rounded-full bg-gray-200"
+            >
+              {largeText ? 'Disable' : 'Enable'}
+            </button>
+          </div>
         </div>
 
         {/* QUICK ACTIONS */}
@@ -3439,11 +3477,11 @@ const NutriVisionApp = () => {
             </button>
 
             <button
-              onClick={() => setCurrentView('daily-log')}
+              onClick={() => setCurrentView('profile')}
               className="w-full flex items-center space-x-3 p-4 bg-yellow-50 rounded-xl hover:bg-yellow-100 transition-colors"
             >
-              <Calendar className="w-5 h-5 text-yellow-600" />
-              <span className="font-medium text-yellow-900">Daily Food Log</span>
+              <Edit3 className="w-5 h-5 text-yellow-600" />
+              <span className="font-medium text-yellow-900">Edit Profile</span>
             </button>
 
             {user?.gender === 'female' && user?.track_menstrual_cycle && (

@@ -12,6 +12,14 @@ body {
     @apply bg-gradient-to-br from-light-bgStart to-light-bgEnd dark:from-dark-bgStart dark:to-dark-bgEnd;
 }
 
+body.high-contrast {
+    filter: contrast(1.5);
+}
+
+body.large-text {
+    font-size: 1.125rem;
+}
+
 code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
         monospace;
