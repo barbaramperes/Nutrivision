@@ -97,7 +97,7 @@ const defaultUserProfile = {
   },
 };
 
-const ImprovedProfileSection = ({ user, userProfile: initialUserProfile, onSaveProfile, onOpenSettings }) => {
+const ImprovedProfileSection = ({ user, userProfile: initialUserProfile, onSaveProfile, onOpenSettings, apiCall }) => {
   const [userProfile, setUserProfile] = useState(initialUserProfile || defaultUserProfile);
 
   useEffect(() => {
@@ -341,7 +341,7 @@ const ImprovedProfileSection = ({ user, userProfile: initialUserProfile, onSaveP
             </div>
             {isEditingProfile && (
               <div className="flex space-x-3 mt-6">
-                <button onClick={saveProfileChanges} className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2">
+                <button onClick={handleSaveProfile} className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2">
                   <Save className="w-4 h-4" />
                   <span>Save Changes</span>
                 </button>
@@ -939,44 +939,6 @@ const NutriVisionApp = () => {
     }
   };
 
-  const saveProfileChanges = async () => {
-    try {
-      // Enviar dados atualizados para o backend
-      await apiCall('/user-profile', {
-        method: 'PUT',
-        body: JSON.stringify({
-          username: profileForm.username,
-          email: profileForm.email,
-          age: profileForm.age,
-          current_weight: profileForm.current_weight,
-          target_weight: profileForm.target_weight,
-          height: profileForm.height,
-          gender: profileForm.gender,
-          activity_level: profileForm.activity_level  // ← ADICIONADO
-        }),
-      });
-
-      // Upload da foto se houver
-      if (profilePhotoFile) {
-        const fd = new FormData();
-        fd.append('photo', profilePhotoFile);
-        await fetch(`${API_BASE}/profile-photo`, {
-          method: 'POST',
-          credentials: 'include',
-          body: fd,
-        });
-      }
-
-      // Recarregar dados atualizados do servidor
-      await loadUserProfile();
-      setIsEditingProfile(false);
-      setProfilePhotoFile(null);
-      setProfilePhotoPreview(null);
-      showSuccess('Profile updated with real calculations!');
-    } catch (err) {
-      setError(err.message);
-    }
-  };
 
   // ─────────── DAILY LOG: SAVE & DELETE MEAL ───────────
 
@@ -3518,6 +3480,7 @@ const NutriVisionApp = () => {
       userProfile={userProfile}
       onSaveProfile={(updated) => setUserProfile(updated)}
       onOpenSettings={() => setCurrentView('settings')}
+      apiCall={apiCall}
     />
   );
 
