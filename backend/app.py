@@ -1571,7 +1571,7 @@ def register():
             height=data['height'],
             current_weight=data['current_weight'],
             target_weight=data['target_weight'],
-            activity_level=data.get('activity_level', 'moderate'),
+            activity_level=data.get('activity_level', 'light'),  # ← ADICIONADO
             metabolic_age=data.get('age', 25),
             predicted_weight_in_6months=data.get('current_weight', 70),
             profile_photo=None
@@ -2434,43 +2434,68 @@ def get_user_profile():
     if not user:
         return jsonify({'error': 'Não autenticado'}), 401
 
-    active_plan = NutritionPlan.query.filter_by(user_id=user.id, is_active=True).first()
-    plan_data = None
-    if active_plan:
-        plan_data = {
-            'plan_name': active_plan.plan_name,
-            'plan_type': active_plan.plan_type,
-            'daily_calories': active_plan.daily_calories,
-            'daily_protein': active_plan.daily_protein,
-            'daily_carbs': active_plan.daily_carbs,
-            'daily_fat': active_plan.daily_fat,
-            'start_date': active_plan.start_date.isoformat(),
-        }
-
-    bmi = None
-    bmr = None
-    tdee = None
+    # ← CÁLCULOS REAIS BMI, BMR, TDEE
+    bmi = bmr = tdee = None
+    daily_targets = {'calories': 2000, 'protein': 150, 'carbs': 200, 'fat': 70}
+    
     if user.height and user.current_weight and user.age:
         try:
+            # BMI
             height_m = user.height / 100
-            bmi = round(user.current_weight / (height_m ** 2), 2)
+            bmi = round(user.current_weight / (height_m ** 2), 1)
+            
+            # BMR (Mifflin-St Jeor)
             if user.gender == 'female':
                 bmr = 10 * user.current_weight + 6.25 * user.height - 5 * user.age - 161
             else:
                 bmr = 10 * user.current_weight + 6.25 * user.height - 5 * user.age + 5
-            activity_map = {
+            bmr = round(bmr)
+            
+            # TDEE baseado no nível de atividade
+            activity_multipliers = {
                 'sedentary': 1.2,
                 'light': 1.375,
                 'moderate': 1.55,
                 'active': 1.725,
-                'very_active': 1.9,
+                'very_active': 1.9
             }
-            factor = activity_map.get(user.activity_level or 'moderate', 1.55)
-            tdee = bmr * factor
-            bmr = round(bmr)
-            tdee = round(tdee)
-        except Exception:
+            multiplier = activity_multipliers.get(user.activity_level or 'light', 1.375)
+            tdee = round(bmr * multiplier)
+            
+            # ← TARGETS AUTOMÁTICOS baseados em objetivos
+            goal_calories = tdee
+            if user.target_weight and user.current_weight:
+                weight_diff = user.target_weight - user.current_weight
+                if weight_diff < -2:  # Perder peso
+                    goal_calories = round(tdee * 0.85)  # 15% deficit
+                elif weight_diff > 2:  # Ganhar peso
+                    goal_calories = round(tdee * 1.15)  # 15% surplus
+            
+            # Macros científicos
+            protein_target = round(user.current_weight * 1.8)  # 1.8g/kg
+            fat_target = round(goal_calories * 0.25 / 9)       # 25% das calorias
+            carbs_remaining = goal_calories - (protein_target * 4) - (fat_target * 9)
+            carbs_target = max(round(carbs_remaining / 4), 100)  # Mínimo 100g
+            
+            daily_targets = {
+                'calories': goal_calories,
+                'protein': protein_target,
+                'carbs': carbs_target,
+                'fat': fat_target
+            }
+        except Exception as e:
+            logger.error(f"Erro nos cálculos: {e}")
             bmi = bmr = tdee = None
+
+    # ← PROGRESSO DE HOJE (refeições realmente consumidas)
+    today = datetime.now().date()
+    today_meals = DailyMeal.query.filter_by(user_id=user.id, date=today).all()
+    today_progress = {
+        'calories_consumed': sum(m.calories or 0 for m in today_meals),
+        'protein_consumed': sum(m.protein or 0 for m in today_meals),
+        'carbs_consumed': sum(m.carbs or 0 for m in today_meals),
+        'fat_consumed': sum(m.fat or 0 for m in today_meals)
+    }
 
     return jsonify({
         'user': {
@@ -2485,12 +2510,26 @@ def get_user_profile():
             'age': user.age,
             'height': user.height,
             'gender': user.gender,
+            'activity_level': user.activity_level,  # ← ADICIONADO
+            'streak_days': user.streak_days,
+            'badges_earned': len(user.badges)
         },
-        'nutrition_plan': plan_data,
         'metrics': {
             'bmi': bmi,
             'bmr': bmr,
-            'tdee': tdee,
+            'tdee': tdee
+        },
+        'nutrition_plan': {
+            'plan_name': f"Personalized {user.gender.title()} Plan",
+            'plan_type': 'weight_loss' if (user.target_weight and user.current_weight and user.target_weight < user.current_weight) else 'maintenance',
+            'daily_targets': daily_targets,
+            'today_progress': today_progress,
+            'meal_distribution': {
+                'breakfast': 0.25,
+                'lunch': 0.35,
+                'dinner': 0.30,
+                'snacks': 0.10
+            }
         }
     }), 200
 
@@ -2503,7 +2542,9 @@ def update_user_profile():
     data = request.get_json() or {}
     numeric_int = ['age']
     numeric_float = ['height', 'current_weight', 'target_weight']
-    for field in ['username', 'email', 'age', 'height', 'current_weight', 'target_weight', 'gender']:
+    
+    # ← ADICIONADO: incluir activity_level nos campos aceites
+    for field in ['username', 'email', 'age', 'height', 'current_weight', 'target_weight', 'gender', 'activity_level']:
         if field in data:
             value = data[field]
             if value == '' or value is None:

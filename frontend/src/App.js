@@ -27,16 +27,14 @@ import {
   ChevronRight,
   Wand2,
   Plus,
-  ClockIcon,     // substitui Clock
-  UsersIcon,     // substitui Users
-  Flame,         // substitui Fire
-  DrumstickIcon, // substitui Drumstick
+  Clock as ClockIcon,
+  Users as UsersIcon,
+  Flame,
+  Drumstick as DrumstickIcon,
+  // ← APENAS O Tag É NECESSÁRIO:
   Tag,
-  Target,
-  User,
-
+  UserIcon
 } from 'lucide-react';
-
 const NutriVisionApp = () => {
   // ────────────── CORE STATE & REFS ──────────────
 
@@ -64,6 +62,7 @@ const NutriVisionApp = () => {
   });
 
   // Dashboard & Stats
+  const [mealSuggestions, setMealSuggestions] = useState([]);
   const [dashboardStats, setDashboardStats] = useState(null);
 
   // Daily Log & “Add Meal”
@@ -126,6 +125,7 @@ const NutriVisionApp = () => {
     target_weight: '',
     height: '',
     gender: 'male',
+    activity_level: 'light'  // ← ADICIONADO
   });
   const [profilePhotoFile, setProfilePhotoFile] = useState(null);
   const [profilePhotoPreview, setProfilePhotoPreview] = useState(null);
@@ -205,6 +205,7 @@ const NutriVisionApp = () => {
       setTimeout(async () => {
         try {
           await loadDashboardStats();
+          await loadMealSuggestions();
         } catch (_) { }
       }, 300);
       showSuccess(`Welcome back, ${res.user.username}!`);
@@ -236,6 +237,7 @@ const NutriVisionApp = () => {
       setTimeout(async () => {
         try {
           await loadDashboardStats();
+          await loadMealSuggestions();
         } catch (_) { }
       }, 300);
       showSuccess(`Welcome, ${res.user.username}!`);
@@ -304,6 +306,7 @@ const NutriVisionApp = () => {
             break;
           case 'dashboard':
             loadDashboardStats();
+            loadMealSuggestions();
             break;
           case 'profile':
             loadUserProfile();
@@ -359,6 +362,16 @@ const NutriVisionApp = () => {
       setDashboardStats(res);
     } catch (err) {
       console.error('Error loading dashboard stats:', err);
+    }
+  };
+
+  const loadMealSuggestions = async () => {
+    try {
+      const res = await apiCall('/meal-suggestions');
+      setMealSuggestions(res.suggestions || []);
+    } catch (err) {
+      console.error('Error loading meal suggestions:', err);
+      setMealSuggestions([]);
     }
   };
 
@@ -418,11 +431,22 @@ const NutriVisionApp = () => {
 
   const saveProfileChanges = async () => {
     try {
+      // Enviar dados atualizados para o backend
       await apiCall('/user-profile', {
         method: 'PUT',
-        body: JSON.stringify(profileForm),
+        body: JSON.stringify({
+          username: profileForm.username,
+          email: profileForm.email,
+          age: profileForm.age,
+          current_weight: profileForm.current_weight,
+          target_weight: profileForm.target_weight,
+          height: profileForm.height,
+          gender: profileForm.gender,
+          activity_level: profileForm.activity_level  // ← ADICIONADO
+        }),
       });
 
+      // Upload da foto se houver
       if (profilePhotoFile) {
         const fd = new FormData();
         fd.append('photo', profilePhotoFile);
@@ -433,16 +457,16 @@ const NutriVisionApp = () => {
         });
       }
 
+      // Recarregar dados atualizados do servidor
       await loadUserProfile();
       setIsEditingProfile(false);
       setProfilePhotoFile(null);
       setProfilePhotoPreview(null);
-      showSuccess('Profile updated!');
+      showSuccess('Profile updated with real calculations!');
     } catch (err) {
       setError(err.message);
     }
   };
-
 
   // ─────────── DAILY LOG: SAVE & DELETE MEAL ───────────
 
@@ -1269,6 +1293,7 @@ const NutriVisionApp = () => {
             </div>
           </div>
 
+
         </div>
       )}
 
@@ -1328,7 +1353,7 @@ const NutriVisionApp = () => {
                     {analysisResult.nutrition?.protein || 0}g protein
                   </div>
                   <div className="absolute bottom-4 left-4 bg-orange-600 bg-opacity-95 backdrop-blur-sm px-3 py-2 rounded-xl text-white font-bold text-sm shadow-lg">
-                    <Target className="inline w-4 h-4 mr-1" />
+                    <Eye className="inline w-4 h-4 mr-1" />
                     Score: {analysisResult.health_assessment?.score || 0}/10
                   </div>
                 </>
@@ -2055,7 +2080,7 @@ const NutriVisionApp = () => {
             {selectedRecipe.tags?.length > 0 && (
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center">
-                  <Tag className="w-5 h-5 mr-2" />Tags
+                  <Sparkles className="w-5 h-5 mr-2" />Tags
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {selectedRecipe.tags.map((tag, idx) => (
@@ -2967,7 +2992,7 @@ const NutriVisionApp = () => {
           <ArrowLeft className="w-6 h-6" />
         </button>
         <h1 className="text-lg font-bold text-gray-900 flex items-center">
-          <User className="w-5 h-5 mr-2" />Profile
+          <Settings className="w-5 h-5 mr-2" />Profile
         </h1>
         <button onClick={() => setCurrentView('settings')} className="text-gray-800">
           <Settings className="w-6 h-6" />
@@ -2976,6 +3001,7 @@ const NutriVisionApp = () => {
 
       {userProfile ? (
         <div className="space-y-6">
+          {/* Profile Header */}
           <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
             <div className="text-center mb-6">
               <div className="relative inline-block mb-3">
@@ -3020,6 +3046,7 @@ const NutriVisionApp = () => {
                       target_weight: userProfile.user.target_weight || '',
                       height: userProfile.user.height || '',
                       gender: userProfile.user.gender || 'male',
+                      activity_level: userProfile.user.activity_level || 'light'
                     });
                     setIsEditingProfile(true);
                   }}
@@ -3106,6 +3133,22 @@ const NutriVisionApp = () => {
                       </select>
                     </div>
                   </div>
+                  <div>
+                    <label className="text-sm">Activity Level</label>
+                    <select
+                      className="w-full border px-2 py-1 rounded"
+                      value={profileForm.activity_level}
+                      onChange={(e) =>
+                        setProfileForm({ ...profileForm, activity_level: e.target.value })
+                      }
+                    >
+                      <option value="sedentary">Sedentary</option>
+                      <option value="light">Light</option>
+                      <option value="moderate">Moderate</option>
+                      <option value="active">Active</option>
+                      <option value="very_active">Very Active</option>
+                    </select>
+                  </div>
                   <div className="flex space-x-2 pt-2">
                     <button
                       onClick={saveProfileChanges}
@@ -3134,161 +3177,231 @@ const NutriVisionApp = () => {
             <p className="text-sm text-gray-600 mb-4">
               Metrics calculated from your details help guide targets and progress.
             </p>
+          </div>
 
-            <div className="space-y-6">
-              <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-5 rounded-2xl border border-purple-200">
-                <h3 className="font-bold text-gray-900 mb-4">Your Metrics</h3>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="text-center">
-                    <div className="text-xl font-bold text-purple-600">{userProfile.metrics?.bmi ?? '-'}</div>
-                    <div className="text-sm text-gray-600">BMI</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-xl font-bold text-purple-600">{userProfile.metrics?.bmr ?? '-'}</div>
-                    <div className="text-sm text-gray-600">BMR</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-xl font-bold text-purple-600">{userProfile.metrics?.tdee ?? '-'}</div>
-                    <div className="text-sm text-gray-600">TDEE</div>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-gradient-to-r from-green-100 to-blue-100 p-5 rounded-2xl border border-green-200">
-                <h3 className="font-bold text-gray-900 mb-4">Daily Targets</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-3 bg-white bg-opacity-70 rounded-xl">
-                    <div className="text-2xl font-bold text-red-600">
-                      {userProfile.nutrition_plan?.daily_targets?.calories || 0}
-                    </div>
-                    <div className="text-sm text-gray-600">Calories</div>
-                  </div>
-                  <div className="text-center p-3 bg-white bg-opacity-70 rounded-xl">
-                    <div className="text-2xl font-bold text-blue-600">
-                      {userProfile.nutrition_plan?.daily_targets?.protein || 0}g
-                    </div>
-                    <div className="text-sm text-gray-600">Protein</div>
-                  </div>
-                  <div className="text-center p-3 bg-white bg-opacity-70 rounded-xl">
-                    <div className="text-2xl font-bold text-yellow-600">
-                      {userProfile.nutrition_plan?.daily_targets?.carbs || 0}g
-                    </div>
-                    <div className="text-sm text-gray-600">Carbs</div>
-                  </div>
-                  <div className="text-center p-3 bg-white bg-opacity-70 rounded-xl">
-                    <div className="text-2xl font-bold text-purple-600">
-                      {userProfile.nutrition_plan?.daily_targets?.fat || 0}g
-                    </div>
-                    <div className="text-sm text-gray-600">Fat</div>
-                  </div>
-                </div>
-              </div>
+          {/* Stats Cards */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-4 rounded-2xl text-white shadow-lg">
+              <Activity className="w-6 h-6 mb-2" />
+              <div className="text-2xl font-bold">{userProfile.user.level || 1}</div>
+              <div className="text-blue-100 text-sm">Level</div>
+            </div>
+            <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-4 rounded-2xl text-white shadow-lg">
+              <Dna className="w-6 h-6 mb-2" />
+              <div className="text-2xl font-bold">{userProfile.user.total_xp || 0}</div>
+              <div className="text-purple-100 text-sm">Total XP</div>
+            </div>
+            <div className="bg-gradient-to-br from-green-500 to-green-600 p-4 rounded-2xl text-white shadow-lg">
+              <Flame className="w-6 h-6 mb-2" />
+              <div className="text-2xl font-bold">{userProfile.user.streak_days || 0}</div>
+              <div className="text-green-100 text-sm">Streak</div>
+            </div>
+            <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-4 rounded-2xl text-white shadow-lg">
+              <CheckCircle className="w-6 h-6 mb-2" />
+              <div className="text-2xl font-bold">{userProfile.user.badges_earned || 0}</div>
+              <div className="text-orange-100 text-sm">Badges</div>
+            </div>
+          </div>
 
-              <div className="bg-gradient-to-r from-blue-100 to-green-100 p-5 rounded-2xl border border-blue-200">
-                <h3 className="font-bold text-gray-900 mb-4">Today's Progress</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center">
-                    <div className="text-xl font-bold text-green-600">
-                      {userProfile.nutrition_plan?.today_progress?.calories_consumed || 0}
-                    </div>
-                    <div className="text-sm text-gray-600">Calories Consumed</div>
-                    <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                      <div
-                        className="bg-green-600 h-2 rounded-full transition-all duration-300"
-                        style={{
-                          width: `${Math.min(
-                            ((userProfile.nutrition_plan?.today_progress?.calories_consumed || 0) /
-                              (userProfile.nutrition_plan?.daily_targets?.calories || 1)) *
-                            100,
-                            100
-                          )
-                            }%`,
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-xl font-bold text-blue-600">
-                      {userProfile.nutrition_plan?.today_progress?.protein_consumed || 0}g
-                    </div>
-                    <div className="text-sm text-gray-600">Protein Consumed</div>
-                    <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                      <div
-                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                        style={{
-                          width: `${Math.min(
-                            ((userProfile.nutrition_plan?.today_progress?.protein_consumed || 0) /
-                              (userProfile.nutrition_plan?.daily_targets?.protein || 1)) *
-                            100,
-                            100
-                          )
-                            }%`,
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
+          {/* Body Metrics */}
+          <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
+            <h3 className="font-bold text-gray-900 mb-4 flex items-center">
+              <Activity className="w-5 h-5 mr-2 text-green-600" />
+              Body Metrics
+            </h3>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="text-center p-4 bg-blue-50 rounded-xl">
+                <div className="text-2xl font-bold text-blue-600">{userProfile.user.current_weight} kg</div>
+                <div className="text-sm text-blue-700">Current</div>
               </div>
-
-              <div className="bg-gradient-to-r from-green-500 to-blue-600 p-5 rounded-2xl text-white">
-                <h3 className="font-bold text-lg mb-3">Meal Distribution</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-white bg-opacity-20 p-3 rounded-xl">
-                    <div className="text-sm text-green-100">Breakfast</div>
-                    <div className="text-lg font-bold">
-                      {Math.round((userProfile.nutrition_plan?.meal_distribution?.breakfast || 0.25) * 100)}%
-                    </div>
-                  </div>
-                  <div className="bg-white bg-opacity-20 p-3 rounded-xl">
-                    <div className="text-sm text-green-100">Lunch</div>
-                    <div className="text-lg font-bold">
-                      {Math.round((userProfile.nutrition_plan?.meal_distribution?.lunch || 0.35) * 100)}%
-                    </div>
-                  </div>
-                  <div className="bg-white bg-opacity-20 p-3 rounded-2xl">
-                    <div className="text-sm text-green-100">Dinner</div>
-                    <div className="text-lg font-bold">
-                      {Math.round((userProfile.nutrition_plan?.meal_distribution?.dinner || 0.3) * 100)}%
-                    </div>
-                  </div>
-                  <div className="bg-white bg-opacity-20 p-3 rounded-xl">
-                    <div className="text-sm text-green-100">Snacks</div>
-                    <div className="text-lg font-bold">
-                      {Math.round((userProfile.nutrition_plan?.meal_distribution?.snacks || 0.1) * 100)}%
-                    </div>
-                  </div>
-                </div>
+              <div className="text-center p-4 bg-green-50 rounded-xl">
+                <div className="text-2xl font-bold text-green-600">{userProfile.user.target_weight} kg</div>
+                <div className="text-sm text-green-700">Target</div>
               </div>
-
-              <div className="bg-gradient-to-r from-yellow-100 to-orange-100 p-4 rounded-2xl border border-yellow-200">
-                <h3 className="font-bold text-yellow-900 mb-3 flex items-center">
-                  <Lightbulb className="w-5 h-5 mr-2" />Smart Recommendations
-                </h3>
-                <ul className="space-y-2 text-yellow-800">
-                  <li className="flex items-start space-x-2">
-                    <CheckCircle className="w-4 h-4 mt-0.5 text-yellow-600" />
-                    <span className="text-sm">Focus on whole foods and lean proteins</span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <CheckCircle className="w-4 h-4 mt-0.5 text-yellow-600" />
-                    <span className="text-sm">Stay hydrated with 8-10 glasses of water daily</span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <CheckCircle className="w-4 h-4 mt-0.5 text-yellow-600" />
-                    <span className="text-sm">Time your meals every 3-4 hours</span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <CheckCircle className="w-4 h-4 mt-0.5 text-yellow-600" />
-                    <span className="text-sm">Include colorful vegetables in every meal</span>
-                  </li>
-                </ul>
+              <div className="text-center p-4 bg-purple-50 rounded-xl">
+                <div className="text-2xl font-bold text-purple-600">{userProfile.user.height} cm</div>
+                <div className="text-sm text-purple-700">Height</div>
               </div>
             </div>
           </div>
+
+          {/* Health Metrics */}
+          <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
+            <h3 className="font-bold text-gray-900 mb-4 flex items-center">
+              <Brain className="w-5 h-5 mr-2 text-red-500" />
+              Health Metrics
+            </h3>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="text-center p-3 bg-red-50 rounded-xl">
+                <div className="text-xl font-bold text-red-600">{userProfile.metrics?.bmi || 'N/A'}</div>
+                <div className="text-sm text-red-700">BMI</div>
+              </div>
+              <div className="text-center p-3 bg-orange-50 rounded-xl">
+                <div className="text-xl font-bold text-orange-600">{userProfile.metrics?.bmr || 'N/A'}</div>
+                <div className="text-sm text-orange-700">BMR</div>
+              </div>
+              <div className="text-center p-3 bg-yellow-50 rounded-xl">
+                <div className="text-xl font-bold text-yellow-600">{userProfile.metrics?.tdee || 'N/A'}</div>
+                <div className="text-sm text-yellow-700">TDEE</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Nutrition Plan */}
+          <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
+            <h3 className="font-bold text-gray-900 mb-4 flex items-center">
+              <Utensils className="w-5 h-5 mr-2 text-yellow-500" />
+              Nutrition Plan
+            </h3>
+
+            <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-xl mb-4">
+              <h4 className="font-bold text-gray-900">{userProfile.nutrition_plan?.plan_name || 'Custom Plan'}</h4>
+              <p className="text-sm text-gray-600 capitalize">
+                {userProfile.nutrition_plan?.plan_type?.replace('_', ' ') || 'Balanced'} Plan
+              </p>
+            </div>
+
+            {/* Daily Targets */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              <div className="text-center p-3 bg-red-50 rounded-xl">
+                <div className="text-lg font-bold text-red-600">
+                  {userProfile.nutrition_plan?.daily_targets?.calories || 0}
+                </div>
+                <div className="text-sm text-red-700">Calories</div>
+              </div>
+              <div className="text-center p-3 bg-blue-50 rounded-xl">
+                <div className="text-lg font-bold text-blue-600">
+                  {userProfile.nutrition_plan?.daily_targets?.protein || 0}g
+                </div>
+                <div className="text-sm text-blue-700">Protein</div>
+              </div>
+              <div className="text-center p-3 bg-yellow-50 rounded-xl">
+                <div className="text-lg font-bold text-yellow-600">
+                  {userProfile.nutrition_plan?.daily_targets?.carbs || 0}g
+                </div>
+                <div className="text-sm text-yellow-700">Carbs</div>
+              </div>
+              <div className="text-center p-3 bg-purple-50 rounded-xl">
+                <div className="text-lg font-bold text-purple-600">
+                  {userProfile.nutrition_plan?.daily_targets?.fat || 0}g
+                </div>
+                <div className="text-sm text-purple-700">Fat</div>
+              </div>
+            </div>
+
+            {/* Today's Progress */}
+            <div className="space-y-3">
+              <h4 className="font-semibold text-gray-900">Today's Progress</h4>
+
+              {/* Calories Progress */}
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-700">Calories</span>
+                  <span className="text-sm text-gray-600">
+                    {userProfile.nutrition_plan?.today_progress?.calories_consumed || 0} / {userProfile.nutrition_plan?.daily_targets?.calories || 0}
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-red-500 h-2 rounded-full"
+                    style={{
+                      width: `${Math.min(
+                        ((userProfile.nutrition_plan?.today_progress?.calories_consumed || 0) /
+                          (userProfile.nutrition_plan?.daily_targets?.calories || 1)) * 100,
+                        100
+                      )}%`,
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Protein Progress */}
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-700">Protein</span>
+                  <span className="text-sm text-gray-600">
+                    {userProfile.nutrition_plan?.today_progress?.protein_consumed || 0}g / {userProfile.nutrition_plan?.daily_targets?.protein || 0}g
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-blue-500 h-2 rounded-full"
+                    style={{
+                      width: `${Math.min(
+                        ((userProfile.nutrition_plan?.today_progress?.protein_consumed || 0) /
+                          (userProfile.nutrition_plan?.daily_targets?.protein || 1)) * 100,
+                        100
+                      )}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Meal Distribution */}
+          <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
+            <h3 className="font-bold text-gray-900 mb-4 flex items-center">
+              <Calendar className="w-5 h-5 mr-2 text-indigo-500" />
+              Meal Distribution
+            </h3>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-gradient-to-br from-orange-400 to-orange-500 p-4 rounded-xl text-white">
+                <Eye className="w-5 h-5 mb-2" />
+                <div className="text-lg font-bold">{Math.round((userProfile.nutrition_plan?.meal_distribution?.breakfast || 0.25) * 100)}%</div>
+                <div className="text-sm opacity-90">Breakfast</div>
+              </div>
+              <div className="bg-gradient-to-br from-blue-400 to-blue-500 p-4 rounded-xl text-white">
+                <Utensils className="w-5 h-5 mb-2" />
+                <div className="text-lg font-bold">{Math.round((userProfile.nutrition_plan?.meal_distribution?.lunch || 0.35) * 100)}%</div>
+                <div className="text-sm opacity-90">Lunch</div>
+              </div>
+              <div className="bg-gradient-to-br from-purple-400 to-purple-500 p-4 rounded-xl text-white">
+                <Moon className="w-5 h-5 mb-2" />
+                <div className="text-lg font-bold">{Math.round((userProfile.nutrition_plan?.meal_distribution?.dinner || 0.30) * 100)}%</div>
+                <div className="text-sm opacity-90">Dinner</div>
+              </div>
+              <div className="bg-gradient-to-br from-green-400 to-green-500 p-4 rounded-xl text-white">
+                <Plus className="w-5 h-5 mb-2" />
+                <div className="text-lg font-bold">{Math.round((userProfile.nutrition_plan?.meal_distribution?.snacks || 0.10) * 100)}%</div>
+                <div className="text-sm opacity-90">Snacks</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Smart Recommendations */}
+          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-3xl shadow-lg p-6 text-white">
+            <h3 className="font-bold text-lg mb-4 flex items-center">
+              <Lightbulb className="w-5 h-5 mr-2" />
+              Smart Recommendations
+            </h3>
+
+            <div className="space-y-3">
+              <div className="flex items-start space-x-3 bg-white bg-opacity-10 p-3 rounded-xl">
+                <CheckCircle className="w-4 h-4 mt-0.5 text-white opacity-80" />
+                <span className="text-sm text-white opacity-90">Focus on whole foods and lean proteins for optimal health</span>
+              </div>
+              <div className="flex items-start space-x-3 bg-white bg-opacity-10 p-3 rounded-xl">
+                <Activity className="w-4 h-4 mt-0.5 text-white opacity-80" />
+                <span className="text-sm text-white opacity-90">Stay hydrated with 8-10 glasses of water daily</span>
+              </div>
+              <div className="flex items-start space-x-3 bg-white bg-opacity-10 p-3 rounded-xl">
+                <ClockIcon className="w-4 h-4 mt-0.5 text-white opacity-80" />
+                <span className="text-sm text-white opacity-90">Time your meals every 3-4 hours for sustained energy</span>
+              </div>
+              <div className="flex items-start space-x-3 bg-white bg-opacity-10 p-3 rounded-xl">
+                <Sparkles className="w-4 h-4 mt-0.5 text-white opacity-80" />
+                <span className="text-sm text-white opacity-90">Include colorful vegetables in every meal for nutrients</span>
+              </div>
+            </div>
+          </div>
+
         </div>
       ) : (
         <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100 text-center">
           <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Utensils className="w-10 h-10 text-gray-400" />
+            <Settings className="w-10 h-10 text-gray-400" />
           </div>
           <h2 className="text-xl font-bold text-gray-900 mb-4">No Profile Data</h2>
           <p className="text-gray-600 mb-6">
@@ -3306,9 +3419,6 @@ const NutriVisionApp = () => {
         </div>
       )}
     </div>
-
-
-
   );
 
   const renderCameraCapture = () => {
@@ -3390,7 +3500,7 @@ const NutriVisionApp = () => {
           className={`flex flex-col items-center py-2 px-2 rounded-xl ${currentView === 'profile' ? 'bg-gray-100 text-gray-600' : 'text-gray-600'
             }`}
         >
-          <User className="w-5 h-5 mb-1" />
+          <UserIcon className="w-5 h-5 mb-1" />
           <span className="text-xs font-medium">Profile</span>
         </button>
       </div>
