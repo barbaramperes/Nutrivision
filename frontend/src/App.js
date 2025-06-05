@@ -2338,7 +2338,7 @@ const NutriVisionApp = () => {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
               >
-                Option {idx + 1}
+                {`Option ${idx + 1}`}
               </button>
             ))}
           </div>
@@ -2402,7 +2402,7 @@ const NutriVisionApp = () => {
                     <ul className="space-y-1">
                       {recipeOptions[selectedOptionIndex].chef_tips.map((tip, idx3) => (
                         <li key={idx3} className="text-xs text-yellow-700 flex items-start">
-                          <span className="text-yellow-500 mr-1">•</span>
+                          <span className="text-yellow-500 mr-1">{'\u2022'}</span>
                           {tip}
                         </li>
                       ))}
