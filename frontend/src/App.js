@@ -1994,7 +1994,7 @@ const NutriVisionApp = () => {
         >
           <ArrowLeft className="w-6 h-6" />
         </button>
-        <h1 className="text-2xl font-extrabold text-gray-900">Recipe Book</h1>
+        <h1 className="text-lg font-bold text-gray-900">Recipe Book</h1>
         <div className="w-6" />
       </div>
 
