@@ -2889,26 +2889,6 @@ const NutriVisionApp = () => {
             />
           </div>
 
-          {registerData.gender === 'female' && (
-            <div className="bg-orange-50 p-4 rounded-xl border border-orange-200">
-              <label className="flex items-center space-x-3">
-                <input
-                  type="checkbox"
-                  checked={registerData.track_menstrual_cycle}
-                  onChange={(e) =>
-                    setRegisterData({ ...registerData, track_menstrual_cycle: e.target.checked })
-                  }
-                  className="w-4 h-4 text-orange-600 border-orange-300 rounded focus:ring-orange-500"
-                />
-                <div>
-                  <span className="text-sm font-medium text-gray-900">Track Menstrual Cycle 🌙</span>
-                  <p className="text-xs text-gray-600">
-                    Get personalized nutrition recommendations based on your cycle
-                  </p>
-                </div>
-              </label>
-            </div>
-          )}
 
           <button
             onClick={register}
