@@ -3,7 +3,6 @@
 🚀 NUTRIVISION PRO - REVOLUTIONARY BACKEND
 Complete backend com:
 - Geração de receitas com validação de ingredientes
-- Monitoramento de ciclo menstrual
 - Personalização avançada
 - Sugestões inteligentes de refeições
 - Planos de nutrição
@@ -434,6 +433,7 @@ class User(db.Model):
     recipes = db.relationship('RecipeCollection', backref='user', lazy=True)
     nutrition_plans = db.relationship('NutritionPlan', backref='user', lazy=True)
     daily_meals = db.relationship('DailyMeal', backref='user', lazy=True)
+    weight_logs = db.relationship('WeightLog', backref='user', lazy=True)
 
 class MealAnalysis(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -480,6 +480,13 @@ class DailyMeal(db.Model):
     fat = db.Column(db.Float)
     meal_type = db.Column(db.String(20))
     time = db.Column(db.String(5))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class WeightLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    date = db.Column(db.Date, nullable=False, default=datetime.utcnow)
+    weight = db.Column(db.Float, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class FoodMemory(db.Model):
@@ -552,37 +559,6 @@ class SocialFeed(db.Model):
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_ai_generated = db.Column(db.Boolean, default=False)
-
-class MenstrualCycle(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-
-    cycle_start_date = db.Column(db.Date, nullable=False)
-    cycle_length = db.Column(db.Integer, default=28)
-    period_length = db.Column(db.Integer, default=5)
-    current_phase = db.Column(db.String(20), default='follicular')
-
-    symptoms = db.Column(db.Text, nullable=True)  # JSON
-    energy_level = db.Column(db.Integer, default=5)
-    mood = db.Column(db.String(20), default='neutral')
-    cravings = db.Column(db.Text, nullable=True)  # JSON
-
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "cycle_start_date": self.cycle_start_date.isoformat(),
-            "cycle_length": self.cycle_length,
-            "period_length": self.period_length,
-            "current_phase": self.current_phase,
-            "symptoms": json.loads(self.symptoms or "[]"),
-            "energy_level": self.energy_level,
-            "mood": self.mood,
-            "cravings": json.loads(self.cravings or "[]"),
-            "created_at": self.created_at.isoformat()
-        }
 
 class NutritionPlan(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -1176,11 +1152,6 @@ def generate_highly_personalized_recipes(user, ingredients_list, preferences, co
     except:
         food_allergies = []
 
-    # Nutrição baseada no ciclo menstrual (se for usuária feminina)
-    phase_recommendations = {}
-    if user.gender == 'female':
-        current_phase = get_menstrual_phase(user.id)
-        phase_recommendations = get_phase_nutrition_recommendations(current_phase)
 
     recipe_configs = create_creative_recipe_configs(preferences, count)
     recipes = []
@@ -1204,8 +1175,6 @@ def generate_highly_personalized_recipes(user, ingredients_list, preferences, co
         - Creativity level: {config['creativity_level']}
 
         AVAILABLE INGREDIENTS: {ingredients_list}
-
-        MENSTRUAL PHASE RECOMMENDATIONS: {phase_recommendations}
 
         CREATIVE CONSTRAINTS:
         {config['creative_constraints']}
@@ -1474,56 +1443,6 @@ def create_fallback_recipe(config, ingredients_list, index):
         "image_url": None  # sem imagem de fallback
     }
 
-def get_menstrual_phase(user_id):
-    try:
-        latest_cycle = MenstrualCycle.query.filter_by(user_id=user_id).order_by(MenstrualCycle.created_at.desc()).first()
-        if not latest_cycle:
-            return "follicular"
-
-        today = datetime.now().date()
-        cycle_start = latest_cycle.cycle_start_date
-        days_since_start = (today - cycle_start).days % latest_cycle.cycle_length
-
-        if days_since_start <= latest_cycle.period_length:
-            return "menstrual"
-        elif days_since_start <= 13:
-            return "follicular"
-        elif days_since_start <= 15:
-            return "ovulation"
-        else:
-            return "luteal"
-    except Exception as e:
-        logger.error(f"Erro ao obter fase menstrual: {str(e)}")
-        return "follicular"
-
-def get_phase_nutrition_recommendations(phase):
-    recommendations = {
-        "menstrual": {
-            "focus_foods": ["iron-rich leafy greens", "quinoa", "lentils", "citrus fruits"],
-            "limit_foods": ["excess caffeine", "processed foods", "high sodium"],
-            "hydration": "2.5L water daily, herbal teas recommended",
-            "supplements": ["iron", "vitamin C", "magnesium"]
-        },
-        "follicular": {
-            "focus_foods": ["complex carbohydrates", "lean proteins", "fresh vegetables"],
-            "limit_foods": ["simple sugars", "refined carbs"],
-            "hydration": "2L water daily",
-            "supplements": ["B vitamins", "probiotics"]
-        },
-        "ovulation": {
-            "focus_foods": ["healthy fats", "antioxidant-rich foods", "omega-3 sources"],
-            "limit_foods": ["inflammatory foods", "excess sugar"],
-            "hydration": "2.5L water daily",
-            "supplements": ["vitamin E", "zinc"]
-        },
-        "luteal": {
-            "focus_foods": ["magnesium-rich foods", "complex carbs", "calcium sources"],
-            "limit_foods": ["caffeine", "alcohol", "salty foods"],
-            "hydration": "3L water daily to reduce bloating",
-            "supplements": ["magnesium", "calcium", "vitamin D"]
-        }
-    }
-    return recommendations.get(phase, recommendations["follicular"])
 
 # =============================================================================
 # 🎨 IMAGE PROCESSING (pode usar futuramente para gerar miniaturas)
@@ -1589,6 +1508,10 @@ def register():
             profile_photo=None
         )
         db.session.add(user)
+        db.session.commit()
+
+        wl = WeightLog(user_id=user.id, date=datetime.utcnow().date(), weight=user.current_weight)
+        db.session.add(wl)
         db.session.commit()
 
         session.permanent = False
@@ -2286,109 +2209,6 @@ def delete_recipe(recipe_id):
         logger.error(f"❌ Erro ao excluir receita: {str(e)}")
         return jsonify({'error': f'Failed to delete recipe: {str(e)}'}), 500
 
-# ------------------------
-# CICLO MENSTRUAL – GET
-# ------------------------
-@app.route('/api/menstrual-cycle', methods=['GET'])
-def get_menstrual_cycle():
-    user = get_current_user()
-    if not user:
-        return jsonify({'error': 'Não autenticado'}), 401
-
-    if user.gender != 'female':
-        return jsonify({'error': 'Funcionalidade apenas para usuárias'}), 403
-
-    try:
-        latest_cycle = MenstrualCycle.query.filter_by(user_id=user.id).order_by(MenstrualCycle.created_at.desc()).first()
-        if not latest_cycle:
-            latest_cycle = MenstrualCycle(
-                user_id=user.id,
-                cycle_start_date=datetime.now().date(),
-                current_phase='follicular'
-            )
-            db.session.add(latest_cycle)
-            db.session.commit()
-
-        current_phase = get_menstrual_phase(user.id)
-        recommendations = get_phase_nutrition_recommendations(current_phase)
-
-        today = datetime.now().date()
-        cycle_day = (today - latest_cycle.cycle_start_date).days % latest_cycle.cycle_length + 1
-
-        cycle_data = {
-            'current_phase': current_phase,
-            'cycle_day': cycle_day,
-            'cycle_length': latest_cycle.cycle_length,
-            'period_length': latest_cycle.period_length,
-            'cycle_start_date': latest_cycle.cycle_start_date.isoformat(),
-            'recommendations': recommendations,
-            'symptoms': json.loads(latest_cycle.symptoms or '[]'),
-            'energy_level': latest_cycle.energy_level,
-            'mood': latest_cycle.mood,
-            'cravings': json.loads(latest_cycle.cravings or '[]')
-        }
-        return jsonify({'cycle_data': cycle_data}), 200
-
-    except Exception as e:
-        logger.error(f"❌ Erro no ciclo menstrual: {str(e)}")
-        return jsonify({'error': f'Failed to get cycle data: {str(e)}'}), 500
-
-# ------------------------
-# CICLO MENSTRUAL – LOG (POST)
-# ------------------------
-@app.route('/api/menstrual-cycle/log', methods=['POST'])
-def log_menstrual_data():
-    user = get_current_user()
-    if not user:
-        return jsonify({'error': 'Não autenticado'}), 401
-
-    if user.gender != 'female':
-        return jsonify({'error': 'Funcionalidade apenas para usuárias'}), 403
-
-    try:
-        data = request.get_json()
-        today = datetime.now().date()
-        cycle_entry = MenstrualCycle.query.filter_by(user_id=user.id).filter(MenstrualCycle.cycle_start_date <= today).order_by(MenstrualCycle.created_at.desc()).first()
-
-        if not cycle_entry:
-            cycle_entry = MenstrualCycle(
-                user_id=user.id,
-                cycle_start_date=today,
-                current_phase=get_menstrual_phase(user.id)
-            )
-            db.session.add(cycle_entry)
-
-        if 'symptoms' in data:
-            current_symptoms = json.loads(cycle_entry.symptoms or '[]')
-            new_symptom = data['symptoms']
-            if new_symptom not in current_symptoms:
-                current_symptoms.append(new_symptom)
-                cycle_entry.symptoms = json.dumps(current_symptoms)
-
-        if 'energy_level' in data:
-            cycle_entry.energy_level = data['energy_level']
-
-        if 'mood' in data:
-            cycle_entry.mood = data['mood']
-
-        if 'cravings' in data:
-            current_cravings = json.loads(cycle_entry.cravings or '[]')
-            new_craving = data['cravings']
-            if new_craving not in current_cravings:
-                current_cravings.append(new_craving)
-                cycle_entry.cravings = json.dumps(current_cravings)
-
-        cycle_entry.updated_at = datetime.utcnow()
-        db.session.commit()
-
-        return jsonify({
-            'message': 'Dados do ciclo registrados com sucesso',
-            'current_phase': get_menstrual_phase(user.id)
-        }), 200
-
-    except Exception as e:
-        logger.error(f"❌ Erro ao registrar ciclo: {str(e)}")
-        return jsonify({'error': f'Failed to log cycle data: {str(e)}'}), 500
 
 # ------------------------
 # PLANO NUTRICIONAL – GET
@@ -2597,6 +2417,15 @@ def update_user_profile():
                 except (ValueError, TypeError):
                     setattr(user, field, None)
     db.session.commit()
+
+    if 'current_weight' in data:
+        try:
+            w = float(data['current_weight'])
+            wl = WeightLog(user_id=user.id, date=datetime.utcnow().date(), weight=w)
+            db.session.add(wl)
+            db.session.commit()
+        except (ValueError, TypeError):
+            pass
     return jsonify({'message': 'Perfil atualizado'}), 200
 
 @app.route('/api/profile-photo', methods=['POST'])
@@ -2631,10 +2460,6 @@ def get_meal_suggestions():
         dominant_personality = personalities[0] if personalities else 'Balanced'
 
         phase_recommendations = {}
-        current_phase = None
-        if user.gender == 'female':
-            current_phase = get_menstrual_phase(user.id)
-            phase_recommendations = get_phase_nutrition_recommendations(current_phase)
 
         suggestions = []
         if dominant_personality == 'Explorer':
@@ -2695,14 +2520,9 @@ def get_meal_suggestions():
                 }
             ]
 
-        if phase_recommendations and current_phase:
-            for suggestion in suggestions:
-                suggestion['phase_note'] = f"Great for {current_phase} phase"
-
         return jsonify({
             'suggestions': suggestions,
-            'based_on_personality': dominant_personality,
-            'menstrual_phase': current_phase
+            'based_on_personality': dominant_personality
         }), 200
 
     except Exception as e:
@@ -2869,8 +2689,7 @@ def get_dashboard_stats():
                 'carbs': round(weekly_carbs, 1),
                 'fat': round(weekly_fat, 1)
             },
-            'recent_achievements': recent_achievements,
-            'menstrual_phase': get_menstrual_phase(user.id) if user.gender == 'female' else None
+            'recent_achievements': recent_achievements
         }
         return jsonify(dashboard_data), 200
 
@@ -3019,6 +2838,48 @@ def delete_daily_meal(meal_id):
     except Exception as e:
         logger.error(f"❌ Erro ao remover refeição diária: {str(e)}")
         return jsonify({'error': f'Falha ao remover refeição: {str(e)}'}), 500
+
+# ------------------------
+# PESO - REGISTRO E HISTÓRICO
+# ------------------------
+@app.route('/api/weight-progress', methods=['GET'])
+def get_weight_progress():
+    user = get_current_user()
+    if not user:
+        return jsonify({'error': 'Não autenticado'}), 401
+
+    logs = WeightLog.query.filter_by(user_id=user.id).order_by(WeightLog.date.asc()).all()
+    return jsonify({
+        'logs': [
+            {'id': wl.id, 'date': wl.date.isoformat(), 'weight': wl.weight}
+            for wl in logs
+        ]
+    }), 200
+
+@app.route('/api/weight-progress', methods=['POST'])
+def add_weight_progress():
+    user = get_current_user()
+    if not user:
+        return jsonify({'error': 'Não autenticado'}), 401
+
+    data = request.get_json() or {}
+    try:
+        weight = float(data.get('weight'))
+    except (TypeError, ValueError):
+        return jsonify({'error': 'Peso inválido'}), 400
+    date_str = data.get('date')
+    if date_str:
+        try:
+            log_date = datetime.fromisoformat(date_str).date()
+        except ValueError:
+            return jsonify({'error': 'Formato de data inválido. Use YYYY-MM-DD.'}), 400
+    else:
+        log_date = datetime.utcnow().date()
+
+    wl = WeightLog(user_id=user.id, date=log_date, weight=weight)
+    db.session.add(wl)
+    db.session.commit()
+    return jsonify({'message': 'Peso registrado'}), 201
 
 # ------------------------
 # GERAÇÃO DE IMAGEM DE RECEITA
@@ -3202,15 +3063,6 @@ def create_demo_user():
         ]
         for analysis in demo_analyses:
             db.session.add(analysis)
-
-        demo_cycle = MenstrualCycle(
-            user_id=demo_user.id,
-            cycle_start_date=datetime.now().date() - timedelta(days=10),
-            current_phase='follicular',
-            energy_level=7,
-            mood='good'
-        )
-        db.session.add(demo_cycle)
 
         # Exemplo de refeições diárias para demo user
         today_date = datetime.now().date()

@@ -4,7 +4,6 @@ Nutrivision is a demo application that combines a Flask backend with a React fro
 
 ## Features
 - Recipe generation with ingredient validation
-- Menstrual cycle tracking and personalized recommendations
 - Intelligent meal suggestions and nutrition plans
 - Daily meal logging
 - Azure OpenAI integration for GPT and DALL·E capabilities
