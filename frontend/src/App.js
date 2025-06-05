@@ -572,7 +572,7 @@ const NutriVisionApp = () => {
     target_weight: '',
     height: '',
     gender: 'male',
-    track_menstrual_cycle: false,
+    activity_level: 'light',
   });
 
   // Dashboard & Stats
@@ -600,6 +600,7 @@ const NutriVisionApp = () => {
   // Meal History
   const [mealHistory, setMealHistory] = useState([]);
   const [selectedHistoryMeal, setSelectedHistoryMeal] = useState(null);
+  const [weightProgress, setWeightProgress] = useState([]);
 
   // Recipe Book
   const [recipeIngredients, setRecipeIngredients] = useState('');
@@ -616,8 +617,6 @@ const NutriVisionApp = () => {
   const [recipeImageFile, setRecipeImageFile] = useState(null);
   const [recipeImagePreview, setRecipeImagePreview] = useState(null);
 
-  // Menstrual Cycle Tracking
-  const [menstrualCycleData, setMenstrualCycleData] = useState(null);
 
   // AI‐Analysis & Camera
   const [uploadedImage, setUploadedImage] = useState(null);
@@ -775,7 +774,6 @@ const NutriVisionApp = () => {
       setRecipeOptions([]);
       setGeneratedRecipe(null);
       setSelectedHistoryMeal(null);
-      setMenstrualCycleData(null);
       showSuccess('Signed out successfully!');
     } catch (err) {
       console.error('Logout failed', err);
@@ -825,10 +823,8 @@ const NutriVisionApp = () => {
           case 'profile':
             loadUserProfile();
             break;
-          case 'menstrual-cycle':
-            if (user.gender === 'female' && user.track_menstrual_cycle) {
-              loadMenstrualCycleData();
-            }
+          case 'weight-progress':
+            loadWeightProgress();
             break;
           default:
             break;
@@ -961,13 +957,27 @@ const NutriVisionApp = () => {
     }
   };
 
-  const loadMenstrualCycleData = async () => {
+  const loadWeightProgress = async () => {
     try {
-      const res = await apiCall('/menstrual-cycle');
-      setMenstrualCycleData(res);
+      const res = await apiCall('/weight-progress');
+      setWeightProgress(res.logs || []);
     } catch (err) {
-      console.error('Error loading cycle data:', err);
-      setMenstrualCycleData(null);
+      console.error('Error loading weight progress:', err);
+      setWeightProgress([]);
+    }
+  };
+
+  const addWeightEntry = async (weight, date) => {
+    try {
+      await apiCall('/weight-progress', {
+        method: 'POST',
+        body: JSON.stringify({ weight, date }),
+      });
+      await loadWeightProgress();
+      showSuccess('Weight updated!');
+    } catch (err) {
+      console.error('Error logging weight:', err);
+      setError('Failed to log weight');
     }
   };
   const loadUserRecipes = async () => {
@@ -1717,34 +1727,15 @@ const NutriVisionApp = () => {
                 setRegisterData({ ...registerData, height: e.target.value })
               }
             />
-          </div>
 
-          {registerData.gender === 'female' && (
-            <div className="bg-orange-50 p-4 rounded-xl border border-orange-200">
-              <label className="flex items-center space-x-3">
-                <input
-                  type="checkbox"
-                  checked={registerData.track_menstrual_cycle}
-                  onChange={(e) =>
-                    setRegisterData({
-                      ...registerData,
-                      track_menstrual_cycle: e.target.checked,
-                    })
-                  }
-                  className="w-4 h-4 text-orange-600 border-orange-300 rounded focus:ring-orange-500"
-                />
-                <div>
-                  <span className="text-sm font-medium text-gray-900 flex items-center">
-                    <Moon className="w-4 h-4 mr-1" />Track Menstrual Cycle
-                  </span>
-                  <p className="text-xs text-gray-600">
-                    Enable personalized nutrition recommendations based on your cycle
-                  </p>
-                </div>
-              </label>
-            </div>
-          )}
-
+          <label class="block text-gray-700 font-medium mb-1 mt-3">Activity Level</label>
+          <select class="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500" value={registerData.activity_level} onChange={(e) => setRegisterData({ ...registerData, activity_level: e.target.value })}>
+            <option value="sedentary">Sedentary</option>
+            <option value="light">Light</option>
+            <option value="moderate">Moderate</option>
+            <option value="active">Active</option>
+            <option value="very_active">Very Active</option>
+          </select>
           <button
             onClick={register}
             disabled={loading}
@@ -2786,6 +2777,55 @@ const NutriVisionApp = () => {
     </div>
   );
 
+  const renderWeightProgress = () => (
+    <div className="min-h-screen bg-gradient-to-br from-light-bgStart to-light-bgEnd dark:from-dark-bgStart dark:to-dark-bgEnd p-4 pb-20">
+      <div className="flex items-center justify-between mb-6">
+        <button onClick={() => setCurrentView('dashboard')} className="text-gray-800 text-2xl font-bold">
+          <ArrowLeft className="w-6 h-6" />
+        </button>
+        <h1 className="text-lg font-bold text-gray-900 flex items-center">
+          <TrendingUp className="w-5 h-5 mr-2" />Weight Progress
+        </h1>
+        <div className="w-6" />
+      </div>
+      <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
+        <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+          <TrendingUp className="w-6 h-6 mr-2 text-green-500" />History
+        </h2>
+        <div className="flex mb-4 space-x-2">
+          <input
+            type="number"
+            step="0.1"
+            placeholder="Weight (kg)"
+            id="weightInput"
+            className="flex-1 border border-gray-300 rounded-lg px-3 py-1"
+          />
+          <button
+            onClick={() => {
+              const val = document.getElementById('weightInput').value;
+              if (val) addWeightEntry(parseFloat(val));
+            }}
+            className="bg-green-500 text-white px-4 py-1 rounded-lg"
+          >
+            Add
+          </button>
+        </div>
+        {weightProgress.length > 0 ? (
+          <ul className="space-y-2">
+            {weightProgress.map((w) => (
+              <li key={w.id} className="flex justify-between border-b pb-1">
+                <span>{new Date(w.date).toLocaleDateString()}</span>
+                <span className="font-medium">{w.weight} kg</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-gray-600">No entries yet.</p>
+        )}
+      </div>
+    </div>
+  );
+
   const renderMealDetails = () => {
     if (!selectedHistoryMeal) return null;
     return (
@@ -3359,137 +3399,6 @@ const NutriVisionApp = () => {
     );
   };
 
-  const renderMenstrualCycle = () => (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 p-4 pb-20">
-      <div className="flex items-center justify-between mb-6">
-        <button
-          onClick={() => setCurrentView('dashboard')}
-          className="text-gray-800 text-2xl font-bold"
-        >
-          <ArrowLeft className="w-6 h-6" />
-        </button>
-        <h1 className="text-lg font-bold text-gray-900 flex items-center">
-          <Moon className="w-5 h-5 mr-2" />Cycle Tracking
-        </h1>
-        <div className="w-6" />
-      </div>
-      {menstrualCycleData?.cycle_data ? (
-        <div className="space-y-6">
-          <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
-            <div className="text-center mb-6">
-              <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Moon className="w-10 h-10 text-white" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900">
-                Cycle Day {menstrualCycleData.cycle_data.cycle_day}
-              </h2>
-              <p className="text-gray-600 capitalize">
-                {menstrualCycleData.cycle_data.current_phase} Phase
-              </p>
-            </div>
-
-            <div className="space-y-6">
-              <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-4 rounded-2xl border border-purple-200">
-                <h3 className="font-bold text-gray-900 mb-3 flex items-center">
-                  <Utensils className="w-5 h-5 mr-2" />Phase Nutrition Recommendations
-                </h3>
-                <div className="space-y-2 text-sm">
-                  <div>
-                    <span className="font-medium text-purple-800">Focus Foods: </span>
-                    <span className="text-purple-700">
-                      {menstrualCycleData.cycle_data.recommendations.focus_foods?.join(
-                        ', '
-                      )}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="font-medium text-purple-800">Limit: </span>
-                    <span className="text-purple-700">
-                      {menstrualCycleData.cycle_data.recommendations.limit_foods?.join(
-                        ', '
-                      )}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="font-medium text-purple-800">Hydration: </span>
-                    <span className="text-purple-700">
-                      {menstrualCycleData.cycle_data.recommendations.hydration}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gradient-to-br from-blue-100 to-indigo-100 p-4 rounded-2xl border border-blue-200">
-                  <h4 className="font-bold text-blue-900 mb-2">Energy Level</h4>
-                  <div className="flex items-center space-x-2">
-                    <div className="flex-1 bg-blue-200 rounded-full h-2">
-                      <div
-                        className="bg-blue-600 h-2 rounded-full"
-                        style={{
-                          width: `${(menstrualCycleData.cycle_data.energy_level / 10) * 100
-                            }%`,
-                        }}
-                      ></div>
-                    </div>
-                    <span className="text-sm font-bold text-blue-900">
-                      {menstrualCycleData.cycle_data.energy_level}/10
-                    </span>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-pink-100 to-purple-100 p-4 rounded-2xl border border-pink-200">
-                  <h4 className="font-bold text-pink-900 mb-2">Mood</h4>
-                  <p className="text-lg font-bold text-pink-600 capitalize">
-                    {menstrualCycleData.cycle_data.mood}
-                  </p>
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-r from-orange-100 to-yellow-100 p-4 rounded-2xl border border-orange-200">
-                <h4 className="font-bold text-orange-900 mb-2">Current Cravings</h4>
-                <div className="flex flex-wrap gap-2">
-                  {menstrualCycleData.cycle_data.cravings?.length > 0 ? (
-                    menstrualCycleData.cycle_data.cravings.map((craving, index) => (
-                      <span
-                        key={index}
-                        className="bg-orange-200 text-orange-800 px-2 py-1 rounded-full text-sm"
-                      >
-                        {craving}
-                      </span>
-                    ))
-                  ) : (
-                    <span className="text-orange-700 text-sm">
-                      No specific cravings logged
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100 text-center">
-          <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Moon className="w-10 h-10 text-gray-400" />
-          </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Cycle Tracking Not Set Up</h2>
-          <p className="text-gray-600 mb-6">
-            Enable cycle tracking to get personalized nutrition recommendations
-          </p>
-          <button
-            onClick={() => {
-              showSuccess('Cycle tracking will be set up in your profile settings');
-            }}
-            className="bg-gradient-to-r from-purple-500 to-pink-600 text-white px-6 py-3 rounded-xl font-bold"
-          >
-            Set Up Tracking
-          </button>
-        </div>
-      )}
-    </div>
-  );
-
   const renderSettings = () => (
     <div className="min-h-screen bg-gradient-to-br from-light-bgStart to-light-bgEnd dark:from-dark-bgStart dark:to-dark-bgEnd p-4 pb-20">
       <div className="flex items-center justify-between mb-6">
@@ -3552,15 +3461,13 @@ const NutriVisionApp = () => {
               <span className="font-medium text-yellow-900">Edit Profile</span>
             </button>
 
-            {user?.gender === 'female' && user?.track_menstrual_cycle && (
-              <button
-                onClick={() => setCurrentView('menstrual-cycle')}
-                className="w-full flex items-center space-x-3 p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors"
-              >
-                <Moon className="w-5 h-5 text-purple-600" />
-                <span className="font-medium text-purple-900">Cycle Tracking</span>
-              </button>
-            )}
+            <button
+              onClick={() => setCurrentView('weight-progress')}
+              className="w-full flex items-center space-x-3 p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors"
+            >
+              <TrendingUp className="w-5 h-5 text-green-600" />
+              <span className="font-medium text-green-900">Weight Progress</span>
+            </button>
           </div>
         </div>
 
@@ -3698,8 +3605,8 @@ const NutriVisionApp = () => {
         return renderDailyLog();
       case 'smart-scanner':
         return renderSmartScanner();
-      case 'menstrual-cycle':
-        return renderMenstrualCycle();
+      case 'weight-progress':
+        return renderWeightProgress();
       case 'profile':
         return renderProfile();
       case 'settings':
