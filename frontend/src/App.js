@@ -156,7 +156,7 @@ const ImprovedProfileSection = ({ user, userProfile: initialUserProfile, onSaveP
     setIsEditingProfile(true);
   };
 
-  const handleSaveProfile = () => {
+  const handleSaveProfile = async () => {
     const updatedUser = {
       ...userProfile.user,
       ...profileForm,
@@ -184,13 +184,29 @@ const ImprovedProfileSection = ({ user, userProfile: initialUserProfile, onSaveP
         tdee: Math.round(calculatedBMR * 1.4)
       }
     };
+    try {
+      await apiCall('/user-profile', {
+        method: 'PUT',
+        body: JSON.stringify({
+          username: updatedUser.username,
+          email: updatedUser.email,
+          age: updatedUser.age,
+          current_weight: updatedUser.current_weight,
+          target_weight: updatedUser.target_weight,
+          height: updatedUser.height,
+          gender: updatedUser.gender,
+        }),
+      });
 
-    setUserProfile(updatedProfile);
-    if (onSaveProfile) {
-      onSaveProfile(updatedProfile);
+      setUserProfile(updatedProfile);
+      if (onSaveProfile) {
+        onSaveProfile(updatedProfile);
+      }
+      setIsEditingProfile(false);
+      setProfilePhotoPreview(null);
+    } catch (err) {
+      console.error('Error saving profile:', err);
     }
-    setIsEditingProfile(false);
-    setProfilePhotoPreview(null);
   };
 
   const handlePhotoChange = (e) => {
