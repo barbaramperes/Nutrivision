@@ -1027,6 +1027,46 @@ const NutriVisionApp = () => {
     }
   };
 
+  // Add analyzed meal directly to the daily log
+  const addAnalysisToLog = async () => {
+    if (!analysisResult) return;
+
+    const dateStr = new Date().toISOString().split('T')[0];
+    const timeStr = new Date().toTimeString().slice(0, 5);
+
+    const newMeal = {
+      id: Date.now(),
+      name:
+        analysisResult.title ||
+        (analysisResult.foods_detected || []).join(', ') ||
+        'Analyzed Meal',
+      calories: parseInt(analysisResult.nutrition?.calories, 10) || 0,
+      protein: parseFloat(analysisResult.nutrition?.protein) || 0,
+      carbs: parseFloat(analysisResult.nutrition?.carbs) || 0,
+      fat: parseFloat(analysisResult.nutrition?.fat) || 0,
+      meal_type: analysisResult.meal_type || 'unknown',
+      time: timeStr,
+      date: dateStr,
+    };
+
+    try {
+      await apiCall('/daily-meals', {
+        method: 'POST',
+        body: JSON.stringify(newMeal),
+      });
+      showSuccess('Meal logged!');
+      if (selectedDate.toISOString().split('T')[0] === dateStr) {
+        setDailyMeals((prev) => [...prev, newMeal]);
+      }
+    } catch (err) {
+      console.error('Error logging meal:', err);
+      if (selectedDate.toISOString().split('T')[0] === dateStr) {
+        setDailyMeals((prev) => [...prev, newMeal]);
+      }
+      showSuccess('Meal added locally!');
+    }
+  };
+
   // ─────────── AI‐ASSISTED MEAL ESTIMATION ───────────
 
   const estimateMealWithAI = async () => {
@@ -1932,6 +1972,15 @@ const NutriVisionApp = () => {
                       </div>
                     ))}
                   </div>
+                </div>
+
+                <div className="mt-6 text-center">
+                  <button
+                    onClick={addAnalysisToLog}
+                    className="bg-gradient-to-r from-light-accent to-light-accent2 dark:from-dark-accent dark:to-dark-accent2 text-white font-bold py-2 px-4 rounded-xl shadow-lg"
+                  >
+                    <Save className="w-5 h-5 inline mr-2" /> Add to Log
+                  </button>
                 </div>
               </div>
             )}
