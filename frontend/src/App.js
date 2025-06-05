@@ -555,7 +555,8 @@ const NutriVisionApp = () => {
   const [loading, setLoading] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [highContrast, setHighContrast] = useState(false);
+  const [largeText, setLargeText] = useState(false);
 
   // Auth Forms
   const [loginData, setLoginData] = useState({ email: '', password: '' });
@@ -863,6 +864,22 @@ const NutriVisionApp = () => {
       document.body.classList.remove('dark');
     }
   }, [darkMode]);
+
+  useEffect(() => {
+    if (highContrast) {
+      document.body.classList.add('high-contrast');
+    } else {
+      document.body.classList.remove('high-contrast');
+    }
+  }, [highContrast]);
+
+  useEffect(() => {
+    if (largeText) {
+      document.body.classList.add('large-text');
+    } else {
+      document.body.classList.remove('large-text');
+    }
+  }, [largeText]);
 
   // ─────────── DATA LOADER FUNCTIONS ───────────
 
@@ -3418,12 +3435,21 @@ const NutriVisionApp = () => {
             </button>
           </div>
           <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl mt-3">
-            <span className="font-medium text-gray-900">Email Notifications</span>
+            <span className="font-medium text-gray-900">High Contrast</span>
             <button
-              onClick={() => setEmailNotifications(!emailNotifications)}
+              onClick={() => setHighContrast(!highContrast)}
               className="px-3 py-1 rounded-full bg-gray-200"
             >
-              {emailNotifications ? 'Disable' : 'Enable'}
+              {highContrast ? 'Disable' : 'Enable'}
+            </button>
+          </div>
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl mt-3">
+            <span className="font-medium text-gray-900">Large Text</span>
+            <button
+              onClick={() => setLargeText(!largeText)}
+              className="px-3 py-1 rounded-full bg-gray-200"
+            >
+              {largeText ? 'Disable' : 'Enable'}
             </button>
           </div>
         </div>
