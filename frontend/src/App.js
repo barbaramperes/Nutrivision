@@ -1757,41 +1757,51 @@ const NutriVisionApp = () => {
           </div>
 
           <div>
-            <label className="block text-gray-700 font-medium mb-1">Height (cm)</label>
-            <input
-              type="number"
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-              value={registerData.height}
-              onChange={(e) =>
-                setRegisterData({ ...registerData, height: e.target.value })
-              }
-            />
+            <div>
+              <label className="block text-gray-700 font-medium mb-1">Height (cm)</label>
+              <input
+                type="number"
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                value={registerData.height}
+                onChange={(e) =>
+                  setRegisterData({ ...registerData, height: e.target.value })
+                }
+              />
+            </div>
 
-          <label class="block text-gray-700 font-medium mb-1 mt-3">Activity Level</label>
-          <select class="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500" value={registerData.activity_level} onChange={(e) => setRegisterData({ ...registerData, activity_level: e.target.value })}>
-            <option value="sedentary">Sedentary</option>
-            <option value="light">Light</option>
-            <option value="moderate">Moderate</option>
-            <option value="active">Active</option>
-            <option value="very_active">Very Active</option>
-          </select>
-          <button
-            onClick={register}
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-light-accent via-light-accent2 to-light-accent2 dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent2 text-white py-3 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all disabled:opacity-50"
-          >
-            {loading ? <Loader className="w-5 h-5 animate-spin mx-auto" /> : 'Get Started'}
-          </button>
-        </div>
+            <div>
+              <label className="block text-gray-700 font-medium mb-1 mt-3">Activity Level</label>
+              <select
+                className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                value={registerData.activity_level}
+                onChange={(e) => setRegisterData({ ...registerData, activity_level: e.target.value })}
+              >
+                <option value="sedentary">Sedentary</option>
+                <option value="light">Light</option>
+                <option value="moderate">Moderate</option>
+                <option value="active">Active</option>
+                <option value="very_active">Very Active</option>
+              </select>
+            </div>
 
-        <div className="text-center mt-4">
-          <button
-            onClick={() => setCurrentView('login')}
-            className="text-orange-600 font-medium hover:text-orange-700"
-          >
-            Already have an account? Sign in
-          </button>
+            <button
+              onClick={register}
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-light-accent via-light-accent2 to-light-accent2 dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent2 text-white py-3 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all disabled:opacity-50"
+            >
+              {loading ? <Loader className="w-5 h-5 animate-spin mx-auto" /> : 'Get Started'}
+            </button>
+
+            <div className="text-center mt-4">
+              <button
+                onClick={() => setCurrentView('login')}
+                className="text-orange-600 font-medium hover:text-orange-700"
+              >
+                Already have an account? Sign in
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -2054,470 +2064,470 @@ const NutriVisionApp = () => {
   // ─────────── RECIPE BOOK ───────────
   const renderRecipeBook = () => {
     return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 p-6 pb-24">
-      <div className="flex items-center justify-between mb-6">
-        <button
-          onClick={() => setCurrentView('dashboard')}
-          className="text-gray-800 text-2xl font-bold hover:text-gray-600 transition-colors"
-        >
-          <ArrowLeft className="w-6 h-6" />
-        </button>
-        <h1 className="text-lg font-bold text-gray-900">Recipe Book</h1>
-        <div className="w-6" />
-      </div>
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 p-6 pb-24">
+        <div className="flex items-center justify-between mb-6">
+          <button
+            onClick={() => setCurrentView('dashboard')}
+            className="text-gray-800 text-2xl font-bold hover:text-gray-600 transition-colors"
+          >
+            <ArrowLeft className="w-6 h-6" />
+          </button>
+          <h1 className="text-lg font-bold text-gray-900">Recipe Book</h1>
+          <div className="w-6" />
+        </div>
 
-      {/* ─── Formulário de Criação de Receita ─── */}
-      <div className="bg-white rounded-3xl shadow-lg p-8 mb-10 border border-gray-100">
-        <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-          <Utensils className="w-6 h-6 mr-2 text-orange-500" />
-          Create Personalized Recipe
-        </h2>
+        {/* ─── Formulário de Criação de Receita ─── */}
+        <div className="bg-white rounded-3xl shadow-lg p-8 mb-10 border border-gray-100">
+          <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+            <Utensils className="w-6 h-6 mr-2 text-orange-500" />
+            Create Personalized Recipe
+          </h2>
 
-        <div className="space-y-6">
-          {/* Campo de Ingredientes (texto) */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Available Ingredients
-            </label>
-            <textarea
-              value={recipeIngredients}
-              onChange={(e) => setRecipeIngredients(e.target.value)}
-              placeholder="e.g., chicken, broccoli, quinoa, garlic"
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-gray-50"
-              rows="3"
-            />
-
-          </div>
-
-          {/* Upload / Captura de Foto */}
-          <div className="space-y-3">
-            <label className="block text-sm font-medium text-gray-700">
-              Or Upload a Photo of Your Fridge/Shelf
-            </label>
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => {
-                  if (
-                    navigator.mediaDevices &&
-                    navigator.mediaDevices.getUserMedia
-                  ) {
-                    navigator.mediaDevices
-                      .getUserMedia({ video: { facingMode: 'environment' } })
-                      .then((stream) => {
-                        const video = document.createElement('video');
-                        video.srcObject = stream;
-                        video.play();
-                        video.addEventListener('loadeddata', () => {
-                          const canvas = document.createElement('canvas');
-                          canvas.width = video.videoWidth;
-                          canvas.height = video.videoHeight;
-                          const ctx = canvas.getContext('2d');
-                          ctx.drawImage(video, 0, 0);
-                          canvas.toBlob((blob) => {
-                            const file = new File(
-                              [blob],
-                              'fridge-capture.jpg',
-                              { type: 'image/jpeg' }
-                            );
-                            setRecipeImageFile(file);
-                            const reader = new FileReader();
-                            reader.onload = () => {
-                              setRecipeImagePreview(reader.result);
-                            };
-                            reader.readAsDataURL(file);
-                          });
-                          stream.getTracks().forEach((track) => track.stop());
-                        });
-                      })
-                      .catch(() => {
-                        recipeFileInputRef.current?.click();
-                      });
-                  } else {
-                    recipeFileInputRef.current?.click();
-                  }
-                }}
-                className="bg-gradient-to-r from-gray-800 to-gray-600 text-white px-5 py-2 rounded-xl text-sm font-semibold shadow-md hover:shadow-lg transition-transform transform hover:-translate-y-0.5"
-              >
-                <Camera className="w-4 h-4 mr-1 inline" /> Capture Photo
-              </button>
-
-              <button
-                onClick={() => recipeFileInputRef.current?.click()}
-                className="bg-gradient-to-r from-light-accent to-light-accent2 dark:from-dark-accent dark:to-dark-accent2 text-white px-5 py-2 rounded-xl text-sm font-semibold shadow-md hover:shadow-lg transition-transform transform hover:-translate-y-0.5"
-              >
-                <Image className="w-4 h-4 mr-1 inline" /> Choose Photo
-              </button>
+          <div className="space-y-6">
+            {/* Campo de Ingredientes (texto) */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Available Ingredients
+              </label>
+              <textarea
+                value={recipeIngredients}
+                onChange={(e) => setRecipeIngredients(e.target.value)}
+                placeholder="e.g., chicken, broccoli, quinoa, garlic"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-gray-50"
+                rows="3"
+              />
             </div>
 
-            {recipeImagePreview && (
-              <div className="relative w-28 h-28 rounded-2xl overflow-hidden border-2 border-gray-200 shadow-md">
-                <img
-                  src={recipeImagePreview}
-                  alt="Fridge preview"
-                  className="w-full h-full object-cover"
-                />
+            {/* Upload / Captura de Foto */}
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-gray-700">
+                Or Upload a Photo of Your Fridge/Shelf
+              </label>
+              <div className="flex items-center space-x-4">
                 <button
                   onClick={() => {
-                    setRecipeImageFile(null);
-                    setRecipeImagePreview(null);
+                    if (
+                      navigator.mediaDevices &&
+                      navigator.mediaDevices.getUserMedia
+                    ) {
+                      navigator.mediaDevices
+                        .getUserMedia({ video: { facingMode: 'environment' } })
+                        .then((stream) => {
+                          const video = document.createElement('video');
+                          video.srcObject = stream;
+                          video.play();
+                          video.addEventListener('loadeddata', () => {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = video.videoWidth;
+                            canvas.height = video.videoHeight;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(video, 0, 0);
+                            canvas.toBlob((blob) => {
+                              const file = new File(
+                                [blob],
+                                'fridge-capture.jpg',
+                                { type: 'image/jpeg' }
+                              );
+                              setRecipeImageFile(file);
+                              const reader = new FileReader();
+                              reader.onload = () => {
+                                setRecipeImagePreview(reader.result);
+                              };
+                              reader.readAsDataURL(file);
+                            });
+                            stream.getTracks().forEach((track) => track.stop());
+                          });
+                        })
+                        .catch(() => {
+                          recipeFileInputRef.current?.click();
+                        });
+                    } else {
+                      recipeFileInputRef.current?.click();
+                    }
                   }}
-                  className="absolute top-1 right-1 bg-white rounded-full p-1 text-red-600 hover:text-red-800 shadow"
+                  className="bg-gradient-to-r from-gray-800 to-gray-600 text-white px-5 py-2 rounded-xl text-sm font-semibold shadow-md hover:shadow-lg transition-transform transform hover:-translate-y-0.5"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Camera className="w-4 h-4 mr-1 inline" /> Capture Photo
+                </button>
+
+                <button
+                  onClick={() => recipeFileInputRef.current?.click()}
+                  className="bg-gradient-to-r from-light-accent to-light-accent2 dark:from-dark-accent dark:to-dark-accent2 text-white px-5 py-2 rounded-xl text-sm font-semibold shadow-md hover:shadow-lg transition-transform transform hover:-translate-y-0.5"
+                >
+                  <Image className="w-4 h-4 mr-1 inline" /> Choose Photo
                 </button>
               </div>
-            )}
 
-            <input
-              ref={recipeFileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                setRecipeImageFile(file);
-                const reader = new FileReader();
-                reader.onload = () => setRecipeImagePreview(reader.result);
-                reader.readAsDataURL(file);
-              }}
-              className="hidden"
-            />
-          </div>
-
-          {/* Personalização (selects em duas colunas) */}
-          <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-5 rounded-2xl border border-orange-200">
-            <h3 className="text-gray-900 font-bold mb-4 flex items-center">
-              <Sparkles className="w-5 h-5 mr-2 text-orange-600" />
-              Personalization Options
-            </h3>
-
-            <div className="grid grid-cols-2 gap-4">
-              {/* Meal Type */}
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  Meal Type
-                </label>
-                <select
-                  value={recipePersonalization.meal_type}
-                  onChange={(e) =>
-                    setRecipePersonalization({
-                      ...recipePersonalization,
-                      meal_type: e.target.value,
-                    })
-                  }
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white"
-                >
-                  <option value="any">Any Time</option>
-                  <option value="breakfast">Breakfast</option>
-                  <option value="lunch">Lunch</option>
-                  <option value="dinner">Dinner</option>
-                  <option value="snack">Snack</option>
-                </select>
-              </div>
-
-              {/* Temperature */}
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  Temperature
-                </label>
-                <select
-                  value={recipePersonalization.temperature}
-                  onChange={(e) =>
-                    setRecipePersonalization({
-                      ...recipePersonalization,
-                      temperature: e.target.value,
-                    })
-                  }
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white"
-                >
-                  <option value="any">Any</option>
-                  <option value="hot">Hot & Cozy</option>
-                  <option value="cold">Cold & Fresh</option>
-                  <option value="fresh">Fresh & Raw</option>
-                </select>
-              </div>
-
-              {/* Cooking Time */}
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  Cooking Time
-                </label>
-                <select
-                  value={recipePersonalization.cooking_time}
-                  onChange={(e) =>
-                    setRecipePersonalization({
-                      ...recipePersonalization,
-                      cooking_time: e.target.value,
-                    })
-                  }
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white"
-                >
-                  <option value="ultra-quick">Ultra Quick (&lt;5 min)</option>
-                  <option value="quick">Quick (&lt;20 min)</option>
-                  <option value="medium">Medium (20–45 min)</option>
-                  <option value="elaborate">Elaborate (&gt;45 min)</option>
-                </select>
-              </div>
-
-              {/* Cuisine Style */}
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  Cuisine Style
-                </label>
-                <select
-                  value={recipePersonalization.cuisine_style}
-                  onChange={(e) =>
-                    setRecipePersonalization({
-                      ...recipePersonalization,
-                      cuisine_style: e.target.value,
-                    })
-                  }
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white"
-                >
-                  <option value="any">Any Style</option>
-                  <option value="mediterranean">Mediterranean</option>
-                  <option value="asian">Asian</option>
-                  <option value="fusion">Fusion</option>
-                  <option value="traditional">Traditional</option>
-                  <option value="modern">Modern</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Dietary Preference (full width) */}
-            <div className="mt-4">
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Dietary Preference
-              </label>
-              <select
-                value={recipePersonalization.dietary_pref}
-                onChange={(e) =>
-                  setRecipePersonalization({
-                    ...recipePersonalization,
-                    dietary_pref: e.target.value,
-                  })
-                }
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white"
-              >
-                <option value="none">No Restriction</option>
-                <option value="vegetarian">Vegetarian</option>
-                <option value="vegan">Vegan</option>
-                <option value="keto">Keto</option>
-                <option value="low-carb">Low Carb</option>
-                <option value="gluten-free">Gluten Free</option>
-                <option value="lactose-free">Lactose Free</option>
-                <option value="high-protein">High Protein</option>
-              </select>
-            </div>
-          </div>
-
-          <button
-            onClick={generateRecipe}
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-light-accent to-light-accent2 dark:from-dark-accent dark:to-dark-accent2 text-white py-3 rounded-2xl font-bold shadow-lg hover:shadow-xl transition-transform transform hover:-translate-y-0.5 disabled:opacity-50"
-          >
-            {loading ? (
-              <Loader className="w-5 h-5 animate-spin mx-auto" />
-            ) : (
-              'Generate Smart Recipe'
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* ─── Lista de Opções de Receita (TABS) ─── */}
-      {recipeOptions.length > 0 && (
-        <div className="bg-white rounded-3xl shadow-lg mb-8 border border-gray-100">
-          <div className="p-4 border-b border-gray-200 flex space-x-2 overflow-x-auto">
-            {recipeOptions.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setSelectedOptionIndex(idx)}
-                className={`px-4 py-2 rounded-t-2xl text-sm font-medium whitespace-nowrap ${selectedOptionIndex === idx
-                  ? 'bg-gradient-to-r from-light-accent to-light-accent2 dark:from-dark-accent dark:to-dark-accent2 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-              >
-                {`Option ${idx + 1}`}
-              </button>
-            ))}
-          </div>
-
-          <div className="p-6">
-            {recipeOptions[selectedOptionIndex] && (
-              <div className="space-y-4 bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-2xl">
-                <h3 className="text-2xl font-bold text-yellow-900">
-                  {recipeOptions[selectedOptionIndex].title}
-                </h3>
-                <p className="text-yellow-700">
-                  {recipeOptions[selectedOptionIndex].description}
-                </p>
-                <div className="flex items-center space-x-5 mt-2 text-sm text-yellow-600">
-                  <span className="flex items-center">
-                    <ClockIcon className="w-5 h-5 mr-1 text-yellow-500" />
-                    {recipeOptions[selectedOptionIndex].prep_time +
-                      recipeOptions[selectedOptionIndex].cook_time}{' '}
-                    min
-                  </span>
-                  <span className="flex items-center">
-                    <UsersIcon className="w-5 h-5 mr-1 text-yellow-500" />
-                    {recipeOptions[selectedOptionIndex].servings} servings
-                  </span>
-                  <span className="flex items-center">
-                    <Flame className="w-5 h-5 mr-1 text-yellow-500" />
-                    {recipeOptions[selectedOptionIndex].nutrition.calories} kcal
-                  </span>
-                  <span className="flex items-center">
-                    <DrumstickIcon className="w-5 h-5 mr-1 text-yellow-500" />
-                    {recipeOptions[selectedOptionIndex].nutrition.protein}g protein
-                  </span>
-                </div>
-
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {recipeOptions[selectedOptionIndex].tags?.map((tag, idx2) => (
-                    <span
-                      key={idx2}
-                      className="px-2 py-1 bg-yellow-200 text-yellow-800 rounded-full text-xs font-medium"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-
-                {recipeOptions[selectedOptionIndex].image_url && (
-                  <div className="mt-4 rounded-2xl overflow-hidden border border-gray-200 shadow-lg">
-                    <img
-                      src={recipeOptions[selectedOptionIndex].image_url}
-                      alt={recipeOptions[selectedOptionIndex].title}
-                      className="w-full h-56 object-cover"
-                    />
-                  </div>
-                )}
-
-                {recipeOptions[selectedOptionIndex].chef_tips?.length > 0 && (
-                  <div className="mt-4 p-4 bg-white bg-opacity-80 rounded-xl">
-                    <h4 className="font-bold text-yellow-900 text-sm mb-2 flex items-center">
-                      <Utensils className="w-4 h-4 mr-1" />Chef’s Tips:
-                    </h4>
-                    <ul className="space-y-1">
-                      {recipeOptions[selectedOptionIndex].chef_tips.map((tip, idx3) => (
-                        <li key={idx3} className="text-xs text-yellow-700 flex items-start">
-                          <span className="text-yellow-500 mr-1">{'\u2022'}</span>
-                          {tip}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                <div className="text-right">
+              {recipeImagePreview && (
+                <div className="relative w-28 h-28 rounded-2xl overflow-hidden border-2 border-gray-200 shadow-md">
+                  <img
+                    src={recipeImagePreview}
+                    alt="Fridge preview"
+                    className="w-full h-full object-cover"
+                  />
                   <button
-                    onClick={saveRecipeOption}
-                    className="mt-4 bg-gradient-to-r from-light-accent to-light-accent2 dark:from-dark-accent dark:to-dark-accent2 text-white px-4 py-2 rounded-xl font-semibold shadow hover:shadow-lg"
+                    onClick={() => {
+                      setRecipeImageFile(null);
+                      setRecipeImagePreview(null);
+                    }}
+                    className="absolute top-1 right-1 bg-white rounded-full p-1 text-red-600 hover:text-red-800 shadow"
                   >
-                    <Save className="w-4 h-4 inline mr-1" />
-                    Save to Collection
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
+              )}
+
+              <input
+                ref={recipeFileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (!file) return;
+                  setRecipeImageFile(file);
+                  const reader = new FileReader();
+                  reader.onload = () => setRecipeImagePreview(reader.result);
+                  reader.readAsDataURL(file);
+                }}
+                className="hidden"
+              />
+            </div>
+
+            {/* Personalização (selects em duas colunas) */}
+            <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-5 rounded-2xl border border-orange-200">
+              <h3 className="text-gray-900 font-bold mb-4 flex items-center">
+                <Sparkles className="w-5 h-5 mr-2 text-orange-600" />
+                Personalization Options
+              </h3>
+
+              <div className="grid grid-cols-2 gap-4">
+                {/* Meal Type */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Meal Type
+                  </label>
+                  <select
+                    value={recipePersonalization.meal_type}
+                    onChange={(e) =>
+                      setRecipePersonalization({
+                        ...recipePersonalization,
+                        meal_type: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white"
+                  >
+                    <option value="any">Any Time</option>
+                    <option value="breakfast">Breakfast</option>
+                    <option value="lunch">Lunch</option>
+                    <option value="dinner">Dinner</option>
+                    <option value="snack">Snack</option>
+                  </select>
+                </div>
+
+                {/* Temperature */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Temperature
+                  </label>
+                  <select
+                    value={recipePersonalization.temperature}
+                    onChange={(e) =>
+                      setRecipePersonalization({
+                        ...recipePersonalization,
+                        temperature: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white"
+                  >
+                    <option value="any">Any</option>
+                    <option value="hot">Hot & Cozy</option>
+                    <option value="cold">Cold & Fresh</option>
+                    <option value="fresh">Fresh & Raw</option>
+                  </select>
+                </div>
+
+                {/* Cooking Time */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Cooking Time
+                  </label>
+                  <select
+                    value={recipePersonalization.cooking_time}
+                    onChange={(e) =>
+                      setRecipePersonalization({
+                        ...recipePersonalization,
+                        cooking_time: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white"
+                  >
+                    <option value="ultra-quick">Ultra Quick (&lt;5 min)</option>
+                    <option value="quick">Quick (&lt;20 min)</option>
+                    <option value="medium">Medium (20–45 min)</option>
+                    <option value="elaborate">Elaborate (&gt;45 min)</option>
+                  </select>
+                </div>
+
+                {/* Cuisine Style */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Cuisine Style
+                  </label>
+                  <select
+                    value={recipePersonalization.cuisine_style}
+                    onChange={(e) =>
+                      setRecipePersonalization({
+                        ...recipePersonalization,
+                        cuisine_style: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white"
+                  >
+                    <option value="any">Any Style</option>
+                    <option value="mediterranean">Mediterranean</option>
+                    <option value="asian">Asian</option>
+                    <option value="fusion">Fusion</option>
+                    <option value="traditional">Traditional</option>
+                    <option value="modern">Modern</option>
+                  </select>
+                </div>
               </div>
-            )}
+
+              {/* Dietary Preference (full width) */}
+              <div className="mt-4">
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Dietary Preference
+                </label>
+                <select
+                  value={recipePersonalization.dietary_pref}
+                  onChange={(e) =>
+                    setRecipePersonalization({
+                      ...recipePersonalization,
+                      dietary_pref: e.target.value,
+                    })
+                  }
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white"
+                >
+                  <option value="none">No Restriction</option>
+                  <option value="vegetarian">Vegetarian</option>
+                  <option value="vegan">Vegan</option>
+                  <option value="keto">Keto</option>
+                  <option value="low-carb">Low Carb</option>
+                  <option value="gluten-free">Gluten Free</option>
+                  <option value="lactose-free">Lactose Free</option>
+                  <option value="high-protein">High Protein</option>
+                </select>
+              </div>
+            </div>
+
+            <button
+              onClick={generateRecipe}
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-light-accent to-light-accent2 dark:from-dark-accent dark:to-dark-accent2 text-white py-3 rounded-2xl font-bold shadow-lg hover:shadow-xl transition-transform transform hover:-translate-y-0.5 disabled:opacity-50"
+            >
+              {loading ? (
+                <Loader className="w-5 h-5 animate-spin mx-auto" />
+              ) : (
+                'Generate Smart Recipe'
+              )}
+            </button>
           </div>
         </div>
-      )}
 
+        {/* ─── Lista de Opções de Receita (TABS) ─── */}
+        {recipeOptions.length > 0 && (
+          <div className="bg-white rounded-3xl shadow-lg mb-8 border border-gray-100">
+            <div className="p-4 border-b border-gray-200 flex space-x-2 overflow-x-auto">
+              {recipeOptions.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setSelectedOptionIndex(idx)}
+                  className={`px-4 py-2 rounded-t-2xl text-sm font-medium whitespace-nowrap ${selectedOptionIndex === idx
+                    ? 'bg-gradient-to-r from-light-accent to-light-accent2 dark:from-dark-accent dark:to-dark-accent2 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                >
+                  {`Option ${idx + 1}`}
+                </button>
+              ))}
+            </div>
 
-      {/* ───── YOUR RECIPE COLLECTION ───── */}
-      <div className="bg-white rounded-3xl shadow-lg p-6 mb-6 border border-gray-100">
-        <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
-          <BookOpen className="w-6 h-6 mr-2 text-yellow-500" />
-          Your Recipe Collection
-        </h2>
-
-        {userRecipes.length > 0 ? (
-          <div className="space-y-4">
-            {userRecipes.map((recipe) => (
-              <div
-                key={recipe.id}
-                className="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-2xl border border-yellow-200 flex flex-col sm:flex-row items-center"
-              >
-                { /* ─── Miniatura: verifica se existe `recipe.image_url` ─── */}
-                {recipe.image_url ? (
-                  <div className="w-full sm:w-24 h-24 rounded-xl overflow-hidden shadow-md flex-shrink-0">
-                    <img
-                      src={recipe.image_url}
-                      alt={recipe.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ) : (
-                  <div className="w-full sm:w-24 h-24 bg-gray-200 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Utensils className="w-8 h-8 text-gray-400" />
-                  </div>
-                )}
-
-                { /* ─── Conteúdo textual ao lado (título, descrição, ícones etc.) ─── */}
-                <div className="flex-1 mt-4 sm:mt-0 sm:ml-4">
-                  <h3 className="font-bold text-yellow-900">{recipe.title}</h3>
-                  <p className="text-yellow-700 text-sm line-clamp-2">
-                    {recipe.description}
+            <div className="p-6">
+              {recipeOptions[selectedOptionIndex] && (
+                <div className="space-y-4 bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-2xl">
+                  <h3 className="text-2xl font-bold text-yellow-900">
+                    {recipeOptions[selectedOptionIndex].title}
+                  </h3>
+                  <p className="text-yellow-700">
+                    {recipeOptions[selectedOptionIndex].description}
                   </p>
-
-                  <div className="flex items-center space-x-4 mt-2 text-xs text-yellow-600">
+                  <div className="flex items-center space-x-5 mt-2 text-sm text-yellow-600">
                     <span className="flex items-center">
-                      <ClockIcon className="w-4 h-4 mr-1 text-yellow-500" />
-                      {recipe.prep_time + recipe.cook_time} min
+                      <ClockIcon className="w-5 h-5 mr-1 text-yellow-500" />
+                      {recipeOptions[selectedOptionIndex].prep_time +
+                        recipeOptions[selectedOptionIndex].cook_time}{' '}
+                      min
                     </span>
                     <span className="flex items-center">
-                      <UsersIcon className="w-4 h-4 mr-1 text-yellow-500" />
-                      {recipe.servings} servings
+                      <UsersIcon className="w-5 h-5 mr-1 text-yellow-500" />
+                      {recipeOptions[selectedOptionIndex].servings} servings
                     </span>
                     <span className="flex items-center">
-                      <Flame className="w-4 h-4 mr-1 text-yellow-500" />
-                      {recipe.calories_per_serving} kcal
+                      <Flame className="w-5 h-5 mr-1 text-yellow-500" />
+                      {recipeOptions[selectedOptionIndex].nutrition.calories} kcal
                     </span>
                     <span className="flex items-center">
-                      <DrumstickIcon className="w-4 h-4 mr-1 text-yellow-500" />
-                      {recipe.protein_per_serving}g protein
+                      <DrumstickIcon className="w-5 h-5 mr-1 text-yellow-500" />
+                      {recipeOptions[selectedOptionIndex].nutrition.protein}g protein
                     </span>
                   </div>
+
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {recipeOptions[selectedOptionIndex].tags?.map((tag, idx2) => (
+                      <span
+                        key={idx2}
+                        className="px-2 py-1 bg-yellow-200 text-yellow-800 rounded-full text-xs font-medium"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  {recipeOptions[selectedOptionIndex].image_url && (
+                    <div className="mt-4 rounded-2xl overflow-hidden border border-gray-200 shadow-lg">
+                      <img
+                        src={recipeOptions[selectedOptionIndex].image_url}
+                        alt={recipeOptions[selectedOptionIndex].title}
+                        className="w-full h-56 object-cover"
+                      />
+                    </div>
+                  )}
+
+                  {recipeOptions[selectedOptionIndex].chef_tips?.length > 0 && (
+                    <div className="mt-4 p-4 bg-white bg-opacity-80 rounded-xl">
+                      <h4 className="font-bold text-yellow-900 text-sm mb-2 flex items-center">
+                        <Utensils className="w-4 h-4 mr-1" />Chef’s Tips:
+                      </h4>
+                      <ul className="space-y-1">
+                        {recipeOptions[selectedOptionIndex].chef_tips.map((tip, idx3) => (
+                          <li key={idx3} className="text-xs text-yellow-700 flex items-start">
+                            <span className="text-yellow-500 mr-1">{'\u2022'}</span>
+                            {tip}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  <div className="text-right">
+                    <button
+                      onClick={saveRecipeOption}
+                      className="mt-4 bg-gradient-to-r from-light-accent to-light-accent2 dark:from-dark-accent dark:to-dark-accent2 text-white px-4 py-2 rounded-xl font-semibold shadow hover:shadow-lg"
+                    >
+                      <Save className="w-4 h-4 inline mr-1" />
+                      Save to Collection
+                    </button>
+                  </div>
                 </div>
-
-                { /* --- Buttons "View" / "Delete" --- */}
-                <div className="flex flex-row space-x-2 mt-4 sm:mt-0 sm:flex-col sm:space-x-0 sm:space-y-2 sm:ml-4">
-                  <button
-                    onClick={() => getRecipeDetails(recipe.id)}
-                    className="bg-yellow-600 text-white px-3 py-2 rounded-xl text-sm font-semibold hover:bg-yellow-700 transition-colors"
-                  >
-                    View
-                  </button>
-                  <button
-                    onClick={() => deleteRecipe(recipe.id)}
-                    className="bg-red-600 text-white px-3 py-2 rounded-xl text-sm font-semibold hover:bg-red-700 transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4 mx-auto" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-
-        ) : (
-          <div className="text-center py-8">
-            <div className="w-16 h-16 bg-yellow-200 rounded-full flex items-center justify-center mx-auto mb-4">
-              <BookOpen className="w-8 h-8 text-yellow-600" />
+              )}
             </div>
-            <p className="text-gray-600">No recipes yet. Generate your first smart recipe!</p>
           </div>
         )}
-      </div>
 
-    </div>
-  );
+
+        {/* ───── YOUR RECIPE COLLECTION ───── */}
+        <div className="bg-white rounded-3xl shadow-lg p-6 mb-6 border border-gray-100">
+          <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+            <BookOpen className="w-6 h-6 mr-2 text-yellow-500" />
+            Your Recipe Collection
+          </h2>
+
+          {userRecipes.length > 0 ? (
+            <div className="space-y-4">
+              {userRecipes.map((recipe) => (
+                <div
+                  key={recipe.id}
+                  className="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-2xl border border-yellow-200 flex flex-col sm:flex-row items-center"
+                >
+                  { /* ─── Miniatura: verifica se existe `recipe.image_url` ─── */}
+                  {recipe.image_url ? (
+                    <div className="w-full sm:w-24 h-24 rounded-xl overflow-hidden shadow-md flex-shrink-0">
+                      <img
+                        src={recipe.image_url}
+                        alt={recipe.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-full sm:w-24 h-24 bg-gray-200 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Utensils className="w-8 h-8 text-gray-400" />
+                    </div>
+                  )}
+
+                  { /* ─── Conteúdo textual ao lado (título, descrição, ícones etc.) ─── */}
+                  <div className="flex-1 mt-4 sm:mt-0 sm:ml-4">
+                    <h3 className="font-bold text-yellow-900">{recipe.title}</h3>
+                    <p className="text-yellow-700 text-sm line-clamp-2">
+                      {recipe.description}
+                    </p>
+
+                    <div className="flex items-center space-x-4 mt-2 text-xs text-yellow-600">
+                      <span className="flex items-center">
+                        <ClockIcon className="w-4 h-4 mr-1 text-yellow-500" />
+                        {recipe.prep_time + recipe.cook_time} min
+                      </span>
+                      <span className="flex items-center">
+                        <UsersIcon className="w-4 h-4 mr-1 text-yellow-500" />
+                        {recipe.servings} servings
+                      </span>
+                      <span className="flex items-center">
+                        <Flame className="w-4 h-4 mr-1 text-yellow-500" />
+                        {recipe.calories_per_serving} kcal
+                      </span>
+                      <span className="flex items-center">
+                        <DrumstickIcon className="w-4 h-4 mr-1 text-yellow-500" />
+                        {recipe.protein_per_serving}g protein
+                      </span>
+                    </div>
+                  </div>
+
+                  { /* --- Buttons "View" / "Delete" --- */}
+                  <div className="flex flex-row space-x-2 mt-4 sm:mt-0 sm:flex-col sm:space-x-0 sm:space-y-2 sm:ml-4">
+                    <button
+                      onClick={() => getRecipeDetails(recipe.id)}
+                      className="bg-yellow-600 text-white px-3 py-2 rounded-xl text-sm font-semibold hover:bg-yellow-700 transition-colors"
+                    >
+                      View
+                    </button>
+                    <button
+                      onClick={() => deleteRecipe(recipe.id)}
+                      className="bg-red-600 text-white px-3 py-2 rounded-xl text-sm font-semibold hover:bg-red-700 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4 mx-auto" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+
+          ) : (
+            <div className="text-center py-8">
+              <div className="w-16 h-16 bg-yellow-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                <BookOpen className="w-8 h-8 text-yellow-600" />
+              </div>
+              <p className="text-gray-600">No recipes yet. Generate your first smart recipe!</p>
+            </div>
+          )}
+        </div>
+
+      </div>
+    );
   };
 
 
   const renderRecipeDetails = () => {
+
     if (!selectedRecipe) return null;
 
     return (
