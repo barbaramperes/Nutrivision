@@ -929,11 +929,22 @@ const NutriVisionApp = () => {
     }
   };
 
+  const refreshAdvancedStats = async () => {
+    try {
+      const stats = await apiCall('/user/stats-advanced');
+      setUser(stats.user);
+      setUserStats(stats);
+    } catch (err) {
+      console.error('Error refreshing stats:', err);
+    }
+  };
+
   const deleteHistoryMeal = async (analysisId) => {
     try {
       await apiCall(`/meal-history/${analysisId}`, { method: 'DELETE' });
       setMealHistory((prev) => prev.filter((m) => m.id !== analysisId));
       showSuccess('Meal analysis deleted!');
+      refreshAdvancedStats();
     } catch (err) {
       console.error('Error deleting meal analysis:', err);
       setError('Failed to delete meal analysis');
