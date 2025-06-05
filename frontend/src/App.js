@@ -49,54 +49,60 @@ import {
   ArrowUp,
   ArrowDown,
   Coffee,
-  Sun,
-  Sunset
+Sun,
+Sunset
 } from 'lucide-react';
 
+const defaultUserProfile = {
+  user: {
+    username: "Alex Johnson",
+    email: "alex.johnson@example.com",
+    age: 28,
+    current_weight: 75.5,
+    target_weight: 70.0,
+    height: 175,
+    gender: "male",
+    profile_photo: null,
+    streak_days: 12,
+    level: "Nutrition Explorer",
+    total_xp: 1250,
+    badges_earned: 8,
+  },
+  metrics: {
+    bmi: 24.6,
+    bmr: 1680,
+    tdee: 2350,
+  },
+  nutrition_plan: {
+    plan_name: "Balanced Weight Loss",
+    plan_type: "weight_loss",
+    daily_targets: {
+      calories: 2100,
+      protein: 140,
+      carbs: 220,
+      fat: 75,
+    },
+    today_progress: {
+      calories_consumed: 1650,
+      protein_consumed: 98,
+      carbs_consumed: 180,
+      fat_consumed: 62,
+    },
+    meal_distribution: {
+      breakfast: 0.25,
+      lunch: 0.35,
+      dinner: 0.30,
+      snacks: 0.10,
+    },
+  },
+};
+
 const ImprovedProfileSection = ({ user, userProfile: initialUserProfile, onSaveProfile, onOpenSettings }) => {
-  const [userProfile, setUserProfile] = useState(initialUserProfile || {
-    user: user || {
-      username: "Alex Johnson",
-      email: "alex.johnson@example.com",
-      age: 28,
-      current_weight: 75.5,
-      target_weight: 70.0,
-      height: 175,
-      gender: "male",
-      profile_photo: null,
-      streak_days: 12,
-      level: "Nutrition Explorer",
-      total_xp: 1250,
-      badges_earned: 8
-    },
-    metrics: {
-      bmi: 24.6,
-      bmr: 1680,
-      tdee: 2350
-    },
-    nutrition_plan: {
-      plan_name: "Balanced Weight Loss",
-      plan_type: "weight_loss",
-      daily_targets: {
-        calories: 2100,
-        protein: 140,
-        carbs: 220,
-        fat: 75
-      },
-      today_progress: {
-        calories_consumed: 1650,
-        protein_consumed: 98,
-        carbs_consumed: 180,
-        fat_consumed: 62
-      },
-      meal_distribution: {
-        breakfast: 0.25,
-        lunch: 0.35,
-        dinner: 0.30,
-        snacks: 0.10
-      }
-    }
-  });
+  const [userProfile, setUserProfile] = useState(initialUserProfile || defaultUserProfile);
+
+  useEffect(() => {
+    setUserProfile(initialUserProfile || defaultUserProfile);
+  }, [initialUserProfile]);
 
   useEffect(() => {
     if (userProfile?.user?.current_weight && userProfile?.user?.height) {
