@@ -1871,6 +1871,9 @@ def analyze_meal_revolutionary():
         except:
             health_score = 5.0
 
+        # Use the health assessment score as the satisfaction prediction
+        satisfaction_pred = health_score
+
         meal_analysis = MealAnalysis(
             user_id=user.id,
             image_path=image_path,
