@@ -592,6 +592,7 @@ const NutriVisionApp = () => {
     time: '',
   });
   const [showMealForm, setShowMealForm] = useState(false);
+  const [editingMealId, setEditingMealId] = useState(null);
   const [isEstimating, setIsEstimating] = useState(false);
   const [aiMealEstimation, setAiMealEstimation] = useState(null);
   const [mealImageFile, setMealImageFile] = useState(null);
@@ -998,8 +999,7 @@ const NutriVisionApp = () => {
       setError('Run AI estimation or fill in nutrition before saving');
       return;
     }
-    const newMeal = {
-      id: Date.now(),
+    const mealPayload = {
       ...currentMeal,
       calories: parseInt(currentMeal.calories, 10) || 0,
       protein: parseFloat(currentMeal.protein) || 0,
@@ -1007,18 +1007,43 @@ const NutriVisionApp = () => {
       fat: parseFloat(currentMeal.fat) || 0,
       date: selectedDate.toISOString().split('T')[0],
     };
+
     try {
-      await apiCall('/daily-meals', {
-        method: 'POST',
-        body: JSON.stringify(newMeal),
-      });
-      setDailyMeals((prev) => [...prev, newMeal]);
-      showSuccess('Meal saved successfully!');
+      if (editingMealId) {
+        await apiCall(`/daily-meals/${editingMealId}`, {
+          method: 'PUT',
+          body: JSON.stringify(mealPayload),
+        });
+        setDailyMeals((prev) =>
+          prev.map((m) =>
+            m.id === editingMealId ? { ...mealPayload, id: editingMealId } : m
+          )
+        );
+        showSuccess('Meal updated!');
+      } else {
+        const newMeal = { id: Date.now(), ...mealPayload };
+        await apiCall('/daily-meals', {
+          method: 'POST',
+          body: JSON.stringify(newMeal),
+        });
+        setDailyMeals((prev) => [...prev, newMeal]);
+        showSuccess('Meal saved successfully!');
+      }
     } catch (err) {
       console.error('Error saving meal:', err);
-      // Mesmo que falhe no backend, adiciona localmente
-      setDailyMeals((prev) => [...prev, newMeal]);
-      showSuccess('Meal added locally!');
+      if (editingMealId) {
+        setDailyMeals((prev) =>
+          prev.map((m) =>
+            m.id === editingMealId ? { ...mealPayload, id: editingMealId } : m
+          )
+        );
+        showSuccess('Meal updated locally!');
+      } else {
+        // Mesmo que falhe no backend, adiciona localmente
+        const newMeal = { id: Date.now(), ...mealPayload };
+        setDailyMeals((prev) => [...prev, newMeal]);
+        showSuccess('Meal added locally!');
+      }
     }
     // Limpa a estimativa de IA e preview ao salvar
     setAiMealEstimation(null);
@@ -1034,6 +1059,7 @@ const NutriVisionApp = () => {
       time: '',
     });
     setShowMealForm(false);
+    setEditingMealId(null);
   };
 
   const deleteMeal = async (mealId) => {
@@ -1047,6 +1073,20 @@ const NutriVisionApp = () => {
       setDailyMeals((prev) => prev.filter((m) => m.id !== mealId));
       showSuccess('Meal removed locally!');
     }
+  };
+
+  const startEditMeal = (meal) => {
+    setCurrentMeal({
+      name: meal.name || '',
+      calories: meal.calories?.toString() || '',
+      protein: meal.protein?.toString() || '',
+      carbs: meal.carbs?.toString() || '',
+      fat: meal.fat?.toString() || '',
+      meal_type: meal.meal_type || 'breakfast',
+      time: meal.time || '',
+    });
+    setEditingMealId(meal.id);
+    setShowMealForm(true);
   };
 
   // Add analyzed meal directly to the daily log
@@ -2921,7 +2961,19 @@ const NutriVisionApp = () => {
           </button>
           <h1 className="text-lg font-bold text-gray-900">Daily Food Log</h1>
           <button
-            onClick={() => setShowMealForm(true)}
+            onClick={() => {
+              setEditingMealId(null);
+              setCurrentMeal({
+                name: '',
+                calories: '',
+                protein: '',
+                carbs: '',
+                fat: '',
+                meal_type: 'breakfast',
+                time: '',
+              });
+              setShowMealForm(true);
+            }}
             className="bg-orange-500 text-white p-2 rounded-xl"
           >
             <Plus className="w-6 h-6" />
@@ -3084,12 +3136,20 @@ const NutriVisionApp = () => {
                         {meal.time && <span>{meal.time}</span>}
                       </div>
                     </div>
-                    <button
-                      onClick={() => deleteMeal(meal.id)}
-                      className="text-red-600 hover:text-red-700 p-1"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => startEditMeal(meal)}
+                        className="text-blue-600 hover:text-blue-700 p-1"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => deleteMeal(meal.id)}
+                        className="text-red-600 hover:text-red-700 p-1"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                   <div className="grid grid-cols-4 gap-3">
                     <div className="text-center p-2 bg-white rounded-lg">
@@ -3139,9 +3199,15 @@ const NutriVisionApp = () => {
             <div className="bg-white rounded-3xl p-6 w-full max-w-md max-h-screen overflow-y-auto">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-gray-900">
-                  {currentMeal.name ? currentMeal.name : 'Add Meal'}
+                  {editingMealId ? 'Edit Meal' : currentMeal.name ? currentMeal.name : 'Add Meal'}
                 </h3>
-                <button onClick={() => setShowMealForm(false)} className="text-gray-500 hover:text-gray-700">
+                <button
+                  onClick={() => {
+                    setEditingMealId(null);
+                    setShowMealForm(false);
+                  }}
+                  className="text-gray-500 hover:text-gray-700"
+                >
                   <X className="w-6 h-6" />
                 </button>
               </div>
@@ -3338,7 +3404,10 @@ const NutriVisionApp = () => {
                 {/* CANCEL & SAVE BUTTONS */}
                 <div className="flex space-x-3 pt-4">
                   <button
-                    onClick={() => setShowMealForm(false)}
+                    onClick={() => {
+                      setEditingMealId(null);
+                      setShowMealForm(false);
+                    }}
                     className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-400 transition-colors"
                   >
                     Cancel
