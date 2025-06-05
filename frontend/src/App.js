@@ -54,6 +54,7 @@ import {
   Contrast,
   Type
 
+
 } from 'lucide-react';
 
 const defaultUserProfile = {
@@ -1409,6 +1410,12 @@ const NutriVisionApp = () => {
       <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex items-center space-x-3 justify-center">
+            <div className="relative">
+              <div className="w-12 h-12 bg-gradient-to-br from-light-accent via-light-accent2 to-light-accent dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent rounded-2xl flex items-center justify-center shadow-lg">
+                <Eye className="w-7 h-7 text-white" />
+              </div>
+              <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-white animate-pulse" />
+            </div>
             <div>
               <h1 className="text-2xl font-black text-gray-900">
                 Nutri<span className="text-orange-500">Snap</span>
@@ -1516,6 +1523,12 @@ const NutriVisionApp = () => {
       <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md max-h-screen overflow-y-auto">
         <div className="text-center mb-6">
           <div className="flex items-center space-x-3 justify-center">
+            <div className="relative">
+              <div className="w-12 h-12 bg-gradient-to-br from-light-accent via-light-accent2 to-light-accent dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent rounded-2xl flex items-center justify-center shadow-lg">
+                <Eye className="w-7 h-7 text-white" />
+              </div>
+              <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-white animate-pulse" />
+            </div>
             <div>
               <h1 className="text-2xl font-black text-gray-900">
                 Nutri<span className="text-orange-500">Snap</span>
@@ -1696,6 +1709,12 @@ const NutriVisionApp = () => {
       <div className="bg-white rounded-3xl shadow-lg p-6 mb-6 border border-gray-100">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
+            <div className="relative">
+              <div className="w-12 h-12 bg-gradient-to-br from-light-accent via-light-accent2 to-light-accent dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent rounded-2xl flex items-center justify-center shadow-lg">
+                <Eye className="w-7 h-7 text-white" />
+              </div>
+              <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-white animate-pulse" />
+            </div>
             <div>
               <h1 className="text-2xl font-black text-gray-900">
                 Nutri<span className="text-orange-500">Snap</span>
