@@ -44,12 +44,14 @@ Nutrivision is a demo application that combines a Flask backend with a React fro
    ```bash
    cd frontend
    ```
-2. Install dependencies:
+2. Install dependencies (run this again if you installed them before upgrading):
    ```bash
    npm install
    ```
+
    The required `@tailwindcss/postcss` plugin is already listed in
    `package.json` and will be installed automatically.
+
 3. Start the React development server:
    ```bash
    npm start
