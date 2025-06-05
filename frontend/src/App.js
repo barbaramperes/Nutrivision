@@ -33,8 +33,486 @@ import {
   Drumstick as DrumstickIcon,
   // ← APENAS O Tag É NECESSÁRIO:
   Tag,
-  UserIcon
+  UserIcon,
+  Edit3,
+  Target,
+  TrendingUp,
+  Award,
+  Scale,
+  Ruler,
+  User,
+  Mail,
+  Heart,
+  Zap,
+  Star,
+  Trophy,
+  ArrowUp,
+  ArrowDown,
+  Coffee,
+  Sun,
+  Sunset
 } from 'lucide-react';
+
+const ImprovedProfileSection = ({ user, userProfile: initialUserProfile, onSaveProfile }) => {
+  const [userProfile, setUserProfile] = useState(initialUserProfile || {
+    user: user || {
+      username: "Alex Johnson",
+      email: "alex.johnson@example.com",
+      age: 28,
+      current_weight: 75.5,
+      target_weight: 70.0,
+      height: 175,
+      gender: "male",
+      profile_photo: null,
+      streak_days: 12,
+      level: "Nutrition Explorer",
+      total_xp: 1250,
+      badges_earned: 8
+    },
+    metrics: {
+      bmi: 24.6,
+      bmr: 1680,
+      tdee: 2350
+    },
+    nutrition_plan: {
+      plan_name: "Balanced Weight Loss",
+      plan_type: "weight_loss",
+      daily_targets: {
+        calories: 2100,
+        protein: 140,
+        carbs: 220,
+        fat: 75
+      },
+      today_progress: {
+        calories_consumed: 1650,
+        protein_consumed: 98,
+        carbs_consumed: 180,
+        fat_consumed: 62
+      },
+      meal_distribution: {
+        breakfast: 0.25,
+        lunch: 0.35,
+        dinner: 0.30,
+        snacks: 0.10
+      }
+    }
+  });
+
+  useEffect(() => {
+    if (userProfile?.user?.current_weight && userProfile?.user?.height) {
+      const heightInM = userProfile.user.height / 100;
+      const calculatedBMI = (userProfile.user.current_weight / (heightInM * heightInM)).toFixed(1);
+
+      setUserProfile(prev => ({
+        ...prev,
+        metrics: {
+          ...prev.metrics,
+          bmi: parseFloat(calculatedBMI),
+          bmr: Math.round(
+            userProfile.user.gender === 'male'
+              ? (10 * userProfile.user.current_weight) + (6.25 * userProfile.user.height) - (5 * userProfile.user.age) + 5
+              : (10 * userProfile.user.current_weight) + (6.25 * userProfile.user.height) - (5 * userProfile.user.age) - 161
+          ),
+          tdee: Math.round(
+            (userProfile.user.gender === 'male'
+              ? (10 * userProfile.user.current_weight) + (6.25 * userProfile.user.height) - (5 * userProfile.user.age) + 5
+              : (10 * userProfile.user.current_weight) + (6.25 * userProfile.user.height) - (5 * userProfile.user.age) - 161
+            ) * 1.4
+          )
+        }
+      }));
+    }
+  }, [userProfile?.user?.current_weight, userProfile?.user?.height, userProfile?.user?.age, userProfile?.user?.gender]);
+
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileForm, setProfileForm] = useState({
+    username: '',
+    email: '',
+    age: '',
+    current_weight: '',
+    target_weight: '',
+    height: '',
+    gender: 'male'
+  });
+  const [profilePhotoPreview, setProfilePhotoPreview] = useState(null);
+  const profilePhotoInputRef = useRef(null);
+
+  const handleEditProfile = () => {
+    setProfileForm({
+      username: userProfile.user.username || '',
+      email: userProfile.user.email || '',
+      age: userProfile.user.age || '',
+      current_weight: userProfile.user.current_weight || '',
+      target_weight: userProfile.user.target_weight || '',
+      height: userProfile.user.height || '',
+      gender: userProfile.user.gender || 'male'
+    });
+    setIsEditingProfile(true);
+  };
+
+  const handleSaveProfile = () => {
+    const updatedUser = {
+      ...userProfile.user,
+      ...profileForm,
+      age: parseInt(profileForm.age) || userProfile.user.age,
+      current_weight: parseFloat(profileForm.current_weight) || userProfile.user.current_weight,
+      target_weight: parseFloat(profileForm.target_weight) || userProfile.user.target_weight,
+      height: parseFloat(profileForm.height) || userProfile.user.height
+    };
+
+    const heightInM = updatedUser.height / 100;
+    const calculatedBMI = (updatedUser.current_weight / (heightInM * heightInM)).toFixed(1);
+    const calculatedBMR = Math.round(
+      updatedUser.gender === 'male'
+        ? (10 * updatedUser.current_weight) + (6.25 * updatedUser.height) - (5 * updatedUser.age) + 5
+        : (10 * updatedUser.current_weight) + (6.25 * updatedUser.height) - (5 * updatedUser.age) - 161
+    );
+
+    const updatedProfile = {
+      ...userProfile,
+      user: updatedUser,
+      metrics: {
+        ...userProfile.metrics,
+        bmi: parseFloat(calculatedBMI),
+        bmr: calculatedBMR,
+        tdee: Math.round(calculatedBMR * 1.4)
+      }
+    };
+
+    setUserProfile(updatedProfile);
+    if (onSaveProfile) {
+      onSaveProfile(updatedProfile);
+    }
+    setIsEditingProfile(false);
+    setProfilePhotoPreview(null);
+  };
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setProfilePhotoPreview(reader.result);
+    reader.readAsDataURL(file);
+  };
+
+  const getDefaultAvatar = (gender, username) => {
+    const colors = [
+      'bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-red-500',
+      'bg-yellow-500', 'bg-indigo-500', 'bg-pink-500', 'bg-teal-500'
+    ];
+    const colorIndex = username.charCodeAt(0) % colors.length;
+    const initials = username.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    return (
+      <div className={`w-full h-full ${colors[colorIndex]} flex items-center justify-center text-white font-bold text-lg`}>
+        {initials}
+      </div>
+    );
+  };
+
+  const getProgressColor = (current, target) => {
+    const percentage = (current / target) * 100;
+    if (percentage >= 90) return 'bg-green-500';
+    if (percentage >= 70) return 'bg-yellow-500';
+    return 'bg-red-500';
+  };
+
+  const getBMICategory = (bmi) => {
+    if (bmi < 18.5) return { text: 'Underweight', color: 'text-blue-600' };
+    if (bmi < 25) return { text: 'Normal', color: 'text-green-600' };
+    if (bmi < 30) return { text: 'Overweight', color: 'text-yellow-600' };
+    return { text: 'Obese', color: 'text-red-600' };
+  };
+
+  const bmiCategory = getBMICategory(userProfile.metrics?.bmi || 0);
+
+  const getWeightTrend = () => {
+    const diff = userProfile.user.current_weight - userProfile.user.target_weight;
+    if (Math.abs(diff) < 0.5) return { icon: Target, color: 'text-green-500', text: 'At target' };
+    if (diff > 0) return { icon: ArrowDown, color: 'text-blue-500', text: `${diff.toFixed(1)}kg to lose` };
+    return { icon: ArrowUp, color: 'text-orange-500', text: `${Math.abs(diff).toFixed(1)}kg to gain` };
+  };
+
+  const weightTrend = getWeightTrend();
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 p-6 pb-24">
+      <div className="max-w-2xl mx-auto space-y-6">
+        <div className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-blue-100 to-transparent rounded-bl-full opacity-50"></div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-6">
+              <h1 className="text-2xl font-bold text-gray-900 flex items-center">
+                <User className="w-7 h-7 mr-3 text-blue-600" />
+                Profile
+              </h1>
+              {!isEditingProfile && (
+                <button
+                  onClick={handleEditProfile}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl font-medium transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
+                >
+                  <Edit3 className="w-4 h-4" />
+                  <span>Edit</span>
+                </button>
+              )}
+            </div>
+            <div className="flex items-center space-x-6">
+              <div className="relative">
+                <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-lg border-4 border-white">
+                  {profilePhotoPreview ? (
+                    <img src={profilePhotoPreview} alt="Profile" className="w-full h-full object-cover" />
+                  ) : userProfile.user.profile_photo ? (
+                    <img src={userProfile.user.profile_photo} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    getDefaultAvatar(userProfile.user.gender, userProfile.user.username)
+                  )}
+                </div>
+                {isEditingProfile && (
+                  <button
+                    onClick={() => profilePhotoInputRef.current?.click()}
+                    className="absolute -bottom-2 -right-2 bg-blue-500 text-white p-2 rounded-full shadow-lg hover:bg-blue-600 transition-colors"
+                  >
+                    <Camera className="w-4 h-4" />
+                  </button>
+                )}
+                <input ref={profilePhotoInputRef} type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
+              </div>
+              <div className="flex-1">
+                {!isEditingProfile ? (
+                  <div className="space-y-2">
+                    <h2 className="text-xl font-bold text-gray-900">{userProfile.user.username}</h2>
+                    <p className="text-gray-600 flex items-center">
+                      <Mail className="w-4 h-4 mr-2" />
+                      {userProfile.user.email}
+                    </p>
+                    <div className="flex items-center space-x-4 text-sm text-gray-600">
+                      <span className="flex items-center">
+                        <Calendar className="w-4 h-4 mr-1" />
+                        {userProfile.user.age} years
+                      </span>
+                      <span className="capitalize">{userProfile.user.gender}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <input type="text" placeholder="Username" value={profileForm.username} onChange={(e) => setProfileForm({ ...profileForm, username: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                    <input type="email" placeholder="Email" value={profileForm.email} onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                    <div className="grid grid-cols-2 gap-2">
+                      <input type="number" placeholder="Age" value={profileForm.age} onChange={(e) => setProfileForm({ ...profileForm, age: e.target.value })} className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                      <select value={profileForm.gender} onChange={(e) => setProfileForm({ ...profileForm, gender: e.target.value })} className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            {isEditingProfile && (
+              <div className="flex space-x-3 mt-6">
+                <button onClick={handleSaveProfile} className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2">
+                  <Save className="w-4 h-4" />
+                  <span>Save Changes</span>
+                </button>
+                <button onClick={() => { setIsEditingProfile(false); setProfilePhotoPreview(null); }} className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2">
+                  <X className="w-4 h-4" />
+                  <span>Cancel</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-4 rounded-2xl text-white shadow-lg">
+            <Trophy className="w-6 h-6 mb-2" />
+            <div className="text-2xl font-bold">{userProfile.user.level}</div>
+            <div className="text-blue-100 text-sm">Current Level</div>
+          </div>
+          <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-4 rounded-2xl text-white shadow-lg">
+            <Star className="w-6 h-6 mb-2" />
+            <div className="text-2xl font-bold">{userProfile.user.total_xp}</div>
+            <div className="text-purple-100 text-sm">Total XP</div>
+          </div>
+          <div className="bg-gradient-to-br from-green-500 to-green-600 p-4 rounded-2xl text-white shadow-lg">
+            <Flame className="w-6 h-6 mb-2" />
+            <div className="text-2xl font-bold">{userProfile.user.streak_days}</div>
+            <div className="text-green-100 text-sm">Day Streak</div>
+          </div>
+          <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-4 rounded-2xl text-white shadow-lg">
+            <Award className="w-6 h-6 mb-2" />
+            <div className="text-2xl font-bold">{userProfile.user.badges_earned}</div>
+            <div className="text-orange-100 text-sm">Badges</div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
+          <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
+            <Scale className="w-6 h-6 mr-3 text-green-600" />
+            Body Metrics
+          </h3>
+          {!isEditingProfile ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-center p-4 bg-blue-50 rounded-2xl border border-blue-100">
+                <Scale className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                <div className="text-2xl font-bold text-blue-700">{userProfile.user.current_weight} kg</div>
+                <div className="text-sm text-blue-600">Current Weight</div>
+              </div>
+              <div className="text-center p-4 bg-green-50 rounded-2xl border border-green-100">
+                <Target className="w-8 h-8 text-green-600 mx-auto mb-2" />
+                <div className="text-2xl font-bold text-green-700">{userProfile.user.target_weight} kg</div>
+                <div className="text-sm text-green-600">Target Weight</div>
+              </div>
+              <div className="text-center p-4 bg-purple-50 rounded-2xl border border-purple-100">
+                <Ruler className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+                <div className="text-2xl font-bold text-purple-700">{userProfile.user.height} cm</div>
+                <div className="text-sm text-purple-600">Height</div>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Current Weight (kg)</label>
+                <input type="number" step="0.1" min="30" max="300" value={profileForm.current_weight} onChange={(e) => setProfileForm({ ...profileForm, current_weight: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="70.5" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Target Weight (kg)</label>
+                <input type="number" step="0.1" min="30" max="300" value={profileForm.target_weight} onChange={(e) => setProfileForm({ ...profileForm, target_weight: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="65.0" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Height (cm)</label>
+                <input type="number" min="100" max="250" value={profileForm.height} onChange={(e) => setProfileForm({ ...profileForm, height: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="175" />
+              </div>
+            </div>
+          )}
+          {!isEditingProfile && (
+            <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-green-50 rounded-2xl border border-gray-100">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <weightTrend.icon className={`w-6 h-6 ${weightTrend.color}`} />
+                  <div>
+                    <div className="font-semibold text-gray-900">Weight Goal Progress</div>
+                    <div className={`text-sm ${weightTrend.color.replace('text-', 'text-')}`}>{weightTrend.text}</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-gray-900">{Math.abs(userProfile.user.current_weight - userProfile.user.target_weight).toFixed(1)}</div>
+                  <div className="text-sm text-gray-600">kg difference</div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
+          <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
+            <Heart className="w-6 h-6 mr-3 text-red-500" />
+            Health Metrics
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center p-4 bg-red-50 rounded-2xl border border-red-100">
+              <div className="text-2xl font-bold text-red-600">{userProfile.metrics?.bmi || 0}</div>
+              <div className="text-sm text-red-700 font-medium">BMI</div>
+              <div className={`text-xs font-medium mt-1 ${bmiCategory.color}`}>{bmiCategory.text}</div>
+            </div>
+            <div className="text-center p-4 bg-orange-50 rounded-2xl border border-orange-100">
+              <div className="text-2xl font-bold text-orange-600">{userProfile.metrics?.bmr || 0}</div>
+              <div className="text-sm text-orange-700 font-medium">BMR</div>
+              <div className="text-xs text-gray-600 mt-1">cal/day at rest</div>
+            </div>
+            <div className="text-center p-4 bg-yellow-50 rounded-2xl border border-yellow-100">
+              <div className="text-2xl font-bold text-yellow-600">{userProfile.metrics?.tdee || 0}</div>
+              <div className="text-sm text-yellow-700 font-medium">TDEE</div>
+              <div className="text-xs text-gray-600 mt-1">cal/day active</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
+          <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
+            <Zap className="w-6 h-6 mr-3 text-yellow-500" />
+            Nutrition Plan
+          </h3>
+          <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-2xl border border-green-100 mb-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-bold text-gray-900">{userProfile.nutrition_plan?.plan_name}</h4>
+                <p className="text-sm text-gray-600 capitalize">{userProfile.nutrition_plan?.plan_type?.replace('_', ' ')} Plan</p>
+              </div>
+              <Activity className="w-8 h-8 text-green-600" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="text-center p-4 bg-red-50 rounded-xl border border-red-100">
+              <div className="text-xl font-bold text-red-600">{userProfile.nutrition_plan?.daily_targets?.calories || 0}</div>
+              <div className="text-sm text-red-700">Calories</div>
+            </div>
+            <div className="text-center p-4 bg-blue-50 rounded-xl border border-blue-100">
+              <div className="text-xl font-bold text-blue-600">{userProfile.nutrition_plan?.daily_targets?.protein || 0}g</div>
+              <div className="text-sm text-blue-700">Protein</div>
+            </div>
+            <div className="text-center p-4 bg-yellow-50 rounded-xl border border-yellow-100">
+              <div className="text-xl font-bold text-yellow-600">{userProfile.nutrition_plan?.daily_targets?.carbs || 0}g</div>
+              <div className="text-sm text-yellow-700">Carbs</div>
+            </div>
+            <div className="text-center p-4 bg-purple-50 rounded-xl border border-purple-100">
+              <div className="text-xl font-bold text-purple-600">{userProfile.nutrition_plan?.daily_targets?.fat || 0}g</div>
+              <div className="text-sm text-purple-700">Fat</div>
+            </div>
+          </div>
+          <div className="space-y-4">
+            <h4 className="font-semibold text-gray-900">Today's Progress</h4>
+            {[{ label: 'Calories', current: userProfile.nutrition_plan?.today_progress?.calories_consumed || 0, target: userProfile.nutrition_plan?.daily_targets?.calories || 1, color: 'red' }, { label: 'Protein', current: userProfile.nutrition_plan?.today_progress?.protein_consumed || 0, target: userProfile.nutrition_plan?.daily_targets?.protein || 1, color: 'blue', unit: 'g' }, { label: 'Carbs', current: userProfile.nutrition_plan?.today_progress?.carbs_consumed || 0, target: userProfile.nutrition_plan?.daily_targets?.carbs || 1, color: 'yellow', unit: 'g' }, { label: 'Fat', current: userProfile.nutrition_plan?.today_progress?.fat_consumed || 0, target: userProfile.nutrition_plan?.daily_targets?.fat || 1, color: 'purple', unit: 'g' }].map((item) => {
+              const percentage = Math.min((item.current / item.target) * 100, 100);
+              return (
+                <div key={item.label} className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-700">{item.label}</span>
+                    <span className="text-sm text-gray-600">{item.current}{item.unit || ''} / {item.target}{item.unit || ''}</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className={`h-2 rounded-full transition-all duration-300 ${getProgressColor(item.current, item.target)}`} style={{ width: `${percentage}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
+          <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
+            <TrendingUp className="w-6 h-6 mr-3 text-indigo-500" />
+            Meal Distribution
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[{ name: 'Breakfast', value: userProfile.nutrition_plan?.meal_distribution?.breakfast || 0.25, color: 'from-orange-400 to-orange-500', icon: Sun }, { name: 'Lunch', value: userProfile.nutrition_plan?.meal_distribution?.lunch || 0.35, color: 'from-blue-400 to-blue-500', icon: Sunset }, { name: 'Dinner', value: userProfile.nutrition_plan?.meal_distribution?.dinner || 0.30, color: 'from-purple-400 to-purple-500', icon: Moon }, { name: 'Snacks', value: userProfile.nutrition_plan?.meal_distribution?.snacks || 0.10, color: 'from-green-400 to-green-500', icon: Coffee }].map((meal) => (
+              <div key={meal.name} className={`bg-gradient-to-br ${meal.color} p-4 rounded-2xl text-white shadow-lg`}>
+                <meal.icon className="w-6 h-6 mb-2" />
+                <div className="text-xl font-bold">{Math.round(meal.value * 100)}%</div>
+                <div className="text-sm opacity-90">{meal.name}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-3xl shadow-xl p-6 text-white">
+          <h3 className="text-xl font-bold mb-6 flex items-center">
+            <CheckCircle className="w-6 h-6 mr-3" />
+            Smart Recommendations
+          </h3>
+          <div className="grid gap-4">
+            {[{ icon: Heart, text: 'Focus on whole foods and lean proteins for optimal health' }, { icon: Activity, text: 'Stay hydrated with 8-10 glasses of water daily' }, { icon: Zap, text: 'Time your meals every 3-4 hours for sustained energy' }, { icon: Star, text: 'Include colorful vegetables in every meal for nutrients' }].map((rec, index) => (
+              <div key={index} className="flex items-start space-x-3 bg-white bg-opacity-10 p-4 rounded-xl backdrop-blur-sm">
+                <rec.icon className="w-5 h-5 mt-0.5 text-white opacity-80" />
+                <span className="text-sm text-white opacity-90">{rec.text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 const NutriVisionApp = () => {
   // ────────────── CORE STATE & REFS ──────────────
 
@@ -2986,439 +3464,11 @@ const NutriVisionApp = () => {
   );
 
   const renderProfile = () => (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4 pb-20">
-      <div className="flex items-center justify-between mb-6">
-        <button onClick={() => setCurrentView('dashboard')} className="text-gray-800 text-2xl font-bold">
-          <ArrowLeft className="w-6 h-6" />
-        </button>
-        <h1 className="text-lg font-bold text-gray-900 flex items-center">
-          <Settings className="w-5 h-5 mr-2" />Profile
-        </h1>
-        <button onClick={() => setCurrentView('settings')} className="text-gray-800">
-          <Settings className="w-6 h-6" />
-        </button>
-      </div>
-
-      {userProfile ? (
-        <div className="space-y-6">
-          {/* Profile Header */}
-          <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
-            <div className="text-center mb-6">
-              <div className="relative inline-block mb-3">
-                <img
-                  src={
-                    profilePhotoPreview
-                      ? profilePhotoPreview
-                      : userProfile.user.profile_photo
-                        ? `${API_BASE}/images/${userProfile.user.profile_photo}`
-                        : 'https://via.placeholder.com/80'
-                  }
-                  alt="Profile"
-                  className="w-20 h-20 rounded-full object-cover"
-                />
-                {isEditingProfile && (
-                  <button
-                    onClick={() => profilePhotoInputRef.current?.click()}
-                    className="absolute bottom-0 right-0 bg-white p-1 rounded-full shadow"
-                  >
-                    <Camera className="w-4 h-4 text-gray-700" />
-                  </button>
-                )}
-              </div>
-              <h2 className="text-xl font-bold text-gray-900">{userProfile.user.username}</h2>
-              <p className="text-gray-600 text-sm">{userProfile.user.email}</p>
-              <input
-                ref={profilePhotoInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleProfilePhotoChange}
-                className="hidden"
-              />
-
-              {!isEditingProfile ? (
-                <button
-                  onClick={() => {
-                    setProfileForm({
-                      username: userProfile.user.username || '',
-                      email: userProfile.user.email || '',
-                      age: userProfile.user.age || '',
-                      current_weight: userProfile.user.current_weight || '',
-                      target_weight: userProfile.user.target_weight || '',
-                      height: userProfile.user.height || '',
-                      gender: userProfile.user.gender || 'male',
-                      activity_level: userProfile.user.activity_level || 'light'
-                    });
-                    setIsEditingProfile(true);
-                  }}
-                  className="mt-2 text-sm text-blue-600 underline"
-                >
-                  Edit Profile
-                </button>
-              ) : (
-                <div className="space-y-3 text-left mt-4">
-                  <div>
-                    <label className="text-sm text-gray-700">Username</label>
-                    <input
-                      className="w-full border px-2 py-1 rounded"
-                      value={profileForm.username}
-                      onChange={(e) =>
-                        setProfileForm({ ...profileForm, username: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm text-gray-700">Email</label>
-                    <input
-                      className="w-full border px-2 py-1 rounded"
-                      value={profileForm.email}
-                      onChange={(e) =>
-                        setProfileForm({ ...profileForm, email: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    <div>
-                      <label className="text-sm">Age</label>
-                      <input
-                        className="w-full border px-2 py-1 rounded"
-                        value={profileForm.age}
-                        onChange={(e) =>
-                          setProfileForm({ ...profileForm, age: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm">Weight</label>
-                      <input
-                        className="w-full border px-2 py-1 rounded"
-                        value={profileForm.current_weight}
-                        onChange={(e) =>
-                          setProfileForm({ ...profileForm, current_weight: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm">Target</label>
-                      <input
-                        className="w-full border px-2 py-1 rounded"
-                        value={profileForm.target_weight}
-                        onChange={(e) =>
-                          setProfileForm({ ...profileForm, target_weight: e.target.value })
-                        }
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="text-sm">Height</label>
-                      <input
-                        className="w-full border px-2 py-1 rounded"
-                        value={profileForm.height}
-                        onChange={(e) =>
-                          setProfileForm({ ...profileForm, height: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm">Gender</label>
-                      <select
-                        className="w-full border px-2 py-1 rounded"
-                        value={profileForm.gender}
-                        onChange={(e) =>
-                          setProfileForm({ ...profileForm, gender: e.target.value })
-                        }
-                      >
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-sm">Activity Level</label>
-                    <select
-                      className="w-full border px-2 py-1 rounded"
-                      value={profileForm.activity_level}
-                      onChange={(e) =>
-                        setProfileForm({ ...profileForm, activity_level: e.target.value })
-                      }
-                    >
-                      <option value="sedentary">Sedentary</option>
-                      <option value="light">Light</option>
-                      <option value="moderate">Moderate</option>
-                      <option value="active">Active</option>
-                      <option value="very_active">Very Active</option>
-                    </select>
-                  </div>
-                  <div className="flex space-x-2 pt-2">
-                    <button
-                      onClick={saveProfileChanges}
-                      className="flex-1 bg-blue-600 text-white py-2 rounded"
-                    >
-                      Save
-                    </button>
-                    <button
-                      onClick={() => setIsEditingProfile(false)}
-                      className="flex-1 bg-gray-200 py-2 rounded"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <p className="text-sm text-gray-600 mb-2">
-              {userProfile.nutrition_plan?.plan_name}{' '}
-              <span className="capitalize">
-                {userProfile.nutrition_plan?.plan_type?.replace('_', ' ')}
-              </span>
-            </p>
-
-            <p className="text-sm text-gray-600 mb-4">
-              Metrics calculated from your details help guide targets and progress.
-            </p>
-          </div>
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-4 rounded-2xl text-white shadow-lg">
-              <Activity className="w-6 h-6 mb-2" />
-              <div className="text-2xl font-bold">{userProfile.user.level || 1}</div>
-              <div className="text-blue-100 text-sm">Level</div>
-            </div>
-            <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-4 rounded-2xl text-white shadow-lg">
-              <Dna className="w-6 h-6 mb-2" />
-              <div className="text-2xl font-bold">{userProfile.user.total_xp || 0}</div>
-              <div className="text-purple-100 text-sm">Total XP</div>
-            </div>
-            <div className="bg-gradient-to-br from-green-500 to-green-600 p-4 rounded-2xl text-white shadow-lg">
-              <Flame className="w-6 h-6 mb-2" />
-              <div className="text-2xl font-bold">{userProfile.user.streak_days || 0}</div>
-              <div className="text-green-100 text-sm">Streak</div>
-            </div>
-            <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-4 rounded-2xl text-white shadow-lg">
-              <CheckCircle className="w-6 h-6 mb-2" />
-              <div className="text-2xl font-bold">{userProfile.user.badges_earned || 0}</div>
-              <div className="text-orange-100 text-sm">Badges</div>
-            </div>
-          </div>
-
-          {/* Body Metrics */}
-          <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
-            <h3 className="font-bold text-gray-900 mb-4 flex items-center">
-              <Activity className="w-5 h-5 mr-2 text-green-600" />
-              Body Metrics
-            </h3>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="text-center p-4 bg-blue-50 rounded-xl">
-                <div className="text-2xl font-bold text-blue-600">{userProfile.user.current_weight} kg</div>
-                <div className="text-sm text-blue-700">Current</div>
-              </div>
-              <div className="text-center p-4 bg-green-50 rounded-xl">
-                <div className="text-2xl font-bold text-green-600">{userProfile.user.target_weight} kg</div>
-                <div className="text-sm text-green-700">Target</div>
-              </div>
-              <div className="text-center p-4 bg-purple-50 rounded-xl">
-                <div className="text-2xl font-bold text-purple-600">{userProfile.user.height} cm</div>
-                <div className="text-sm text-purple-700">Height</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Health Metrics */}
-          <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
-            <h3 className="font-bold text-gray-900 mb-4 flex items-center">
-              <Brain className="w-5 h-5 mr-2 text-red-500" />
-              Health Metrics
-            </h3>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="text-center p-3 bg-red-50 rounded-xl">
-                <div className="text-xl font-bold text-red-600">{userProfile.metrics?.bmi || 'N/A'}</div>
-                <div className="text-sm text-red-700">BMI</div>
-              </div>
-              <div className="text-center p-3 bg-orange-50 rounded-xl">
-                <div className="text-xl font-bold text-orange-600">{userProfile.metrics?.bmr || 'N/A'}</div>
-                <div className="text-sm text-orange-700">BMR</div>
-              </div>
-              <div className="text-center p-3 bg-yellow-50 rounded-xl">
-                <div className="text-xl font-bold text-yellow-600">{userProfile.metrics?.tdee || 'N/A'}</div>
-                <div className="text-sm text-yellow-700">TDEE</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Nutrition Plan */}
-          <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
-            <h3 className="font-bold text-gray-900 mb-4 flex items-center">
-              <Utensils className="w-5 h-5 mr-2 text-yellow-500" />
-              Nutrition Plan
-            </h3>
-
-            <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-xl mb-4">
-              <h4 className="font-bold text-gray-900">{userProfile.nutrition_plan?.plan_name || 'Custom Plan'}</h4>
-              <p className="text-sm text-gray-600 capitalize">
-                {userProfile.nutrition_plan?.plan_type?.replace('_', ' ') || 'Balanced'} Plan
-              </p>
-            </div>
-
-            {/* Daily Targets */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-              <div className="text-center p-3 bg-red-50 rounded-xl">
-                <div className="text-lg font-bold text-red-600">
-                  {userProfile.nutrition_plan?.daily_targets?.calories || 0}
-                </div>
-                <div className="text-sm text-red-700">Calories</div>
-              </div>
-              <div className="text-center p-3 bg-blue-50 rounded-xl">
-                <div className="text-lg font-bold text-blue-600">
-                  {userProfile.nutrition_plan?.daily_targets?.protein || 0}g
-                </div>
-                <div className="text-sm text-blue-700">Protein</div>
-              </div>
-              <div className="text-center p-3 bg-yellow-50 rounded-xl">
-                <div className="text-lg font-bold text-yellow-600">
-                  {userProfile.nutrition_plan?.daily_targets?.carbs || 0}g
-                </div>
-                <div className="text-sm text-yellow-700">Carbs</div>
-              </div>
-              <div className="text-center p-3 bg-purple-50 rounded-xl">
-                <div className="text-lg font-bold text-purple-600">
-                  {userProfile.nutrition_plan?.daily_targets?.fat || 0}g
-                </div>
-                <div className="text-sm text-purple-700">Fat</div>
-              </div>
-            </div>
-
-            {/* Today's Progress */}
-            <div className="space-y-3">
-              <h4 className="font-semibold text-gray-900">Today's Progress</h4>
-
-              {/* Calories Progress */}
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-700">Calories</span>
-                  <span className="text-sm text-gray-600">
-                    {userProfile.nutrition_plan?.today_progress?.calories_consumed || 0} / {userProfile.nutrition_plan?.daily_targets?.calories || 0}
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-red-500 h-2 rounded-full"
-                    style={{
-                      width: `${Math.min(
-                        ((userProfile.nutrition_plan?.today_progress?.calories_consumed || 0) /
-                          (userProfile.nutrition_plan?.daily_targets?.calories || 1)) * 100,
-                        100
-                      )}%`,
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Protein Progress */}
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-700">Protein</span>
-                  <span className="text-sm text-gray-600">
-                    {userProfile.nutrition_plan?.today_progress?.protein_consumed || 0}g / {userProfile.nutrition_plan?.daily_targets?.protein || 0}g
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-blue-500 h-2 rounded-full"
-                    style={{
-                      width: `${Math.min(
-                        ((userProfile.nutrition_plan?.today_progress?.protein_consumed || 0) /
-                          (userProfile.nutrition_plan?.daily_targets?.protein || 1)) * 100,
-                        100
-                      )}%`,
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Meal Distribution */}
-          <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
-            <h3 className="font-bold text-gray-900 mb-4 flex items-center">
-              <Calendar className="w-5 h-5 mr-2 text-indigo-500" />
-              Meal Distribution
-            </h3>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-gradient-to-br from-orange-400 to-orange-500 p-4 rounded-xl text-white">
-                <Eye className="w-5 h-5 mb-2" />
-                <div className="text-lg font-bold">{Math.round((userProfile.nutrition_plan?.meal_distribution?.breakfast || 0.25) * 100)}%</div>
-                <div className="text-sm opacity-90">Breakfast</div>
-              </div>
-              <div className="bg-gradient-to-br from-blue-400 to-blue-500 p-4 rounded-xl text-white">
-                <Utensils className="w-5 h-5 mb-2" />
-                <div className="text-lg font-bold">{Math.round((userProfile.nutrition_plan?.meal_distribution?.lunch || 0.35) * 100)}%</div>
-                <div className="text-sm opacity-90">Lunch</div>
-              </div>
-              <div className="bg-gradient-to-br from-purple-400 to-purple-500 p-4 rounded-xl text-white">
-                <Moon className="w-5 h-5 mb-2" />
-                <div className="text-lg font-bold">{Math.round((userProfile.nutrition_plan?.meal_distribution?.dinner || 0.30) * 100)}%</div>
-                <div className="text-sm opacity-90">Dinner</div>
-              </div>
-              <div className="bg-gradient-to-br from-green-400 to-green-500 p-4 rounded-xl text-white">
-                <Plus className="w-5 h-5 mb-2" />
-                <div className="text-lg font-bold">{Math.round((userProfile.nutrition_plan?.meal_distribution?.snacks || 0.10) * 100)}%</div>
-                <div className="text-sm opacity-90">Snacks</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Smart Recommendations */}
-          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-3xl shadow-lg p-6 text-white">
-            <h3 className="font-bold text-lg mb-4 flex items-center">
-              <Lightbulb className="w-5 h-5 mr-2" />
-              Smart Recommendations
-            </h3>
-
-            <div className="space-y-3">
-              <div className="flex items-start space-x-3 bg-white bg-opacity-10 p-3 rounded-xl">
-                <CheckCircle className="w-4 h-4 mt-0.5 text-white opacity-80" />
-                <span className="text-sm text-white opacity-90">Focus on whole foods and lean proteins for optimal health</span>
-              </div>
-              <div className="flex items-start space-x-3 bg-white bg-opacity-10 p-3 rounded-xl">
-                <Activity className="w-4 h-4 mt-0.5 text-white opacity-80" />
-                <span className="text-sm text-white opacity-90">Stay hydrated with 8-10 glasses of water daily</span>
-              </div>
-              <div className="flex items-start space-x-3 bg-white bg-opacity-10 p-3 rounded-xl">
-                <ClockIcon className="w-4 h-4 mt-0.5 text-white opacity-80" />
-                <span className="text-sm text-white opacity-90">Time your meals every 3-4 hours for sustained energy</span>
-              </div>
-              <div className="flex items-start space-x-3 bg-white bg-opacity-10 p-3 rounded-xl">
-                <Sparkles className="w-4 h-4 mt-0.5 text-white opacity-80" />
-                <span className="text-sm text-white opacity-90">Include colorful vegetables in every meal for nutrients</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      ) : (
-        <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100 text-center">
-          <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Settings className="w-10 h-10 text-gray-400" />
-          </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-4">No Profile Data</h2>
-          <p className="text-gray-600 mb-6">
-            Generate personalized guidance based on your details
-          </p>
-          <button
-            onClick={() => {
-              showSuccess('Loading your profile...');
-              loadUserProfile();
-            }}
-            className="bg-gradient-to-r from-green-500 to-blue-600 text-white px-6 py-3 rounded-xl font-bold"
-          >
-            Load Profile
-          </button>
-        </div>
-      )}
-    </div>
+    <ImprovedProfileSection
+      user={user}
+      userProfile={userProfile}
+      onSaveProfile={(updated) => setUserProfile(updated)}
+    />
   );
 
   const renderCameraCapture = () => {
