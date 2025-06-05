@@ -929,6 +929,17 @@ const NutriVisionApp = () => {
     }
   };
 
+  const deleteHistoryMeal = async (analysisId) => {
+    try {
+      await apiCall(`/meal-history/${analysisId}`, { method: 'DELETE' });
+      setMealHistory((prev) => prev.filter((m) => m.id !== analysisId));
+      showSuccess('Meal analysis deleted!');
+    } catch (err) {
+      console.error('Error deleting meal analysis:', err);
+      setError('Failed to delete meal analysis');
+    }
+  };
+
   const loadUserProfile = async () => {
     try {
       const res = await apiCall('/user-profile');
@@ -2680,8 +2691,10 @@ const NutriVisionApp = () => {
         {mealHistory.length > 0 ? (
           <div className="space-y-4">
             {mealHistory.map((meal) => (
-              <button
+              <div
                 key={meal.id}
+                role="button"
+                tabIndex={0}
                 onClick={() => {
                   setSelectedHistoryMeal(meal);
                   setCurrentView('meal-details');
@@ -2703,7 +2716,7 @@ const NutriVisionApp = () => {
                       {meal.meal_type} • {meal.eating_personality_type || 'Balanced Eater'}
                     </p>
                   </div>
-                  <div className="text-right ml-4">
+                  <div className="text-right ml-4 flex flex-col items-end">
                     <div
                       className={`text-lg font-bold ${meal.health_score >= 8
                         ? 'text-green-600'
@@ -2715,6 +2728,15 @@ const NutriVisionApp = () => {
                       {meal.health_score}/10
                     </div>
                     <div className="text-xs text-gray-600">Health Score</div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteHistoryMeal(meal.id);
+                      }}
+                      className="text-red-600 hover:text-red-700 p-1 mt-1"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
 
@@ -2747,7 +2769,7 @@ const NutriVisionApp = () => {
                     <div className="text-xs text-gray-600">Fat</div>
                   </div>
                 </div>
-              </button>
+              </div>
             ))}
           </div>
         ) : (

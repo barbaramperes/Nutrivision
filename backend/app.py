@@ -2766,6 +2766,35 @@ def get_meal_history():
         return jsonify({'error': f'Failed to get meal history: {str(e)}'}), 500
 
 # ------------------------
+# REMOVER HISTÓRICO DE REFEIÇÃO (DELETE)
+# ------------------------
+@app.route('/api/meal-history/<int:analysis_id>', methods=['DELETE'])
+def delete_meal_history(analysis_id):
+    """Remove um registro de análise de refeição."""
+    user = get_current_user()
+    if not user:
+        return jsonify({'error': 'Não autenticado'}), 401
+
+    try:
+        analysis = MealAnalysis.query.get_or_404(analysis_id)
+        if analysis.user_id != user.id:
+            return jsonify({'error': 'Não autorizado'}), 403
+
+        if analysis.image_path and os.path.exists(analysis.image_path):
+            try:
+                os.remove(analysis.image_path)
+            except OSError:
+                pass
+
+        db.session.delete(analysis)
+        db.session.commit()
+
+        return jsonify({'message': 'Análise removida'}), 200
+    except Exception as e:
+        logger.error(f"❌ Erro ao excluir análise: {str(e)}")
+        return jsonify({'error': f'Falha ao excluir análise: {str(e)}'}), 500
+
+# ------------------------
 # DASHBOARD STATS (GET)
 # ------------------------
 @app.route('/api/dashboard-stats', methods=['GET'])
