@@ -1930,15 +1930,6 @@ const NutriVisionApp = () => {
                       <Sparkles className="w-6 h-6 mr-2" />
                       Smart Insights
                     </h3>
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div className="bg-white bg-opacity-20 p-3 rounded-xl">
-                        <div className="text-sm text-orange-100">Satisfaction</div>
-                        <div className="text-2xl font-bold">
-                          {analysisResult.revolutionary_insights?.satisfaction_prediction || 7.5}
-                          /10
-                        </div>
-                      </div>
-                    </div>
                     <div className="bg-white bg-opacity-20 p-4 rounded-xl">
                       <div className="flex items-center space-x-2 mb-2">
                         <Brain className="w-5 h-5" />
