@@ -539,6 +539,7 @@ const NutriVisionApp = () => {
   const [loading, setLoading] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [emailNotifications, setEmailNotifications] = useState(true);
 
   // Auth Forms
   const [loginData, setLoginData] = useState({ email: '', password: '' });
@@ -3430,6 +3431,15 @@ const NutriVisionApp = () => {
               {darkMode ? 'Disable' : 'Enable'}
             </button>
           </div>
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl mt-3">
+            <span className="font-medium text-gray-900">Email Notifications</span>
+            <button
+              onClick={() => setEmailNotifications(!emailNotifications)}
+              className="px-3 py-1 rounded-full bg-gray-200"
+            >
+              {emailNotifications ? 'Disable' : 'Enable'}
+            </button>
+          </div>
         </div>
 
         {/* QUICK ACTIONS */}
@@ -3445,11 +3455,11 @@ const NutriVisionApp = () => {
             </button>
 
             <button
-              onClick={() => setCurrentView('daily-log')}
+              onClick={() => setCurrentView('profile')}
               className="w-full flex items-center space-x-3 p-4 bg-yellow-50 rounded-xl hover:bg-yellow-100 transition-colors"
             >
-              <Calendar className="w-5 h-5 text-yellow-600" />
-              <span className="font-medium text-yellow-900">Daily Food Log</span>
+              <Edit3 className="w-5 h-5 text-yellow-600" />
+              <span className="font-medium text-yellow-900">Edit Profile</span>
             </button>
 
             {user?.gender === 'female' && user?.track_menstrual_cycle && (
