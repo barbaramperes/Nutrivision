@@ -2999,6 +2999,67 @@ def add_daily_meal():
         return jsonify({'error': f'Falha ao adicionar refeição: {str(e)}'}), 500
 
 # ------------------------
+# NOVA ROTA: ATUALIZAR REFEIÇÃO DO LOG DIÁRIO (PUT)
+# ------------------------
+@app.route('/api/daily-meals/<int:meal_id>', methods=['PUT'])
+def update_daily_meal(meal_id):
+    user = get_current_user()
+    if not user:
+        return jsonify({'error': 'Não autenticado'}), 401
+
+    try:
+        meal = DailyMeal.query.get_or_404(meal_id)
+        if meal.user_id != user.id:
+            return jsonify({'error': 'Não autorizado'}), 403
+
+        data = request.get_json() or {}
+
+        if 'date' in data:
+            try:
+                meal.date = datetime.fromisoformat(data['date']).date()
+            except ValueError:
+                return jsonify({'error': 'Formato de data inválido. Use YYYY-MM-DD.'}), 400
+
+        for field in ['name', 'meal_type', 'time']:
+            if field in data:
+                value = data[field]
+                setattr(meal, field, value if value != '' else None)
+
+        for field in ['calories', 'protein', 'carbs', 'fat']:
+            if field in data:
+                value = data[field]
+                if value == '' or value is None:
+                    setattr(meal, field, None)
+                else:
+                    try:
+                        if field == 'calories':
+                            setattr(meal, field, int(value))
+                        else:
+                            setattr(meal, field, float(value))
+                    except (ValueError, TypeError):
+                        return jsonify({'error': f'Valor inválido para {field}'}), 400
+
+        db.session.commit()
+
+        return jsonify({
+            'message': 'Refeição atualizada no log diário',
+            'meal': {
+                'id': meal.id,
+                'name': meal.name,
+                'calories': meal.calories,
+                'protein': meal.protein,
+                'carbs': meal.carbs,
+                'fat': meal.fat,
+                'meal_type': meal.meal_type,
+                'time': meal.time
+            }
+        }), 200
+
+    except Exception as e:
+        logger.error(f"❌ Erro ao atualizar refeição diária: {str(e)}")
+        return jsonify({'error': f'Falha ao atualizar refeição: {str(e)}'}), 500
+
+# ------------------------
 # NOVA ROTA: REMOVER REFEIÇÃO DO LOG DIÁRIO (DELETE)
 # ------------------------
 @app.route('/api/daily-meals/<int:meal_id>', methods=['DELETE'])
