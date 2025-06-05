@@ -325,7 +325,7 @@ const ImprovedProfileSection = ({ user, userProfile: initialUserProfile, onSaveP
             </div>
             {isEditingProfile && (
               <div className="flex space-x-3 mt-6">
-                <button onClick={handleSaveProfile} className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2">
+                <button onClick={saveProfileChanges} className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2">
                   <Save className="w-4 h-4" />
                   <span>Save Changes</span>
                 </button>
