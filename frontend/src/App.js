@@ -16,7 +16,6 @@ import {
   Trash2,
   Save,
   ArrowLeft,
-  Eye,
   Sparkles,
   Activity,
   Brain,
@@ -1410,12 +1409,6 @@ const NutriVisionApp = () => {
       <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex items-center space-x-3 justify-center">
-            <div className="relative">
-              <div className="w-12 h-12 bg-gradient-to-br from-light-accent via-light-accent2 to-light-accent dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent rounded-2xl flex items-center justify-center shadow-lg">
-                <Eye className="w-7 h-7 text-white" />
-              </div>
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-white animate-pulse" />
-            </div>
             <div>
               <h1 className="text-2xl font-black text-gray-900">
                 Nutri<span className="text-orange-500">Snap</span>
@@ -1523,12 +1516,6 @@ const NutriVisionApp = () => {
       <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md max-h-screen overflow-y-auto">
         <div className="text-center mb-6">
           <div className="flex items-center space-x-3 justify-center">
-            <div className="relative">
-              <div className="w-12 h-12 bg-gradient-to-br from-light-accent via-light-accent2 to-light-accent dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent rounded-2xl flex items-center justify-center shadow-lg">
-                <Eye className="w-7 h-7 text-white" />
-              </div>
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-white animate-pulse" />
-            </div>
             <div>
               <h1 className="text-2xl font-black text-gray-900">
                 Nutri<span className="text-orange-500">Snap</span>
@@ -1709,12 +1696,6 @@ const NutriVisionApp = () => {
       <div className="bg-white rounded-3xl shadow-lg p-6 mb-6 border border-gray-100">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <div className="relative">
-              <div className="w-12 h-12 bg-gradient-to-br from-light-accent via-light-accent2 to-light-accent dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent rounded-2xl flex items-center justify-center shadow-lg">
-                <Eye className="w-7 h-7 text-white" />
-              </div>
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-white animate-pulse" />
-            </div>
             <div>
               <h1 className="text-2xl font-black text-gray-900">
                 Nutri<span className="text-orange-500">Snap</span>
@@ -1854,7 +1835,6 @@ const NutriVisionApp = () => {
                     {analysisResult.nutrition?.protein || 0}g protein
                   </div>
                   <div className="absolute bottom-4 left-4 bg-orange-600 bg-opacity-95 backdrop-blur-sm px-3 py-2 rounded-xl text-white font-bold text-sm shadow-lg">
-                    <Eye className="inline w-4 h-4 mr-1" />
                     Score: {analysisResult.health_assessment?.score || 0}/10
                   </div>
                 </>
@@ -1866,10 +1846,7 @@ const NutriVisionApp = () => {
             {!isEstimating && analysisResult && (
               <div className="p-6">
                 <div className="mb-6">
-                  <h3 className="font-bold text-gray-900 mb-3 flex items-center">
-                    <Eye className="w-5 h-5 mr-2 text-orange-500" />
-                    AI-Detected Foods
-                  </h3>
+                  <h3 className="font-bold text-gray-900 mb-3">AI-Detected Foods</h3>
                   <div className="flex flex-wrap gap-2">
                     {analysisResult.foods_detected?.map((food, idx) => (
                       <span
@@ -2938,10 +2915,7 @@ const NutriVisionApp = () => {
 
         {/* TODAY’S SUMMARY */}
         <div className="bg-white rounded-3xl shadow-lg p-6 mb-6 border border-gray-100">
-          <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
-            <Eye className="w-6 h-6 mr-2 text-orange-500" />
-            {formatDate(selectedDate)} Summary
-          </h2>
+          <h2 className="text-lg font-bold text-gray-900 mb-4">{formatDate(selectedDate)} Summary</h2>
 
           <div className="grid grid-cols-4 gap-4 mb-4">
             <div className="p-3 bg-gradient-to-br from-red-50 to-red-100 rounded-xl flex flex-col items-center justify-center">
