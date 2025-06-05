@@ -44,12 +44,12 @@ Nutrivision is a demo application that combines a Flask backend with a React fro
    ```bash
    cd frontend
    ```
-2. Install dependencies:
+2. Install dependencies (run this again if you installed them before upgrading):
    ```bash
    npm install
-   # Tailwind CSS 4.x requires the PostCSS plugin
-   npm install --save-dev @tailwindcss/postcss
    ```
+   This ensures the `@tailwindcss/postcss` plugin required by Tailwind 4 is installed.
+   Our `postcss.config.js` now loads this plugin explicitly with `require('@tailwindcss/postcss')`.
 3. Start the React development server:
    ```bash
    npm start
