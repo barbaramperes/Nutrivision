@@ -2933,6 +2933,28 @@ def add_daily_meal():
         return jsonify({'error': f'Falha ao adicionar refeição: {str(e)}'}), 500
 
 # ------------------------
+# NOVA ROTA: REMOVER REFEIÇÃO DO LOG DIÁRIO (DELETE)
+# ------------------------
+@app.route('/api/daily-meals/<int:meal_id>', methods=['DELETE'])
+def delete_daily_meal(meal_id):
+    user = get_current_user()
+    if not user:
+        return jsonify({'error': 'Não autenticado'}), 401
+
+    try:
+        meal = DailyMeal.query.get_or_404(meal_id)
+        if meal.user_id != user.id:
+            return jsonify({'error': 'Não autorizado'}), 403
+
+        db.session.delete(meal)
+        db.session.commit()
+
+        return jsonify({'message': 'Refeição removida do log diário'}), 200
+    except Exception as e:
+        logger.error(f"❌ Erro ao remover refeição diária: {str(e)}")
+        return jsonify({'error': f'Falha ao remover refeição: {str(e)}'}), 500
+
+# ------------------------
 # GERAÇÃO DE IMAGEM DE RECEITA
 # ------------------------
 

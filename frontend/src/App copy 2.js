@@ -2526,9 +2526,17 @@ const NutriVisionApp = () => {
     setShowMealForm(false);
   };
 
-  const deleteMeal = (mealId) => {
-    setDailyMeals((prev) => prev.filter((meal) => meal.id !== mealId));
-    showSuccess('Meal removed! 🗑️');
+  const deleteMeal = async (mealId) => {
+    try {
+      await apiCall(`/daily-meals/${mealId}`, { method: 'DELETE' });
+      setDailyMeals((prev) => prev.filter((meal) => meal.id !== mealId));
+      await loadDashboardStats();
+      showSuccess('Meal removed! 🗑️');
+    } catch (err) {
+      console.error('Error removing meal:', err);
+      setDailyMeals((prev) => prev.filter((meal) => meal.id !== mealId));
+      showSuccess('Meal removed locally! 🗑️');
+    }
   };
 
   const logCycleData = async (data) => {
