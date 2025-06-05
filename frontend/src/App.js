@@ -2144,6 +2144,7 @@ const NutriVisionApp = () => {
                   }
                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 bg-white"
                 >
+                  <option value="ultra-quick">Ultra Quick (&lt;5 min)</option>
                   <option value="quick">Quick (&lt;20 min)</option>
                   <option value="medium">Medium (20–45 min)</option>
                   <option value="elaborate">Elaborate (&gt;45 min)</option>
@@ -2195,6 +2196,8 @@ const NutriVisionApp = () => {
                 <option value="vegan">Vegan</option>
                 <option value="keto">Keto</option>
                 <option value="low-carb">Low Carb</option>
+                <option value="gluten-free">Gluten Free</option>
+                <option value="lactose-free">Lactose Free</option>
                 <option value="high-protein">High Protein</option>
               </select>
             </div>
