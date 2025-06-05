@@ -49,8 +49,11 @@ import {
   ArrowUp,
   ArrowDown,
   Coffee,
-Sun,
-Sunset
+  Sun,
+  Sunset,
+  Contrast,
+  Type
+
 } from 'lucide-react';
 
 const defaultUserProfile = {
