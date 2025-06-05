@@ -53,52 +53,59 @@ import {
   Sunset,
   Contrast,
   Type
+
 } from 'lucide-react';
 
-const ImprovedProfileSection = ({ user, userProfile: initialUserProfile, onSaveProfile, onOpenSettings }) => {
-  const [userProfile, setUserProfile] = useState(initialUserProfile || {
-    user: user || {
-      username: "Alex Johnson",
-      email: "alex.johnson@example.com",
-      age: 28,
-      current_weight: 75.5,
-      target_weight: 70.0,
-      height: 175,
-      gender: "male",
-      profile_photo: null,
-      streak_days: 12,
-      level: "Nutrition Explorer",
-      total_xp: 1250,
-      badges_earned: 8
+const defaultUserProfile = {
+  user: {
+    username: "Alex Johnson",
+    email: "alex.johnson@example.com",
+    age: 28,
+    current_weight: 75.5,
+    target_weight: 70.0,
+    height: 175,
+    gender: "male",
+    profile_photo: null,
+    streak_days: 12,
+    level: "Nutrition Explorer",
+    total_xp: 1250,
+    badges_earned: 8,
+  },
+  metrics: {
+    bmi: 24.6,
+    bmr: 1680,
+    tdee: 2350,
+  },
+  nutrition_plan: {
+    plan_name: "Balanced Weight Loss",
+    plan_type: "weight_loss",
+    daily_targets: {
+      calories: 2100,
+      protein: 140,
+      carbs: 220,
+      fat: 75,
     },
-    metrics: {
-      bmi: 24.6,
-      bmr: 1680,
-      tdee: 2350
+    today_progress: {
+      calories_consumed: 1650,
+      protein_consumed: 98,
+      carbs_consumed: 180,
+      fat_consumed: 62,
     },
-    nutrition_plan: {
-      plan_name: "Balanced Weight Loss",
-      plan_type: "weight_loss",
-      daily_targets: {
-        calories: 2100,
-        protein: 140,
-        carbs: 220,
-        fat: 75
-      },
-      today_progress: {
-        calories_consumed: 1650,
-        protein_consumed: 98,
-        carbs_consumed: 180,
-        fat_consumed: 62
-      },
-      meal_distribution: {
-        breakfast: 0.25,
-        lunch: 0.35,
-        dinner: 0.30,
-        snacks: 0.10
-      }
-    }
-  });
+    meal_distribution: {
+      breakfast: 0.25,
+      lunch: 0.35,
+      dinner: 0.30,
+      snacks: 0.10,
+    },
+  },
+};
+
+const ImprovedProfileSection = ({ user, userProfile: initialUserProfile, onSaveProfile, onOpenSettings, apiCall }) => {
+  const [userProfile, setUserProfile] = useState(initialUserProfile || defaultUserProfile);
+
+  useEffect(() => {
+    setUserProfile(initialUserProfile || defaultUserProfile);
+  }, [initialUserProfile]);
 
   useEffect(() => {
     if (userProfile?.user?.current_weight && userProfile?.user?.height) {
@@ -152,7 +159,7 @@ const ImprovedProfileSection = ({ user, userProfile: initialUserProfile, onSaveP
     setIsEditingProfile(true);
   };
 
-  const handleSaveProfile = () => {
+  const handleSaveProfile = async () => {
     const updatedUser = {
       ...userProfile.user,
       ...profileForm,
@@ -180,13 +187,29 @@ const ImprovedProfileSection = ({ user, userProfile: initialUserProfile, onSaveP
         tdee: Math.round(calculatedBMR * 1.4)
       }
     };
+    try {
+      await apiCall('/user-profile', {
+        method: 'PUT',
+        body: JSON.stringify({
+          username: updatedUser.username,
+          email: updatedUser.email,
+          age: updatedUser.age,
+          current_weight: updatedUser.current_weight,
+          target_weight: updatedUser.target_weight,
+          height: updatedUser.height,
+          gender: updatedUser.gender,
+        }),
+      });
 
-    setUserProfile(updatedProfile);
-    if (onSaveProfile) {
-      onSaveProfile(updatedProfile);
+      setUserProfile(updatedProfile);
+      if (onSaveProfile) {
+        onSaveProfile(updatedProfile);
+      }
+      setIsEditingProfile(false);
+      setProfilePhotoPreview(null);
+    } catch (err) {
+      console.error('Error saving profile:', err);
     }
-    setIsEditingProfile(false);
-    setProfilePhotoPreview(null);
   };
 
   const handlePhotoChange = (e) => {
@@ -936,44 +959,6 @@ const NutriVisionApp = () => {
     }
   };
 
-  const saveProfileChanges = async () => {
-    try {
-      // Enviar dados atualizados para o backend
-      await apiCall('/user-profile', {
-        method: 'PUT',
-        body: JSON.stringify({
-          username: profileForm.username,
-          email: profileForm.email,
-          age: profileForm.age,
-          current_weight: profileForm.current_weight,
-          target_weight: profileForm.target_weight,
-          height: profileForm.height,
-          gender: profileForm.gender,
-          activity_level: profileForm.activity_level  // ← ADICIONADO
-        }),
-      });
-
-      // Upload da foto se houver
-      if (profilePhotoFile) {
-        const fd = new FormData();
-        fd.append('photo', profilePhotoFile);
-        await fetch(`${API_BASE}/profile-photo`, {
-          method: 'POST',
-          credentials: 'include',
-          body: fd,
-        });
-      }
-
-      // Recarregar dados atualizados do servidor
-      await loadUserProfile();
-      setIsEditingProfile(false);
-      setProfilePhotoFile(null);
-      setProfilePhotoPreview(null);
-      showSuccess('Profile updated with real calculations!');
-    } catch (err) {
-      setError(err.message);
-    }
-  };
 
   // ─────────── DAILY LOG: SAVE & DELETE MEAL ───────────
 
@@ -1029,9 +1014,17 @@ const NutriVisionApp = () => {
     setShowMealForm(false);
   };
 
-  const deleteMeal = (mealId) => {
-    setDailyMeals((prev) => prev.filter((m) => m.id !== mealId));
-    showSuccess('Meal removed!');
+  const deleteMeal = async (mealId) => {
+    try {
+      await apiCall(`/daily-meals/${mealId}`, { method: 'DELETE' });
+      setDailyMeals((prev) => prev.filter((m) => m.id !== mealId));
+      await loadDashboardStats();
+      showSuccess('Meal removed!');
+    } catch (err) {
+      console.error('Error removing meal:', err);
+      setDailyMeals((prev) => prev.filter((m) => m.id !== mealId));
+      showSuccess('Meal removed locally!');
+    }
   };
 
   // ─────────── AI‐ASSISTED MEAL ESTIMATION ───────────
@@ -1416,12 +1409,6 @@ const NutriVisionApp = () => {
       <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex items-center space-x-3 justify-center">
-            <div className="relative">
-              <div className="w-12 h-12 bg-gradient-to-br from-light-accent via-light-accent2 to-light-accent dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent rounded-2xl flex items-center justify-center shadow-lg">
-                <Eye className="w-7 h-7 text-white" />
-              </div>
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-white animate-pulse" />
-            </div>
             <div>
               <h1 className="text-2xl font-black text-gray-900">
                 Nutri<span className="text-orange-500">Snap</span>
@@ -1529,12 +1516,6 @@ const NutriVisionApp = () => {
       <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md max-h-screen overflow-y-auto">
         <div className="text-center mb-6">
           <div className="flex items-center space-x-3 justify-center">
-            <div className="relative">
-              <div className="w-12 h-12 bg-gradient-to-br from-light-accent via-light-accent2 to-light-accent dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent rounded-2xl flex items-center justify-center shadow-lg">
-                <Eye className="w-7 h-7 text-white" />
-              </div>
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-white animate-pulse" />
-            </div>
             <div>
               <h1 className="text-2xl font-black text-gray-900">
                 Nutri<span className="text-orange-500">Snap</span>
@@ -1715,12 +1696,6 @@ const NutriVisionApp = () => {
       <div className="bg-white rounded-3xl shadow-lg p-6 mb-6 border border-gray-100">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <div className="relative">
-              <div className="w-12 h-12 bg-gradient-to-br from-light-accent via-light-accent2 to-light-accent dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent rounded-2xl flex items-center justify-center shadow-lg">
-                <Eye className="w-7 h-7 text-white" />
-              </div>
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-white animate-pulse" />
-            </div>
             <div>
               <h1 className="text-2xl font-black text-gray-900">
                 Nutri<span className="text-orange-500">Snap</span>
@@ -1983,7 +1958,7 @@ const NutriVisionApp = () => {
         >
           <ArrowLeft className="w-6 h-6" />
         </button>
-        <h1 className="text-2xl font-extrabold text-gray-900">Recipe Book</h1>
+        <h1 className="text-lg font-bold text-gray-900">Recipe Book</h1>
         <div className="w-6" />
       </div>
 
@@ -3516,6 +3491,7 @@ const NutriVisionApp = () => {
       userProfile={userProfile}
       onSaveProfile={(updated) => setUserProfile(updated)}
       onOpenSettings={() => setCurrentView('settings')}
+      apiCall={apiCall}
     />
   );
 

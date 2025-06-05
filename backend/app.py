@@ -1579,7 +1579,7 @@ def register():
         db.session.add(user)
         db.session.commit()
 
-        session.permanent = True
+        session.permanent = False
         session['user_id'] = user.id
         logger.info(f"✅ Usuário {user.id} registrado e logado. Session: {dict(session)}")
 
@@ -1644,7 +1644,7 @@ def login():
                 )
                 db.session.add(demo_user)
                 db.session.commit()
-            session.permanent = True
+            session.permanent = False
             session['user_id'] = demo_user.id
             return jsonify({
                 'message': 'Login demo bem-sucedido',
@@ -1668,7 +1668,7 @@ def login():
             logger.warning(f"❌ Login inválido para: {data.get('email')}")
             return jsonify({'error': 'Credenciais inválidas'}), 401
 
-        session.permanent = True
+        session.permanent = False
         session['user_id'] = user.id
         user.last_activity = datetime.utcnow()
         db.session.commit()
@@ -1870,6 +1870,9 @@ def analyze_meal_revolutionary():
             health_score = float(health_score)
         except:
             health_score = 5.0
+
+        # Use the health assessment score as the satisfaction prediction
+        satisfaction_pred = health_score
 
         meal_analysis = MealAnalysis(
             user_id=user.id,
@@ -2931,6 +2934,28 @@ def add_daily_meal():
     except Exception as e:
         logger.error(f"❌ Erro ao adicionar refeição diária: {str(e)}")
         return jsonify({'error': f'Falha ao adicionar refeição: {str(e)}'}), 500
+
+# ------------------------
+# NOVA ROTA: REMOVER REFEIÇÃO DO LOG DIÁRIO (DELETE)
+# ------------------------
+@app.route('/api/daily-meals/<int:meal_id>', methods=['DELETE'])
+def delete_daily_meal(meal_id):
+    user = get_current_user()
+    if not user:
+        return jsonify({'error': 'Não autenticado'}), 401
+
+    try:
+        meal = DailyMeal.query.get_or_404(meal_id)
+        if meal.user_id != user.id:
+            return jsonify({'error': 'Não autorizado'}), 403
+
+        db.session.delete(meal)
+        db.session.commit()
+
+        return jsonify({'message': 'Refeição removida do log diário'}), 200
+    except Exception as e:
+        logger.error(f"❌ Erro ao remover refeição diária: {str(e)}")
+        return jsonify({'error': f'Falha ao remover refeição: {str(e)}'}), 500
 
 # ------------------------
 # GERAÇÃO DE IMAGEM DE RECEITA
