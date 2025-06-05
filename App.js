@@ -502,13 +502,15 @@ const NutriVisionApp = () => {
         method: 'POST',
         body: JSON.stringify(newMeal),
       });
-      setDailyMeals((prev) => [...prev, newMeal]);
-      showSuccess('Meal saved successfully!');
+    setDailyMeals((prev) => [...prev, newMeal]);
+    showSuccess('Meal saved successfully!');
+    loadDashboardStats();
     } catch (err) {
       console.error('Error saving meal:', err);
       // Mesmo que falhe no backend, adiciona localmente
-      setDailyMeals((prev) => [...prev, newMeal]);
-      showSuccess('Meal added locally!');
+    setDailyMeals((prev) => [...prev, newMeal]);
+    showSuccess('Meal added locally!');
+    loadDashboardStats();
     }
     // Limpa a estimativa de IA e preview ao salvar
     setAiMealEstimation(null);
@@ -529,6 +531,7 @@ const NutriVisionApp = () => {
   const deleteMeal = (mealId) => {
     setDailyMeals((prev) => prev.filter((m) => m.id !== mealId));
     showSuccess('Meal removed!');
+    loadDashboardStats();
   };
 
   // ─────────── AI‐ASSISTED MEAL ESTIMATION ───────────
