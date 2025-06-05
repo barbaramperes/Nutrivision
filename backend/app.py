@@ -2505,7 +2505,7 @@ def get_user_profile():
             'id': user.id,
             'username': user.username,
             'email': user.email,
-            'profile_photo': user.profile_photo,
+            'profile_photo': f"/api/images/{user.profile_photo}" if user.profile_photo else None,
             'level': user.level,
             'total_xp': user.total_xp,
             'current_weight': user.current_weight,
