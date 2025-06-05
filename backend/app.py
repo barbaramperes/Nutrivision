@@ -1375,7 +1375,15 @@ def customize_for_preferences(config, preferences, index):
         customizations['creative_constraints'] = 'Balance of temperatures and textures allowed.'
 
     # Tempo de preparo
-    if preferences['cooking_time'] == 'quick':
+    if preferences['cooking_time'] == 'ultra-quick':
+        customizations['time_range'] = {
+            'prep_min': 0,
+            'prep_max': 5,
+            'cook_min': 0,
+            'cook_max': 5
+        }
+        customizations['difficulty'] = 'beginner'
+    elif preferences['cooking_time'] == 'quick':
         customizations['time_range'] = {
             'prep_min': max(5, customizations.get('time_range', {}).get('prep_min', 10) - 5),
             'prep_max': max(10, customizations.get('time_range', {}).get('prep_max', 15) - 5),
@@ -1394,7 +1402,11 @@ def customize_for_preferences(config, preferences, index):
 
     # Estilo culinário
     if preferences['cuisine_style'] != 'any':
-        customizations['cuisine_expertise'] = f"{preferences['cuisine_style']} cuisine mastery"
+        if preferences['cuisine_style'] == 'traditional':
+            customizations['cuisine_expertise'] = 'traditional Portuguese cuisine'
+            customizations['inspiration'] += ', classics like bacalhau \u00e0 br\u00e1s and caldo verde'
+        else:
+            customizations['cuisine_expertise'] = f"{preferences['cuisine_style']} cuisine mastery"
         customizations['style_tag'] = preferences['cuisine_style']
 
     return customizations
