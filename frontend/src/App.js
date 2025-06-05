@@ -2052,7 +2052,8 @@ const NutriVisionApp = () => {
 
 
   // ─────────── RECIPE BOOK ───────────
-  const renderRecipeBook = () => (
+  const renderRecipeBook = () => {
+    return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 p-6 pb-24">
       <div className="flex items-center justify-between mb-6">
         <button
@@ -2513,6 +2514,7 @@ const NutriVisionApp = () => {
 
     </div>
   );
+  };
 
 
   const renderRecipeDetails = () => {
