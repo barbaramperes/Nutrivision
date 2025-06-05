@@ -579,7 +579,7 @@ const NutriVisionApp = () => {
   const [mealSuggestions, setMealSuggestions] = useState([]);
   const [dashboardStats, setDashboardStats] = useState(null);
 
-  // Daily Log & “Add Meal”
+  // Daily Log & "Add Meal"
   const [dailyMeals, setDailyMeals] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentMeal, setCurrentMeal] = useState({
@@ -2441,7 +2441,7 @@ const NutriVisionApp = () => {
                   </div>
                 </div>
 
-                { /* ─── Botões “View” / “Delete” ─── */}
+                { /* --- Buttons "View" / "Delete" --- */}
                 <div className="flex flex-row space-x-2 mt-4 sm:mt-0 sm:flex-col sm:space-x-0 sm:space-y-2 sm:ml-4">
                   <button
                     onClick={() => getRecipeDetails(recipe.id)}
@@ -2616,7 +2616,7 @@ const NutriVisionApp = () => {
                       id={`step-${idx}`}
                       className="mt-1 h-5 w-5 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
                       onChange={(e) => {
-                        // Se quiser armazenar o estado de “marcado/desmarcado”, crie um state separado
+                        // Se quiser armazenar o estado de "marcado/desmarcado", crie um state separado
                         // Exemplo (fora deste return):
                         //   const [doneSteps, setDoneSteps] = useState({});
                         // Depois:
