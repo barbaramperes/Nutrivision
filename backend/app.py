@@ -1579,7 +1579,7 @@ def register():
         db.session.add(user)
         db.session.commit()
 
-        session.permanent = True
+        session.permanent = False
         session['user_id'] = user.id
         logger.info(f"✅ Usuário {user.id} registrado e logado. Session: {dict(session)}")
 
@@ -1644,7 +1644,7 @@ def login():
                 )
                 db.session.add(demo_user)
                 db.session.commit()
-            session.permanent = True
+            session.permanent = False
             session['user_id'] = demo_user.id
             return jsonify({
                 'message': 'Login demo bem-sucedido',
@@ -1668,7 +1668,7 @@ def login():
             logger.warning(f"❌ Login inválido para: {data.get('email')}")
             return jsonify({'error': 'Credenciais inválidas'}), 401
 
-        session.permanent = True
+        session.permanent = False
         session['user_id'] = user.id
         user.last_activity = datetime.utcnow()
         db.session.commit()
