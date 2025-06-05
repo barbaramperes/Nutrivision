@@ -2740,16 +2740,35 @@ def get_dashboard_stats():
     try:
         today = datetime.now().date()
         week_start = today - timedelta(days=7)
-        weekly_analyses = MealAnalysis.query.filter_by(user_id=user.id).filter(MealAnalysis.created_at >= datetime.combine(week_start, datetime.min.time())).all()
 
-        total_calories_week = sum(a.total_calories or 0 for a in weekly_analyses)
-        avg_health_score = (sum(a.health_score or 0 for a in weekly_analyses) / len(weekly_analyses)) if weekly_analyses else 0
+        # Meals logged via the DailyMeal table
+        weekly_meals = (
+            DailyMeal.query
+            .filter_by(user_id=user.id)
+            .filter(DailyMeal.date >= week_start)
+            .all()
+        )
+
+        total_calories_week = sum(m.calories or 0 for m in weekly_meals)
+
+        # Average health score is derived from meal analyses if available
+        weekly_analyses = (
+            MealAnalysis.query
+            .filter_by(user_id=user.id)
+            .filter(MealAnalysis.created_at >= datetime.combine(week_start, datetime.min.time()))
+            .all()
+        )
+        avg_health_score = (
+            sum(a.health_score or 0 for a in weekly_analyses) / len(weekly_analyses)
+        ) if weekly_analyses else 0
 
         active_plan = NutritionPlan.query.filter_by(user_id=user.id, is_active=True).first()
         plan_progress = 0
-        if active_plan and weekly_analyses:
+        if active_plan and weekly_meals:
             target_weekly_calories = active_plan.daily_calories * 7
-            plan_progress = min((total_calories_week / target_weekly_calories) * 100, 100) if target_weekly_calories > 0 else 0
+            plan_progress = min(
+                (total_calories_week / target_weekly_calories) * 100, 100
+            ) if target_weekly_calories > 0 else 0
 
         total_analyses = MealAnalysis.query.filter_by(user_id=user.id).count()
         recent_achievements = []
@@ -2762,9 +2781,9 @@ def get_dashboard_stats():
         elif user.streak_days >= 7:
             recent_achievements.append(f"Semana de streak alcançada! 🔥 ({user.streak_days} dias)")
 
-        weekly_protein = sum(a.protein or 0 for a in weekly_analyses)
-        weekly_carbs = sum(a.carbs or 0 for a in weekly_analyses)
-        weekly_fat = sum(a.fat or 0 for a in weekly_analyses)
+        weekly_protein = sum(m.protein or 0 for m in weekly_meals)
+        weekly_carbs = sum(m.carbs or 0 for m in weekly_meals)
+        weekly_fat = sum(m.fat or 0 for m in weekly_meals)
 
         dashboard_data = {
             'user_stats': {
@@ -2776,7 +2795,7 @@ def get_dashboard_stats():
             'weekly_summary': {
                 'total_calories': total_calories_week,
                 'avg_health_score': round(avg_health_score, 1),
-                'meals_logged': len(weekly_analyses),
+                'meals_logged': len(weekly_meals),
                 'plan_progress': round(plan_progress, 1)
             },
             'nutrition_breakdown': {

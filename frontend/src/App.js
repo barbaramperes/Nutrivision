@@ -1466,7 +1466,7 @@ const NutriVisionApp = () => {
           <div className="w-20 h-20 bg-gradient-to-br from-light-accent via-light-accent2 to-light-accent dark:from-dark-accent dark:via-dark-accent2 dark:to-dark-accent rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
             <Camera className="w-10 h-10 text-white" />
           </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">AI-Powered Analysis</h3>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">Instant Food Analysis</h3>
           <p className="text-gray-600 mb-6">Get instant insights about your meals with advanced AI!</p>
           <div className="grid grid-cols-2 gap-3">
             <button
