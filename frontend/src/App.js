@@ -53,7 +53,7 @@ import {
   Sunset
 } from 'lucide-react';
 
-const ImprovedProfileSection = ({ user, userProfile: initialUserProfile, onSaveProfile }) => {
+const ImprovedProfileSection = ({ user, userProfile: initialUserProfile, onSaveProfile, onOpenSettings }) => {
   const [userProfile, setUserProfile] = useState(initialUserProfile || {
     user: user || {
       username: "Alex Johnson",
@@ -246,13 +246,22 @@ const ImprovedProfileSection = ({ user, userProfile: initialUserProfile, onSaveP
                 Profile
               </h1>
               {!isEditingProfile && (
-                <button
-                  onClick={handleEditProfile}
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl font-medium transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
-                >
-                  <Edit3 className="w-4 h-4" />
-                  <span>Edit</span>
-                </button>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={onOpenSettings}
+                    className="p-2 rounded-full bg-gray-100 hover:bg-gray-200"
+                    aria-label="Settings"
+                  >
+                    <Settings className="w-5 h-5 text-gray-600" />
+                  </button>
+                  <button
+                    onClick={handleEditProfile}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl font-medium transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                    <span>Edit</span>
+                  </button>
+                </div>
               )}
             </div>
             <div className="flex items-center space-x-6">
@@ -3468,6 +3477,7 @@ const NutriVisionApp = () => {
       user={user}
       userProfile={userProfile}
       onSaveProfile={(updated) => setUserProfile(updated)}
+      onOpenSettings={() => setCurrentView('settings')}
     />
   );
 
