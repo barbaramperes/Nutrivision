@@ -60,7 +60,6 @@ const NutriVisionApp = () => {
   });
 
   // Dashboard & Stats
-  const [mealSuggestions, setMealSuggestions] = useState([]);
   const [dashboardStats, setDashboardStats] = useState(null);
 
   // Daily Log & “Add Meal”
@@ -202,7 +201,6 @@ const NutriVisionApp = () => {
       setTimeout(async () => {
         try {
           await loadDashboardStats();
-          await loadMealSuggestions();
         } catch (_) { }
       }, 300);
       showSuccess(`Welcome back, ${res.user.username}!`);
@@ -234,7 +232,6 @@ const NutriVisionApp = () => {
       setTimeout(async () => {
         try {
           await loadDashboardStats();
-          await loadMealSuggestions();
         } catch (_) { }
       }, 300);
       showSuccess(`🎉 Welcome, ${res.user.username}!`);
@@ -306,7 +303,6 @@ const NutriVisionApp = () => {
             break;
           case 'dashboard':
             loadDashboardStats();
-            loadMealSuggestions();
             break;
           case 'menstrual-cycle':
             if (user.gender === 'female' && user.track_menstrual_cycle) {
@@ -353,17 +349,6 @@ const NutriVisionApp = () => {
       console.error('Error loading dashboard stats:', err);
     }
   };
-
-  const loadMealSuggestions = async () => {
-    try {
-      const res = await apiCall('/meal-suggestions');
-      setMealSuggestions(res.suggestions || []);
-    } catch (err) {
-      console.error('Error loading meal suggestions:', err);
-      setMealSuggestions([]);
-    }
-  };
-
   const loadDailyMeals = async () => {
     setLoading(true);
     try {

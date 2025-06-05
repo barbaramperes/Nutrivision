@@ -64,7 +64,6 @@ const NutriVisionApp = () => {
   });
 
   // Dashboard & Stats
-  const [mealSuggestions, setMealSuggestions] = useState([]);
   const [dashboardStats, setDashboardStats] = useState(null);
 
   // Daily Log & “Add Meal”
@@ -206,7 +205,6 @@ const NutriVisionApp = () => {
       setTimeout(async () => {
         try {
           await loadDashboardStats();
-          await loadMealSuggestions();
         } catch (_) { }
       }, 300);
       showSuccess(`Welcome back, ${res.user.username}!`);
@@ -238,7 +236,6 @@ const NutriVisionApp = () => {
       setTimeout(async () => {
         try {
           await loadDashboardStats();
-          await loadMealSuggestions();
         } catch (_) { }
       }, 300);
       showSuccess(`Welcome, ${res.user.username}!`);
@@ -307,7 +304,6 @@ const NutriVisionApp = () => {
             break;
           case 'dashboard':
             loadDashboardStats();
-            loadMealSuggestions();
             break;
           case 'profile':
             loadUserProfile();
@@ -363,16 +359,6 @@ const NutriVisionApp = () => {
       setDashboardStats(res);
     } catch (err) {
       console.error('Error loading dashboard stats:', err);
-    }
-  };
-
-  const loadMealSuggestions = async () => {
-    try {
-      const res = await apiCall('/meal-suggestions');
-      setMealSuggestions(res.suggestions || []);
-    } catch (err) {
-      console.error('Error loading meal suggestions:', err);
-      setMealSuggestions([]);
     }
   };
 
@@ -1283,21 +1269,6 @@ const NutriVisionApp = () => {
             </div>
           </div>
 
-          {mealSuggestions.length > 0 && (
-            <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
-              <h3 className="font-bold text-gray-900 mb-4">Meal Suggestions</h3>
-              <ul className="space-y-2">
-                {mealSuggestions.map((sug, idx) => (
-                  <li key={idx} className="flex items-start space-x-2">
-                    <CheckCircle className="w-4 h-4 mt-1 text-orange-500" />
-                    <span className="text-sm text-gray-700">
-                      {sug.title} - {sug.description}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
         </div>
       )}
 
