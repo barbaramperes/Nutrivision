@@ -1185,6 +1185,14 @@ def generate_highly_personalized_recipes(user, ingredients_list, preferences, co
     recipe_configs = create_creative_recipe_configs(preferences, count)
     recipes = []
     for i, config in enumerate(recipe_configs):
+        cooking_time_label = preferences['cooking_time']
+        if cooking_time_label == 'quick':
+            cooking_time_label = 'quick (under 20 minutes)'
+        elif cooking_time_label == 'medium':
+            cooking_time_label = 'medium (20-45 minutes)'
+        elif cooking_time_label == 'elaborate':
+            cooking_time_label = 'elaborate (over 45 minutes)'
+
         system_prompt = f"""You are a world-class creative chef and nutritionist with expertise in {config['cuisine_expertise']}.
 
         MISSION: Create a {config['creativity_level']} and {config['style_description']} recipe that is {config['meal_context']}.
@@ -1198,7 +1206,7 @@ def generate_highly_personalized_recipes(user, ingredients_list, preferences, co
         RECIPE REQUIREMENTS:
         - Meal type: {preferences['meal_type']}
         - Temperature preference: {preferences['temperature']}
-        - Cooking time: {preferences['cooking_time']}
+        - Cooking time: {cooking_time_label}
         - Cuisine style: {preferences['cuisine_style']}
         - Dietary preference: {preferences['dietary_pref']}
         - Creativity level: {config['creativity_level']}
@@ -1376,11 +1384,12 @@ def customize_for_preferences(config, preferences, index):
 
     # Tempo de preparo
     if preferences['cooking_time'] == 'quick':
+        # Force very short prep and cook times so the total stays under 20 min
         customizations['time_range'] = {
-            'prep_min': max(5, customizations.get('time_range', {}).get('prep_min', 10) - 5),
-            'prep_max': max(10, customizations.get('time_range', {}).get('prep_max', 15) - 5),
-            'cook_min': max(0, customizations.get('time_range', {}).get('cook_min', 15) - 10),
-            'cook_max': max(15, customizations.get('time_range', {}).get('cook_max', 25) - 10)
+            'prep_min': 5,
+            'prep_max': 10,
+            'cook_min': 5,
+            'cook_max': 10
         }
         customizations['difficulty'] = 'beginner'
     elif preferences['cooking_time'] == 'elaborate':
